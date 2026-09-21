@@ -1,0 +1,2962 @@
+{
+  "version": 1,
+  "users": [
+    {
+      "id": "USR-001",
+      "name": "Dr. T. Kaif (Citizen Reporter)",
+      "email": "citizen@sahyog.org",
+      "role": "citizen",
+      "created_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "USR-002",
+      "name": "Er. S. Rao (Chief Engineer, GHMC)",
+      "email": "govt@ghmc.gov.in",
+      "role": "government",
+      "org_id": "ORG-001",
+      "created_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "USR-003",
+      "name": "Prof. A. Farhan (Civil Tech Lab, LIET)",
+      "email": "univ@lords.ac.in",
+      "role": "university",
+      "org_id": "ORG-002",
+      "created_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "USR-004",
+      "name": "Rajesh K. (Project Lead, Deccan InfraTech)",
+      "email": "industry@deccaninfra.com",
+      "role": "industry",
+      "org_id": "ORG-003",
+      "created_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "USR-005",
+      "name": "Priya Sharma (SafeRoads Civic Foundation)",
+      "email": "ngo@saferoads.org",
+      "role": "ngo",
+      "org_id": "ORG-004",
+      "created_at": "2026-09-21T09:38:32.988Z"
+    }
+  ],
+  "organizations": [
+    {
+      "id": "ORG-001",
+      "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "type": "Government",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "Rajendranagar Circle Office, Hyderabad",
+      "expertise": "Urban road maintenance & statutory municipal oversight",
+      "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+      "capacity_score": 100,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.986Z"
+    },
+    {
+      "id": "ORG-002",
+      "name": "LIET Sustainable Infrastructure & Materials Lab",
+      "type": "University",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+      "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+      "resources": "Materials testing lab, student technical squad, core testing apparatus",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-003",
+      "name": "Deccan InfraTech Road Solutions Ltd.",
+      "type": "Industry",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "Kattedan Industrial Area, Hyderabad",
+      "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+      "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-004",
+      "name": "SafeRoads Community Safety Action Foundation",
+      "type": "NGO",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "Mehdipatnam, Hyderabad",
+      "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+      "resources": "Community volunteer network, reflective safety signage gear",
+      "capacity_score": 70,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-005",
+      "name": "Municipal Solid Waste Management Directorate",
+      "type": "Government",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "City Zone Office",
+      "expertise": "Scheduled route collection, dumping oversight, municipal zoning",
+      "resources": "Compactor vehicles, sanitation crew, disposal permits",
+      "capacity_score": 100,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-006",
+      "name": "GreenTech Environmental Engineering Lab",
+      "type": "University",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "City Institute of Technology",
+      "expertise": "Waste volume estimation, IoT sensor prototypes, composting science",
+      "resources": "IoT lab, ultrasonic sensor nodes, student data team",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-007",
+      "name": "ClearCity Recycling & Resource Recovery",
+      "type": "Industry",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "Industrial Estate, Hyderabad",
+      "expertise": "Mechanized waste segregation & material recycling",
+      "resources": "Segregation units, secondary collection vans",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-008",
+      "name": "Swachh Ward Citizen Volunteer Network",
+      "type": "NGO",
+      "jurisdiction": "State Jurisdiction",
+      "location": "Zone 4 Civic Center",
+      "expertise": "Community mobilization & source-segregation workshops",
+      "resources": "50+ community volunteers, bilingual educational material",
+      "capacity_score": 70,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-009",
+      "name": "Hyderabad Metropolitan Water Supply & Sewerage Board (HMWSSB)",
+      "type": "Government",
+      "jurisdiction": "State Jurisdiction",
+      "location": "Central Water Board Office",
+      "expertise": "Municipal mains supply lines & sewerage infrastructure",
+      "resources": "Pipeline repair teams, emergency isolation valves",
+      "capacity_score": 100,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-010",
+      "name": "AquaTech Water Engineering Research Center",
+      "type": "University",
+      "jurisdiction": "State Jurisdiction",
+      "location": "Institute of Engineering & Tech",
+      "expertise": "Hydraulic modeling, acoustic leak detection algorithms",
+      "resources": "Acoustic leak loggers, flow simulation software",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-011",
+      "name": "HydroFix Industrial Piping & Valving",
+      "type": "Industry",
+      "jurisdiction": "State Jurisdiction",
+      "location": "Cherlapally Industrial Area",
+      "expertise": "Trenchless slip-lining & rapid composite pipe clamping",
+      "resources": "Trenchless boring units, composite sleeves",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-012",
+      "name": "District Civic Administrative Authority",
+      "type": "Government",
+      "jurisdiction": "State Jurisdiction",
+      "location": "District Administration Complex",
+      "expertise": "Zonal civic administration & inter-departmental routing",
+      "resources": "Field inspection officers, municipal liaison staff",
+      "capacity_score": 100,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-013",
+      "name": "Urban Innovation & Applied Engineering Cell",
+      "type": "University",
+      "jurisdiction": "Hyderabad Metropolitan Region",
+      "location": "City Engineering College",
+      "expertise": "Applied societal engineering & low-cost solution prototyping",
+      "resources": "Prototyping makerspace, faculty advisory panel",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    },
+    {
+      "id": "ORG-014",
+      "name": "Local Engineering & Contracting Partner",
+      "type": "Industry",
+      "jurisdiction": "State Jurisdiction",
+      "location": "Regional Hub",
+      "expertise": "Turnkey civic civil and electrical execution",
+      "resources": "Equipment crews, field workforce",
+      "capacity_score": 80,
+      "is_demo": true,
+      "created_at": "2026-09-21T09:38:32.987Z"
+    }
+  ],
+  "problems": [
+    {
+      "id": "SY-2026-1109",
+      "title": "Damaged drainage pipeline spilling on college road",
+      "desc": "Stormwater pipeline cracked causing severe puddle",
+      "category": "Roads & Infrastructure",
+      "location": "Near LIET Campus, Hyderabad",
+      "affected": "—",
+      "severity": "Medium",
+      "stage": 7,
+      "date": "Today",
+      "mapX": 49.54480190917298,
+      "mapY": 46.04968791704809,
+      "landmark": "",
+      "datetime": "2026-09-21T09:39:31.698Z",
+      "contact": "",
+      "latitude": 17.3486,
+      "longitude": 78.3683,
+      "lat": 17.3486,
+      "lng": 78.3683,
+      "address": "Near LIET Campus, Hyderabad",
+      "location_source": "PHOTO_EXIF",
+      "location_accuracy": "~15m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:39:31.698Z",
+      "photos": [],
+      "solutions": [
+        {
+          "id": "S1789983584273",
+          "title": "High-Pressure Trenchless Sleeve Seal",
+          "org": "LIET Sustainable Infrastructure Lab",
+          "status": "Proposed",
+          "desc": "Polymer sleeve inserted without digging up road surface.",
+          "tech": "Trenchless slip-line",
+          "cost": "₹35,000",
+          "time": "2 days",
+          "impact": "High local impact"
+        }
+      ],
+      "verification": {
+        "resolved": true,
+        "comment": "Citizen on-ground inspection confirmed: drainage pipe fully sealed and road dry.",
+        "timestamp": "2026-09-21T09:39:55.293Z",
+        "verified_by": "Citizen Reporter"
+      },
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 92,
+        "terms": [
+          "road",
+          "crack"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "42 completed municipal road works (demo)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "7 applied university road stabilization pilots (demo)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "31 infrastructure execution contracts (demo)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 24,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "19 community road safety campaigns (demo)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 25,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 76,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-1109-01",
+          "problem_id": "SY-2026-1109",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Problem reported at Near LIET Campus, Hyderabad (Source: PHOTO_EXIF)",
+          "timestamp": "2026-09-21T09:39:31.698Z"
+        },
+        {
+          "id": "EV-SY-2026-1109-02",
+          "problem_id": "SY-2026-1109",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Ontology classified problem as \"Roads & Infrastructure\". Mandated Authority: Public Works Department",
+          "metadata": {
+            "method": "RULE_BASED_PROTOTYPE",
+            "confidence": 92
+          },
+          "timestamp": "2026-09-21T09:39:31.698Z"
+        },
+        {
+          "id": "EV-SY-2026-1109-03",
+          "problem_id": "SY-2026-1109",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Recommended 4 solver organizations across Government, University, Industry, and NGO sectors.",
+          "timestamp": "2026-09-21T09:39:31.698Z"
+        }
+      ],
+      "created_at": "2026-09-21T09:39:31.698Z",
+      "updated_at": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "SY-2026-00101",
+      "title": "Severe Road Damage & Potholes at College Main Entrance",
+      "desc": "Deep surface depressions and broken bitumen have formed right outside the college main entrance gate along Himayat Sagar arterial road. Potholes cause severe skidding risks for students on two-wheelers, pedestrian stumbling, and massive waterlogging during rains.",
+      "category": "Roads & Infrastructure",
+      "location": "Lord's Institute of Engg & Tech, Himayat Sagar, Hyderabad",
+      "affected": "~450 daily students & commuters (Demo Context)",
+      "severity": "High",
+      "stage": 3,
+      "date": "Today",
+      "landmark": "Near LIET Main Campus Gate, Himayat Sagar",
+      "datetime": "2026-09-21T09:30",
+      "lat": 17.3486,
+      "lng": 78.3683,
+      "mapX": 48,
+      "mapY": 42,
+      "photos": [
+        {
+          "src": "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22900%22%20height%3D%22560%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23eef3f8%22%2F%3E%3Crect%20x%3D%2225%22%20y%3D%2225%22%20width%3D%22850%22%20height%3D%22510%22%20rx%3D%2216%22%20fill%3D%22%23d9e5f2%22%20stroke%3D%22%23b4c7dc%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%22240%22%20r%3D%2270%22%20fill%3D%22%2314548f%22%20opacity%3D%22.12%22%2F%3E%3Cpath%20d%3D%22M420%20240%20L445%20265%20L485%20215%22%20stroke%3D%22%23178a56%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3Ctext%20x%3D%22450%22%20y%3D%22350%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2228%22%20fill%3D%22%2314548f%22%3ERoads%20%26amp%3B%20Infrastructure%3C%2Ftext%3E%3Ctext%20x%3D%22450%22%20y%3D%22390%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20fill%3D%22%2352647c%22%3EPotholes%20at%20Campus%20Gate%20(Realistic%20Demo%20Photo)%3C%2Ftext%3E%3Crect%20x%3D%22340%22%20y%3D%22425%22%20width%3D%22220%22%20height%3D%2234%22%20rx%3D%2217%22%20fill%3D%22%2314548f%22%2F%3E%3Ctext%20x%3D%22450%22%20y%3D%22448%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22bold%22%20fill%3D%22%23ffffff%22%3ESIH%202026%20DEMO%20EVIDENCE%3C%2Ftext%3E%3C%2Fsvg%3E",
+          "isVideo": false,
+          "name": "gate_pothole_evidence.jpg"
+        }
+      ],
+      "solutions": [
+        {
+          "id": "SOL-LIET-01",
+          "title": "Rapid Polymer Cold-Mix Patching with Engineered Base Stabilization",
+          "org": "LIET Sustainable Infrastructure & Materials Lab (with Deccan InfraTech)",
+          "status": "Under Review",
+          "desc": "Fast-curing cold composite asphalt patching developed by university researchers, utilizing crumb rubber modified binder for high monsoon water resistance. Deccan InfraTech provides mechanized compaction equipment for rapid 4-hour night deployment without blocking daytime traffic.",
+          "tech": "Polymer Cold-Mix Composite + Mechanized Vibratory Compaction",
+          "cost": "₹42,000 (Research subsidized)",
+          "time": "3 working days",
+          "impact": "~450 daily commuters, zero college entrance traffic disruptions"
+        }
+      ],
+      "verification": null,
+      "latitude": 17.3486,
+      "longitude": 78.3683,
+      "address": "Lord's Institute of Engg & Tech, Himayat Sagar, Hyderabad",
+      "location_source": "DEMO_LOCATION",
+      "location_accuracy": "Exact GPS (LIET Campus)",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 92,
+        "terms": [
+          "road",
+          "pothole"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "42 completed municipal road works (demo)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "7 applied university road stabilization pilots (demo)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "31 infrastructure execution contracts (demo)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 24,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "19 community road safety campaigns (demo)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 25,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 76,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00101-01",
+          "problem_id": "SY-2026-00101",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Lord's Institute of Engg & Tech, Himayat Sagar, Hyderabad",
+          "timestamp": "2026-09-21T01:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00101-02",
+          "problem_id": "SY-2026-00101",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Roads & Infrastructure -> Public Works Department",
+          "timestamp": "2026-09-21T01:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00101-03",
+          "problem_id": "SY-2026-00101",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 4 organizations",
+          "timestamp": "2026-09-21T02:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00101-04",
+          "problem_id": "SY-2026-00101",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T03:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00101-05",
+          "problem_id": "SY-2026-00101",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Rapid Polymer Cold-Mix Patching with Engineered Base Stabilization\" submitted by LIET Sustainable Infrastructure & Materials Lab (with Deccan InfraTech)",
+          "timestamp": "2026-09-21T05:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00120",
+      "title": "Damaged road & cracked culvert, Sector 9 crossing",
+      "desc": "Deep depressions and broken culvert masonry near Sector 9 crossing after heavy rains, causing traffic bottlenecks and vehicle underbody damage.",
+      "category": "Roads & Infrastructure",
+      "location": "Sector 9 Crossing, Pune",
+      "affected": 420,
+      "severity": "High",
+      "stage": 2,
+      "date": "4 Sept 2026",
+      "mapX": 55,
+      "mapY": 22,
+      "photos": [],
+      "solutions": [],
+      "verification": null,
+      "latitude": 17.407,
+      "longitude": 78.5417,
+      "address": "Sector 9 Crossing, Pune",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 92,
+        "terms": [
+          "road",
+          "crack"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "42 completed municipal road works (demo)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "7 applied university road stabilization pilots (demo)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "31 infrastructure execution contracts (demo)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 24,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "19 community road safety campaigns (demo)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 25,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 76,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00120-01",
+          "problem_id": "SY-2026-00120",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Sector 9 Crossing, Pune",
+          "timestamp": "2026-09-21T02:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00120-02",
+          "problem_id": "SY-2026-00120",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Roads & Infrastructure -> Public Works Department",
+          "timestamp": "2026-09-21T02:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00120-03",
+          "problem_id": "SY-2026-00120",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 4 organizations",
+          "timestamp": "2026-09-21T03:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00121",
+      "title": "Water supply mains leakage near bus stand",
+      "desc": "Treated water pipeline connection has fractured near platform 3, releasing continuous water runoff and eroding the concrete pedestrian footpath.",
+      "category": "Water & Sanitation",
+      "location": "Majestic Bus Terminal, Bengaluru",
+      "affected": 260,
+      "severity": "Medium",
+      "stage": 3,
+      "date": "5 Sept 2026",
+      "mapX": 42,
+      "mapY": 58,
+      "photos": [],
+      "solutions": [
+        {
+          "id": "S1",
+          "title": "Composite pipe sleeving & pressure-relief valve install",
+          "org": "AquaTech Water Engineering Research Center",
+          "status": "Proposed",
+          "desc": "Non-invasive composite patch sleeving with automated pressure-relief valve to prevent structural pressure surges.",
+          "tech": "Composite pipe patching",
+          "cost": "₹85,000",
+          "time": "2 weeks",
+          "impact": "260+ daily commuters"
+        }
+      ],
+      "verification": null,
+      "latitude": 17.443,
+      "longitude": 78.5287,
+      "address": "Majestic Bus Terminal, Bengaluru",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Water & Sanitation",
+        "subcategory": "Water Leakage",
+        "authority": "Water Supply & Sewerage Board",
+        "reason": "This board is responsible for water supply and sewerage systems in the selected area.",
+        "action": "Leak inspection and pipeline assessment.",
+        "confidence": 97,
+        "terms": [
+          "water",
+          "leak",
+          "pipe"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Hyderabad Metropolitan Water Supply & Sewerage Board (HMWSSB)",
+          "type": "Government",
+          "roleInProblem": "Statutory Pipeline Authority",
+          "expertise": "Municipal mains supply lines & sewerage infrastructure",
+          "location": "Central Water Board Office",
+          "resources": "Pipeline repair teams, emergency isolation valves",
+          "projects": "47 water board interventions (demo)",
+          "reasons": [
+            "Statutory custody of distribution pipelines",
+            "Mandated authority for supply shutdowns"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "AquaTech Water Engineering Research Center",
+          "type": "University",
+          "roleInProblem": "Acoustic Leak Detection & Pressure Modeling",
+          "expertise": "Hydraulic modeling, acoustic leak detection algorithms",
+          "location": "Institute of Engineering & Tech",
+          "resources": "Acoustic leak loggers, flow simulation software",
+          "projects": "8 smart water grid pilot studies (demo)",
+          "reasons": [
+            "Specialized non-invasive pipeline assessment",
+            "Student research support"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 25,
+            "expertise": 18,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "HydroFix Industrial Piping & Valving",
+          "type": "Industry",
+          "roleInProblem": "Trenchless Repair & Composite Sleeving",
+          "expertise": "Trenchless slip-lining & rapid composite pipe clamping",
+          "location": "Cherlapally Industrial Area",
+          "resources": "Trenchless boring units, composite sleeves",
+          "projects": "18 industrial pipeline repair jobs (demo)",
+          "reasons": [
+            "No-dig repair capabilities avoiding road excavation",
+            "Quick deployment response"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 24,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00121-01",
+          "problem_id": "SY-2026-00121",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Majestic Bus Terminal, Bengaluru",
+          "timestamp": "2026-09-21T03:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00121-02",
+          "problem_id": "SY-2026-00121",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Water & Sanitation -> Water Supply & Sewerage Board",
+          "timestamp": "2026-09-21T03:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00121-03",
+          "problem_id": "SY-2026-00121",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 3 organizations",
+          "timestamp": "2026-09-21T04:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00121-04",
+          "problem_id": "SY-2026-00121",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T05:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00121-05",
+          "problem_id": "SY-2026-00121",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Composite pipe sleeving & pressure-relief valve install\" submitted by AquaTech Water Engineering Research Center",
+          "timestamp": "2026-09-21T07:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00122",
+      "title": "Stormwater drainage overflow during rainfall",
+      "desc": "The primary stormwater drain channel overflows into residential boundary walls every time rainfall exceeds 20mm/hr due to sediment accumulation.",
+      "category": "Drainage",
+      "location": "Velachery Zone, Chennai",
+      "affected": 610,
+      "severity": "High",
+      "stage": 4,
+      "date": "1 Sept 2026",
+      "mapX": 70,
+      "mapY": 44,
+      "photos": [],
+      "solutions": [
+        {
+          "id": "S2",
+          "title": "Pre-cast concrete culvert widening & hydraulic desilting",
+          "org": "Municipal Drainage Division",
+          "status": "Approved",
+          "desc": "Widen hydraulic channel cross-section with high-strength precast box culverts and automated silt trap mesh.",
+          "tech": "Mechanical desilting + precast box culverts",
+          "cost": "₹4,20,000",
+          "time": "4 weeks",
+          "impact": "610+ neighborhood residents"
+        }
+      ],
+      "verification": null,
+      "latitude": 17.429000000000002,
+      "longitude": 78.55669999999999,
+      "address": "Velachery Zone, Chennai",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Drainage",
+        "subcategory": "Drainage Blockage",
+        "authority": "Municipal Drainage Division",
+        "reason": "This division is responsible for stormwater and drainage systems in the selected area.",
+        "action": "Drainage survey and blockage clearance.",
+        "confidence": 97,
+        "terms": [
+          "drain",
+          "overflow",
+          "drainage"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "District Civic Administrative Authority",
+          "type": "Government",
+          "roleInProblem": "Statutory Verification & Oversight",
+          "expertise": "Zonal civic administration & inter-departmental routing",
+          "location": "District Administration Complex",
+          "resources": "Field inspection officers, municipal liaison staff",
+          "projects": "25 administrative referrals (demo)",
+          "reasons": [
+            "General statutory responsibility for civic infrastructure"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 10
+          },
+          "score": 88,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Urban Innovation & Applied Engineering Cell",
+          "type": "University",
+          "roleInProblem": "Technical Assessment & Design Prototype",
+          "expertise": "Applied societal engineering & low-cost solution prototyping",
+          "location": "City Engineering College",
+          "resources": "Prototyping makerspace, faculty advisory panel",
+          "projects": "11 civic engineering prototypes (demo)",
+          "reasons": [
+            "Interdisciplinary engineering student project capability"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 25,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 83,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Local Engineering & Contracting Partner",
+          "type": "Industry",
+          "roleInProblem": "Field Procurement & Execution",
+          "expertise": "Turnkey civic civil and electrical execution",
+          "location": "Regional Hub",
+          "resources": "Equipment crews, field workforce",
+          "projects": "15 local civil executions (demo)",
+          "reasons": [
+            "On-ground deployment capability in municipal jurisdiction"
+          ],
+          "factors": {
+            "domain": 32,
+            "jurisdiction": 24,
+            "expertise": 15,
+            "capacity": 8
+          },
+          "score": 79,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00122-01",
+          "problem_id": "SY-2026-00122",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Velachery Zone, Chennai",
+          "timestamp": "2026-09-21T04:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00122-02",
+          "problem_id": "SY-2026-00122",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Drainage -> Municipal Drainage Division",
+          "timestamp": "2026-09-21T04:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00122-03",
+          "problem_id": "SY-2026-00122",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 3 organizations",
+          "timestamp": "2026-09-21T05:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00122-04",
+          "problem_id": "SY-2026-00122",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T06:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00122-05",
+          "problem_id": "SY-2026-00122",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Pre-cast concrete culvert widening & hydraulic desilting\" submitted by Municipal Drainage Division",
+          "timestamp": "2026-09-21T08:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00123",
+      "title": "Sanitation facility repair & maintenance schedule",
+      "desc": "The community public sanitation facility has broken fixtures, low water pressure, and lack of regular maintenance oversight.",
+      "category": "Healthcare",
+      "location": "Old City Ward, Hyderabad",
+      "affected": 90,
+      "severity": "Low",
+      "stage": 5,
+      "date": "29 Aug 2026",
+      "mapX": 33,
+      "mapY": 66,
+      "photos": [],
+      "solutions": [
+        {
+          "id": "S3",
+          "title": "Water-efficient fixture overhaul & community maintenance schedule",
+          "org": "District Health & Sanitation Department",
+          "status": "In Deployment",
+          "desc": "Installation of vandal-resistant push taps, dual-flush cisterns, and a digital attendance log for daily cleaning shifts.",
+          "tech": "Water-efficient fixtures + digital inspection log",
+          "cost": "₹18,000",
+          "time": "1 week",
+          "impact": "90+ neighborhood residents"
+        }
+      ],
+      "verification": null,
+      "latitude": 17.451,
+      "longitude": 78.5197,
+      "address": "Old City Ward, Hyderabad",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Water & Sanitation",
+        "subcategory": "Water Leakage",
+        "authority": "Water Supply & Sewerage Board",
+        "reason": "This board is responsible for water supply and sewerage systems in the selected area.",
+        "action": "Leak inspection and pipeline assessment.",
+        "confidence": 92,
+        "terms": [
+          "water",
+          "sanitation"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Hyderabad Metropolitan Water Supply & Sewerage Board (HMWSSB)",
+          "type": "Government",
+          "roleInProblem": "Statutory Pipeline Authority",
+          "expertise": "Municipal mains supply lines & sewerage infrastructure",
+          "location": "Central Water Board Office",
+          "resources": "Pipeline repair teams, emergency isolation valves",
+          "projects": "47 water board interventions (demo)",
+          "reasons": [
+            "Statutory custody of distribution pipelines",
+            "Mandated authority for supply shutdowns"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "AquaTech Water Engineering Research Center",
+          "type": "University",
+          "roleInProblem": "Acoustic Leak Detection & Pressure Modeling",
+          "expertise": "Hydraulic modeling, acoustic leak detection algorithms",
+          "location": "Institute of Engineering & Tech",
+          "resources": "Acoustic leak loggers, flow simulation software",
+          "projects": "8 smart water grid pilot studies (demo)",
+          "reasons": [
+            "Specialized non-invasive pipeline assessment",
+            "Student research support"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 25,
+            "expertise": 18,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "HydroFix Industrial Piping & Valving",
+          "type": "Industry",
+          "roleInProblem": "Trenchless Repair & Composite Sleeving",
+          "expertise": "Trenchless slip-lining & rapid composite pipe clamping",
+          "location": "Cherlapally Industrial Area",
+          "resources": "Trenchless boring units, composite sleeves",
+          "projects": "18 industrial pipeline repair jobs (demo)",
+          "reasons": [
+            "No-dig repair capabilities avoiding road excavation",
+            "Quick deployment response"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 24,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00123-01",
+          "problem_id": "SY-2026-00123",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Old City Ward, Hyderabad",
+          "timestamp": "2026-09-21T05:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00123-02",
+          "problem_id": "SY-2026-00123",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Water & Sanitation -> Water Supply & Sewerage Board",
+          "timestamp": "2026-09-21T05:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00123-03",
+          "problem_id": "SY-2026-00123",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 3 organizations",
+          "timestamp": "2026-09-21T06:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00123-04",
+          "problem_id": "SY-2026-00123",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T07:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00123-05",
+          "problem_id": "SY-2026-00123",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Water-efficient fixture overhaul & community maintenance schedule\" submitted by District Health & Sanitation Department",
+          "timestamp": "2026-09-21T09:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00123-06",
+          "problem_id": "SY-2026-00123",
+          "event_type": "SOLUTION_APPROVED",
+          "stage": 5,
+          "actor_role": "Government",
+          "description": "Statutory civic permit and technical validation granted",
+          "timestamp": "2026-09-21T11:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00124",
+      "title": "Overflowing municipal garbage near residential lane",
+      "desc": "Solid municipal waste accumulated along boundary lane for 6 consecutive days, leading to odor, stray animal disturbance, and blocked walkway.",
+      "category": "Waste Management",
+      "location": "Banjara Hills Sector 4, Hyderabad",
+      "affected": 250,
+      "severity": "High",
+      "stage": 7,
+      "date": "27 Aug 2026",
+      "mapX": 60,
+      "mapY": 70,
+      "photos": [],
+      "solutions": [
+        {
+          "id": "S4",
+          "title": "Dual-compartment smart bins & scheduled morning route rerouting",
+          "org": "ClearCity Recycling & Resource Recovery",
+          "status": "Completed",
+          "desc": "Added automated morning compactor stop, established source-segregation bins with neighborhood volunteer monitoring.",
+          "tech": "Route optimization & dual segregation bins",
+          "cost": "₹1,10,000",
+          "time": "3 weeks",
+          "impact": "250+ residents"
+        }
+      ],
+      "verification": {
+        "resolved": true,
+        "comment": "Citizen on-ground sign-off: Waste cleared on schedule every morning. No overflow observed for 2 weeks. Problem closed successfully."
+      },
+      "latitude": 17.455000000000002,
+      "longitude": 78.5467,
+      "address": "Banjara Hills Sector 4, Hyderabad",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Waste Management",
+        "subcategory": "Garbage Overflow",
+        "authority": "Municipal Waste Management Department",
+        "reason": "This department is responsible for waste collection and sanitation services in the selected area.",
+        "action": "Field verification and waste collection assessment.",
+        "confidence": 97,
+        "terms": [
+          "garbage",
+          "waste",
+          "overflow"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Municipal Solid Waste Management Directorate",
+          "type": "Government",
+          "roleInProblem": "Statutory Civic Sanitation & Zoning",
+          "expertise": "Scheduled route collection, dumping oversight, municipal zoning",
+          "location": "City Zone Office",
+          "resources": "Compactor vehicles, sanitation crew, disposal permits",
+          "projects": "34 completed sanitation drives (demo)",
+          "reasons": [
+            "Direct civic mandate for zone sanitation",
+            "Authority for waste disposal routing"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 28,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 94,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "GreenTech Environmental Engineering Lab",
+          "type": "University",
+          "roleInProblem": "Smart IoT Fill-Level Sensing & Optimization",
+          "expertise": "Waste volume estimation, IoT sensor prototypes, composting science",
+          "location": "City Institute of Technology",
+          "resources": "IoT lab, ultrasonic sensor nodes, student data team",
+          "projects": "9 university environmental sensor pilots (demo)",
+          "reasons": [
+            "Smart bin telemetry research",
+            "Prior localized waste optimization models"
+          ],
+          "factors": {
+            "domain": 35,
+            "jurisdiction": 26,
+            "expertise": 18,
+            "capacity": 8
+          },
+          "score": 87,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "ClearCity Recycling & Resource Recovery",
+          "type": "Industry",
+          "roleInProblem": "Secondary Processing & Rapid Collection Fleet",
+          "expertise": "Mechanized waste segregation & material recycling",
+          "location": "Industrial Estate, Hyderabad",
+          "resources": "Segregation units, secondary collection vans",
+          "projects": "21 contracted recovery projects (demo)",
+          "reasons": [
+            "Private recycling capacity",
+            "Available on-demand secondary logistics"
+          ],
+          "factors": {
+            "domain": 33,
+            "jurisdiction": 25,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 82,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Swachh Ward Citizen Volunteer Network",
+          "type": "NGO",
+          "roleInProblem": "Door-to-Door Citizen Segregation Awareness",
+          "expertise": "Community mobilization & source-segregation workshops",
+          "location": "Zone 4 Civic Center",
+          "resources": "50+ community volunteers, bilingual educational material",
+          "projects": "14 citizen awareness campaigns (demo)",
+          "reasons": [
+            "Grassroots presence in residential sector",
+            "Assistance in ground verification"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 26,
+            "expertise": 13,
+            "capacity": 7
+          },
+          "score": 76,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00124-01",
+          "problem_id": "SY-2026-00124",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Banjara Hills Sector 4, Hyderabad",
+          "timestamp": "2026-09-21T06:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-02",
+          "problem_id": "SY-2026-00124",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Waste Management -> Municipal Waste Management Department",
+          "timestamp": "2026-09-21T06:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-03",
+          "problem_id": "SY-2026-00124",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 4 organizations",
+          "timestamp": "2026-09-21T07:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-04",
+          "problem_id": "SY-2026-00124",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T08:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-05",
+          "problem_id": "SY-2026-00124",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Dual-compartment smart bins & scheduled morning route rerouting\" submitted by ClearCity Recycling & Resource Recovery",
+          "timestamp": "2026-09-21T10:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-06",
+          "problem_id": "SY-2026-00124",
+          "event_type": "SOLUTION_APPROVED",
+          "stage": 5,
+          "actor_role": "Government",
+          "description": "Statutory civic permit and technical validation granted",
+          "timestamp": "2026-09-21T12:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00124-07",
+          "problem_id": "SY-2026-00124",
+          "event_type": "VERIFIED",
+          "stage": 8,
+          "actor_role": "Citizen",
+          "description": "Citizen on-ground verification: CONFIRMED RESOLVED — \"Citizen on-ground sign-off: Waste cleared on schedule every morning. No overflow observed for 2 weeks. Problem closed successfully.\"",
+          "timestamp": "2026-09-21T08:38:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00119",
+      "title": "Broken street lighting on market transit corridor",
+      "desc": "Six sequential LED street luminaires have ceased functioning along the secondary market approach road, creating severe night safety concerns.",
+      "category": "Street Lighting",
+      "location": "Charminar Market Road, Hyderabad",
+      "affected": 180,
+      "severity": "Medium",
+      "stage": 1,
+      "date": "3 Sept 2026",
+      "mapX": 28,
+      "mapY": 34,
+      "photos": [],
+      "solutions": [],
+      "verification": null,
+      "latitude": 17.419,
+      "longitude": 78.5147,
+      "address": "Charminar Market Road, Hyderabad",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Environment",
+        "subcategory": "Ecological Concern",
+        "authority": "State Pollution Control Board",
+        "reason": "This authority typically handles cases in this category for the selected area.",
+        "action": "Field verification and assessment.",
+        "confidence": 92,
+        "terms": [
+          "tree",
+          "air"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "District Civic Administrative Authority",
+          "type": "Government",
+          "roleInProblem": "Statutory Verification & Oversight",
+          "expertise": "Zonal civic administration & inter-departmental routing",
+          "location": "District Administration Complex",
+          "resources": "Field inspection officers, municipal liaison staff",
+          "projects": "25 administrative referrals (demo)",
+          "reasons": [
+            "General statutory responsibility for civic infrastructure"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 10
+          },
+          "score": 88,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Urban Innovation & Applied Engineering Cell",
+          "type": "University",
+          "roleInProblem": "Technical Assessment & Design Prototype",
+          "expertise": "Applied societal engineering & low-cost solution prototyping",
+          "location": "City Engineering College",
+          "resources": "Prototyping makerspace, faculty advisory panel",
+          "projects": "11 civic engineering prototypes (demo)",
+          "reasons": [
+            "Interdisciplinary engineering student project capability"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 25,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 83,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Local Engineering & Contracting Partner",
+          "type": "Industry",
+          "roleInProblem": "Field Procurement & Execution",
+          "expertise": "Turnkey civic civil and electrical execution",
+          "location": "Regional Hub",
+          "resources": "Equipment crews, field workforce",
+          "projects": "15 local civil executions (demo)",
+          "reasons": [
+            "On-ground deployment capability in municipal jurisdiction"
+          ],
+          "factors": {
+            "domain": 32,
+            "jurisdiction": 24,
+            "expertise": 15,
+            "capacity": 8
+          },
+          "score": 79,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00119-01",
+          "problem_id": "SY-2026-00119",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Charminar Market Road, Hyderabad",
+          "timestamp": "2026-09-21T07:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00119-02",
+          "problem_id": "SY-2026-00119",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Environment -> State Pollution Control Board",
+          "timestamp": "2026-09-21T07:39:32.988Z"
+        }
+      ]
+    },
+    {
+      "id": "SY-2026-00106",
+      "title": "Hazardous pedestrian crossing without signal or speed breaker",
+      "desc": "School students and elderly residents face speeding vehicular traffic at an uncontrolled junction without pedestrian refuge island or rumble strips.",
+      "category": "Public Safety",
+      "location": "Mehdipatnam Junction, Hyderabad",
+      "severity": "Critical",
+      "stage": 4,
+      "affected": 700,
+      "mapX": 72,
+      "mapY": 58,
+      "date": "Yesterday",
+      "photos": [
+        {
+          "src": "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22900%22%20height%3D%22560%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23eef3f8%22%2F%3E%3Crect%20x%3D%2225%22%20y%3D%2225%22%20width%3D%22850%22%20height%3D%22510%22%20rx%3D%2216%22%20fill%3D%22%23d9e5f2%22%20stroke%3D%22%23b4c7dc%22%20stroke-width%3D%222%22%2F%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%22240%22%20r%3D%2270%22%20fill%3D%22%2314548f%22%20opacity%3D%22.12%22%2F%3E%3Cpath%20d%3D%22M420%20240%20L445%20265%20L485%20215%22%20stroke%3D%22%23178a56%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22%2F%3E%3Ctext%20x%3D%22450%22%20y%3D%22350%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-weight%3D%22bold%22%20font-size%3D%2228%22%20fill%3D%22%2314548f%22%3EPublic%20Safety%3C%2Ftext%3E%3Ctext%20x%3D%22450%22%20y%3D%22390%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20fill%3D%22%2352647c%22%3EPedestrian%20Crossing%20Hazard%20(Demo%20Evidence)%3C%2Ftext%3E%3Crect%20x%3D%22340%22%20y%3D%22425%22%20width%3D%22220%22%20height%3D%2234%22%20rx%3D%2217%22%20fill%3D%22%2314548f%22%2F%3E%3Ctext%20x%3D%22450%22%20y%3D%22448%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2213%22%20font-weight%3D%22bold%22%20fill%3D%22%23ffffff%22%3ESIH%202026%20DEMO%20EVIDENCE%3C%2Ftext%3E%3C%2Fsvg%3E",
+          "isVideo": false
+        }
+      ],
+      "solutions": [
+        {
+          "id": "S5",
+          "title": "Solar-powered flashing pedestrian beacons & high-friction thermoplastic rumble strips",
+          "org": "SafeRoads Community Safety Action Foundation",
+          "status": "Approved",
+          "desc": "Installation of solar warning blinkers, reflective pedestrian bollards, and high-visibility zebra markings with student crossing guards.",
+          "tech": "Solar LED Blinkers + Thermoplastic markings",
+          "cost": "₹65,000",
+          "time": "10 days",
+          "impact": "700+ daily pedestrians"
+        }
+      ],
+      "verification": null,
+      "latitude": 17.443,
+      "longitude": 78.5587,
+      "address": "Mehdipatnam Junction, Hyderabad",
+      "location_source": "MAP_SELECTED",
+      "location_accuracy": "~25m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-21T09:38:32.988Z",
+      "ai": {
+        "category": "Education",
+        "subcategory": "Infrastructure Gap",
+        "authority": "Department of Education",
+        "reason": "This authority typically handles cases in this category for the selected area.",
+        "action": "Field verification and assessment.",
+        "confidence": 85,
+        "terms": [
+          "school"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "District Civic Administrative Authority",
+          "type": "Government",
+          "roleInProblem": "Statutory Verification & Oversight",
+          "expertise": "Zonal civic administration & inter-departmental routing",
+          "location": "District Administration Complex",
+          "resources": "Field inspection officers, municipal liaison staff",
+          "projects": "25 administrative referrals (demo)",
+          "reasons": [
+            "General statutory responsibility for civic infrastructure"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 10
+          },
+          "score": 88,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Urban Innovation & Applied Engineering Cell",
+          "type": "University",
+          "roleInProblem": "Technical Assessment & Design Prototype",
+          "expertise": "Applied societal engineering & low-cost solution prototyping",
+          "location": "City Engineering College",
+          "resources": "Prototyping makerspace, faculty advisory panel",
+          "projects": "11 civic engineering prototypes (demo)",
+          "reasons": [
+            "Interdisciplinary engineering student project capability"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 25,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 83,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Local Engineering & Contracting Partner",
+          "type": "Industry",
+          "roleInProblem": "Field Procurement & Execution",
+          "expertise": "Turnkey civic civil and electrical execution",
+          "location": "Regional Hub",
+          "resources": "Equipment crews, field workforce",
+          "projects": "15 local civil executions (demo)",
+          "reasons": [
+            "On-ground deployment capability in municipal jurisdiction"
+          ],
+          "factors": {
+            "domain": 32,
+            "jurisdiction": 24,
+            "expertise": 15,
+            "capacity": 8
+          },
+          "score": 79,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "events": [
+        {
+          "id": "EV-SY-2026-00106-01",
+          "problem_id": "SY-2026-00106",
+          "event_type": "REPORTED",
+          "stage": 1,
+          "actor_role": "Citizen",
+          "description": "Citizen submitted problem report at Mehdipatnam Junction, Hyderabad",
+          "timestamp": "2026-09-21T08:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00106-02",
+          "problem_id": "SY-2026-00106",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Rule-based classification assigned to Education -> Department of Education",
+          "timestamp": "2026-09-21T08:39:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00106-03",
+          "problem_id": "SY-2026-00106",
+          "event_type": "MATCHED",
+          "stage": 2,
+          "actor_role": "System",
+          "description": "Multi-stakeholder solver matching recommended 3 organizations",
+          "timestamp": "2026-09-21T09:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00106-04",
+          "problem_id": "SY-2026-00106",
+          "event_type": "ASSIGNED",
+          "stage": 3,
+          "actor_role": "Government",
+          "description": "Statutory authority acknowledged problem and opened solution collaboration",
+          "timestamp": "2026-09-21T10:38:32.988Z"
+        },
+        {
+          "id": "EV-SY-2026-00106-05",
+          "problem_id": "SY-2026-00106",
+          "event_type": "SOLUTION_PROPOSED",
+          "stage": 4,
+          "actor_role": "University",
+          "description": "Solution proposal \"Solar-powered flashing pedestrian beacons & high-friction thermoplastic rumble strips\" submitted by SafeRoads Community Safety Action Foundation",
+          "timestamp": "2026-09-21T12:38:32.988Z"
+        }
+      ]
+    }
+  ],
+  "problem_classifications": [
+    {
+      "id": "CLS-SY-2026-00101",
+      "problem_id": "SY-2026-00101",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 92,
+      "matched_terms": [
+        "road",
+        "pothole"
+      ],
+      "created_at": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00120",
+      "problem_id": "SY-2026-00120",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 92,
+      "matched_terms": [
+        "road",
+        "crack"
+      ],
+      "created_at": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00121",
+      "problem_id": "SY-2026-00121",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Water & Sanitation",
+      "subcategory": "Water Leakage",
+      "authority": "Water Supply & Sewerage Board",
+      "reason": "This board is responsible for water supply and sewerage systems in the selected area.",
+      "action": "Leak inspection and pipeline assessment.",
+      "confidence": 97,
+      "matched_terms": [
+        "water",
+        "leak",
+        "pipe"
+      ],
+      "created_at": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00122",
+      "problem_id": "SY-2026-00122",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Drainage",
+      "subcategory": "Drainage Blockage",
+      "authority": "Municipal Drainage Division",
+      "reason": "This division is responsible for stormwater and drainage systems in the selected area.",
+      "action": "Drainage survey and blockage clearance.",
+      "confidence": 97,
+      "matched_terms": [
+        "drain",
+        "overflow",
+        "drainage"
+      ],
+      "created_at": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00123",
+      "problem_id": "SY-2026-00123",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Water & Sanitation",
+      "subcategory": "Water Leakage",
+      "authority": "Water Supply & Sewerage Board",
+      "reason": "This board is responsible for water supply and sewerage systems in the selected area.",
+      "action": "Leak inspection and pipeline assessment.",
+      "confidence": 92,
+      "matched_terms": [
+        "water",
+        "sanitation"
+      ],
+      "created_at": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00124",
+      "problem_id": "SY-2026-00124",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Waste Management",
+      "subcategory": "Garbage Overflow",
+      "authority": "Municipal Waste Management Department",
+      "reason": "This department is responsible for waste collection and sanitation services in the selected area.",
+      "action": "Field verification and waste collection assessment.",
+      "confidence": 97,
+      "matched_terms": [
+        "garbage",
+        "waste",
+        "overflow"
+      ],
+      "created_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00119",
+      "problem_id": "SY-2026-00119",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Environment",
+      "subcategory": "Ecological Concern",
+      "authority": "State Pollution Control Board",
+      "reason": "This authority typically handles cases in this category for the selected area.",
+      "action": "Field verification and assessment.",
+      "confidence": 92,
+      "matched_terms": [
+        "tree",
+        "air"
+      ],
+      "created_at": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-00106",
+      "problem_id": "SY-2026-00106",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Education",
+      "subcategory": "Infrastructure Gap",
+      "authority": "Department of Education",
+      "reason": "This authority typically handles cases in this category for the selected area.",
+      "action": "Field verification and assessment.",
+      "confidence": 85,
+      "matched_terms": [
+        "school"
+      ],
+      "created_at": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "CLS-SY-2026-1109",
+      "problem_id": "SY-2026-1109",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 92,
+      "matched_terms": [
+        "road",
+        "crack"
+      ],
+      "created_at": "2026-09-21T09:39:31.698Z"
+    }
+  ],
+  "solver_matches": [
+    {
+      "id": "MTC-SY-2026-00101-1",
+      "problem_id": "SY-2026-00101",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 94,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00101-2",
+      "problem_id": "SY-2026-00101",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 87,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00101-3",
+      "problem_id": "SY-2026-00101",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 82,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00101-4",
+      "problem_id": "SY-2026-00101",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 76,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00120-1",
+      "problem_id": "SY-2026-00120",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 94,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00120-2",
+      "problem_id": "SY-2026-00120",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 87,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00120-3",
+      "problem_id": "SY-2026-00120",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 82,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00120-4",
+      "problem_id": "SY-2026-00120",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 76,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00121-1",
+      "problem_id": "SY-2026-00121",
+      "org_name": "Hyderabad Metropolitan Water Supply & Sewerage Board (HMWSSB)",
+      "org_type": "Government",
+      "score": 94,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Pipeline Authority",
+      "status": "accepted",
+      "created_at": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00121-2",
+      "problem_id": "SY-2026-00121",
+      "org_name": "AquaTech Water Engineering Research Center",
+      "org_type": "University",
+      "score": 87,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 18,
+      "factor_capacity": 8,
+      "role_in_problem": "Acoustic Leak Detection & Pressure Modeling",
+      "status": "recommended",
+      "created_at": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00121-3",
+      "problem_id": "SY-2026-00121",
+      "org_name": "HydroFix Industrial Piping & Valving",
+      "org_type": "Industry",
+      "score": 82,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Trenchless Repair & Composite Sleeving",
+      "status": "recommended",
+      "created_at": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00122-1",
+      "problem_id": "SY-2026-00122",
+      "org_name": "District Civic Administrative Authority",
+      "org_type": "Government",
+      "score": 88,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Verification & Oversight",
+      "status": "accepted",
+      "created_at": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00122-2",
+      "problem_id": "SY-2026-00122",
+      "org_name": "Urban Innovation & Applied Engineering Cell",
+      "org_type": "University",
+      "score": 83,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Technical Assessment & Design Prototype",
+      "status": "recommended",
+      "created_at": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00122-3",
+      "problem_id": "SY-2026-00122",
+      "org_name": "Local Engineering & Contracting Partner",
+      "org_type": "Industry",
+      "score": 79,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 32,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 15,
+      "factor_capacity": 8,
+      "role_in_problem": "Field Procurement & Execution",
+      "status": "recommended",
+      "created_at": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00123-1",
+      "problem_id": "SY-2026-00123",
+      "org_name": "Hyderabad Metropolitan Water Supply & Sewerage Board (HMWSSB)",
+      "org_type": "Government",
+      "score": 94,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Pipeline Authority",
+      "status": "accepted",
+      "created_at": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00123-2",
+      "problem_id": "SY-2026-00123",
+      "org_name": "AquaTech Water Engineering Research Center",
+      "org_type": "University",
+      "score": 87,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 18,
+      "factor_capacity": 8,
+      "role_in_problem": "Acoustic Leak Detection & Pressure Modeling",
+      "status": "recommended",
+      "created_at": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00123-3",
+      "problem_id": "SY-2026-00123",
+      "org_name": "HydroFix Industrial Piping & Valving",
+      "org_type": "Industry",
+      "score": 82,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Trenchless Repair & Composite Sleeving",
+      "status": "recommended",
+      "created_at": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00124-1",
+      "problem_id": "SY-2026-00124",
+      "org_name": "Municipal Solid Waste Management Directorate",
+      "org_type": "Government",
+      "score": 94,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Civic Sanitation & Zoning",
+      "status": "accepted",
+      "created_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00124-2",
+      "problem_id": "SY-2026-00124",
+      "org_name": "GreenTech Environmental Engineering Lab",
+      "org_type": "University",
+      "score": 87,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 35,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 18,
+      "factor_capacity": 8,
+      "role_in_problem": "Smart IoT Fill-Level Sensing & Optimization",
+      "status": "recommended",
+      "created_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00124-3",
+      "problem_id": "SY-2026-00124",
+      "org_name": "ClearCity Recycling & Resource Recovery",
+      "org_type": "Industry",
+      "score": 82,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 33,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Secondary Processing & Rapid Collection Fleet",
+      "status": "recommended",
+      "created_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00124-4",
+      "problem_id": "SY-2026-00124",
+      "org_name": "Swachh Ward Citizen Volunteer Network",
+      "org_type": "NGO",
+      "score": 76,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 13,
+      "factor_capacity": 7,
+      "role_in_problem": "Door-to-Door Citizen Segregation Awareness",
+      "status": "recommended",
+      "created_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00119-1",
+      "problem_id": "SY-2026-00119",
+      "org_name": "District Civic Administrative Authority",
+      "org_type": "Government",
+      "score": 88,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Verification & Oversight",
+      "status": "accepted",
+      "created_at": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00119-2",
+      "problem_id": "SY-2026-00119",
+      "org_name": "Urban Innovation & Applied Engineering Cell",
+      "org_type": "University",
+      "score": 83,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Technical Assessment & Design Prototype",
+      "status": "recommended",
+      "created_at": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00119-3",
+      "problem_id": "SY-2026-00119",
+      "org_name": "Local Engineering & Contracting Partner",
+      "org_type": "Industry",
+      "score": 79,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 32,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 15,
+      "factor_capacity": 8,
+      "role_in_problem": "Field Procurement & Execution",
+      "status": "recommended",
+      "created_at": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00106-1",
+      "problem_id": "SY-2026-00106",
+      "org_name": "District Civic Administrative Authority",
+      "org_type": "Government",
+      "score": 88,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Verification & Oversight",
+      "status": "accepted",
+      "created_at": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00106-2",
+      "problem_id": "SY-2026-00106",
+      "org_name": "Urban Innovation & Applied Engineering Cell",
+      "org_type": "University",
+      "score": 83,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 25,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Technical Assessment & Design Prototype",
+      "status": "recommended",
+      "created_at": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-00106-3",
+      "problem_id": "SY-2026-00106",
+      "org_name": "Local Engineering & Contracting Partner",
+      "org_type": "Industry",
+      "score": 79,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 32,
+      "factor_jurisdiction": 24,
+      "factor_expertise": 15,
+      "factor_capacity": 8,
+      "role_in_problem": "Field Procurement & Execution",
+      "status": "recommended",
+      "created_at": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-1",
+      "problem_id": "SY-2026-1109",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 96,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 30,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-2",
+      "problem_id": "SY-2026-1109",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 90,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 29,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-3",
+      "problem_id": "SY-2026-1109",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 85,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 27,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-4",
+      "problem_id": "SY-2026-1109",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 79,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-21T09:39:31.698Z"
+    }
+  ],
+  "collaborations": [
+    {
+      "id": "COL-SY-2026-00101",
+      "problem_id": "SY-2026-00101",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T02:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00120",
+      "problem_id": "SY-2026-00120",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T03:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00121",
+      "problem_id": "SY-2026-00121",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T04:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00122",
+      "problem_id": "SY-2026-00122",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T05:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00123",
+      "problem_id": "SY-2026-00123",
+      "status": "active",
+      "current_action": "Active Field Deployment — Road Compaction Crew On Ground",
+      "started_at": "2026-09-21T06:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00124",
+      "problem_id": "SY-2026-00124",
+      "status": "completed",
+      "current_action": "Citizen Verification Complete — Case Closed",
+      "started_at": "2026-09-21T07:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00119",
+      "problem_id": "SY-2026-00119",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T08:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-00106",
+      "problem_id": "SY-2026-00106",
+      "status": "active",
+      "current_action": "Statutory Review & Multi-Stakeholder Coordination",
+      "started_at": "2026-09-21T09:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "COL-SY-2026-1109",
+      "problem_id": "SY-2026-1109",
+      "status": "active",
+      "current_action": "Verified by Public Works Department — Matching problem solvers across academia & industry.",
+      "started_at": "2026-09-21T09:39:31.698Z",
+      "updated_at": "2026-09-21T09:39:31.698Z"
+    }
+  ],
+  "solutions": [
+    {
+      "id": "SOL-LIET-01",
+      "problem_id": "SY-2026-00101",
+      "title": "Rapid Polymer Cold-Mix Patching with Engineered Base Stabilization",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab (with Deccan InfraTech)",
+      "status": "Under Review",
+      "desc": "Fast-curing cold composite asphalt patching developed by university researchers, utilizing crumb rubber modified binder for high monsoon water resistance. Deccan InfraTech provides mechanized compaction equipment for rapid 4-hour night deployment without blocking daytime traffic.",
+      "tech": "Polymer Cold-Mix Composite + Mechanized Vibratory Compaction",
+      "cost": "₹42,000 (Research subsidized)",
+      "time": "3 working days",
+      "impact": "~450 daily commuters, zero college entrance traffic disruptions",
+      "created_at": "2026-09-21T02:38:32.988Z",
+      "updated_at": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "S1",
+      "problem_id": "SY-2026-00121",
+      "title": "Composite pipe sleeving & pressure-relief valve install",
+      "org_name": "AquaTech Water Engineering Research Center",
+      "status": "Proposed",
+      "desc": "Non-invasive composite patch sleeving with automated pressure-relief valve to prevent structural pressure surges.",
+      "tech": "Composite pipe patching",
+      "cost": "₹85,000",
+      "time": "2 weeks",
+      "impact": "260+ daily commuters",
+      "created_at": "2026-09-21T04:38:32.988Z",
+      "updated_at": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "S2",
+      "problem_id": "SY-2026-00122",
+      "title": "Pre-cast concrete culvert widening & hydraulic desilting",
+      "org_name": "Municipal Drainage Division",
+      "status": "Approved",
+      "desc": "Widen hydraulic channel cross-section with high-strength precast box culverts and automated silt trap mesh.",
+      "tech": "Mechanical desilting + precast box culverts",
+      "cost": "₹4,20,000",
+      "time": "4 weeks",
+      "impact": "610+ neighborhood residents",
+      "created_at": "2026-09-21T05:38:32.988Z",
+      "updated_at": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "S3",
+      "problem_id": "SY-2026-00123",
+      "title": "Water-efficient fixture overhaul & community maintenance schedule",
+      "org_name": "District Health & Sanitation Department",
+      "status": "In Deployment",
+      "desc": "Installation of vandal-resistant push taps, dual-flush cisterns, and a digital attendance log for daily cleaning shifts.",
+      "tech": "Water-efficient fixtures + digital inspection log",
+      "cost": "₹18,000",
+      "time": "1 week",
+      "impact": "90+ neighborhood residents",
+      "created_at": "2026-09-21T06:38:32.988Z",
+      "updated_at": "2026-09-21T10:38:32.988Z"
+    },
+    {
+      "id": "S4",
+      "problem_id": "SY-2026-00124",
+      "title": "Dual-compartment smart bins & scheduled morning route rerouting",
+      "org_name": "ClearCity Recycling & Resource Recovery",
+      "status": "Completed",
+      "desc": "Added automated morning compactor stop, established source-segregation bins with neighborhood volunteer monitoring.",
+      "tech": "Route optimization & dual segregation bins",
+      "cost": "₹1,10,000",
+      "time": "3 weeks",
+      "impact": "250+ residents",
+      "created_at": "2026-09-21T07:38:32.988Z",
+      "updated_at": "2026-09-21T11:38:32.988Z"
+    },
+    {
+      "id": "S5",
+      "problem_id": "SY-2026-00106",
+      "title": "Solar-powered flashing pedestrian beacons & high-friction thermoplastic rumble strips",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "status": "Approved",
+      "desc": "Installation of solar warning blinkers, reflective pedestrian bollards, and high-visibility zebra markings with student crossing guards.",
+      "tech": "Solar LED Blinkers + Thermoplastic markings",
+      "cost": "₹65,000",
+      "time": "10 days",
+      "impact": "700+ daily pedestrians",
+      "created_at": "2026-09-21T09:38:32.988Z",
+      "updated_at": "2026-09-21T13:38:32.988Z"
+    },
+    {
+      "id": "S1789983584273",
+      "problem_id": "SY-2026-1109",
+      "title": "High-Pressure Trenchless Sleeve Seal",
+      "org_name": "LIET Sustainable Infrastructure Lab",
+      "status": "Proposed",
+      "desc": "Polymer sleeve inserted without digging up road surface.",
+      "tech": "Trenchless slip-line",
+      "cost": "₹35,000",
+      "time": "2 days",
+      "impact": "High local impact",
+      "created_at": "2026-09-21T09:39:44.273Z",
+      "updated_at": "2026-09-21T09:39:44.273Z"
+    }
+  ],
+  "problem_updates": [
+    {
+      "id": "EV-SY-2026-00101-01",
+      "problem_id": "SY-2026-00101",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Lord's Institute of Engg & Tech, Himayat Sagar, Hyderabad",
+      "timestamp": "2026-09-21T01:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00101-02",
+      "problem_id": "SY-2026-00101",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Roads & Infrastructure -> Public Works Department",
+      "timestamp": "2026-09-21T01:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00101-03",
+      "problem_id": "SY-2026-00101",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 4 organizations",
+      "timestamp": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00101-04",
+      "problem_id": "SY-2026-00101",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00101-05",
+      "problem_id": "SY-2026-00101",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Rapid Polymer Cold-Mix Patching with Engineered Base Stabilization\" submitted by LIET Sustainable Infrastructure & Materials Lab (with Deccan InfraTech)",
+      "timestamp": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00120-01",
+      "problem_id": "SY-2026-00120",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Sector 9 Crossing, Pune",
+      "timestamp": "2026-09-21T02:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00120-02",
+      "problem_id": "SY-2026-00120",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Roads & Infrastructure -> Public Works Department",
+      "timestamp": "2026-09-21T02:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00120-03",
+      "problem_id": "SY-2026-00120",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 4 organizations",
+      "timestamp": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00121-01",
+      "problem_id": "SY-2026-00121",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Majestic Bus Terminal, Bengaluru",
+      "timestamp": "2026-09-21T03:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00121-02",
+      "problem_id": "SY-2026-00121",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Water & Sanitation -> Water Supply & Sewerage Board",
+      "timestamp": "2026-09-21T03:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00121-03",
+      "problem_id": "SY-2026-00121",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 3 organizations",
+      "timestamp": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00121-04",
+      "problem_id": "SY-2026-00121",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00121-05",
+      "problem_id": "SY-2026-00121",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Composite pipe sleeving & pressure-relief valve install\" submitted by AquaTech Water Engineering Research Center",
+      "timestamp": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00122-01",
+      "problem_id": "SY-2026-00122",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Velachery Zone, Chennai",
+      "timestamp": "2026-09-21T04:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00122-02",
+      "problem_id": "SY-2026-00122",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Drainage -> Municipal Drainage Division",
+      "timestamp": "2026-09-21T04:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00122-03",
+      "problem_id": "SY-2026-00122",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 3 organizations",
+      "timestamp": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00122-04",
+      "problem_id": "SY-2026-00122",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00122-05",
+      "problem_id": "SY-2026-00122",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Pre-cast concrete culvert widening & hydraulic desilting\" submitted by Municipal Drainage Division",
+      "timestamp": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-01",
+      "problem_id": "SY-2026-00123",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Old City Ward, Hyderabad",
+      "timestamp": "2026-09-21T05:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-02",
+      "problem_id": "SY-2026-00123",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Water & Sanitation -> Water Supply & Sewerage Board",
+      "timestamp": "2026-09-21T05:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-03",
+      "problem_id": "SY-2026-00123",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 3 organizations",
+      "timestamp": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-04",
+      "problem_id": "SY-2026-00123",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-05",
+      "problem_id": "SY-2026-00123",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Water-efficient fixture overhaul & community maintenance schedule\" submitted by District Health & Sanitation Department",
+      "timestamp": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00123-06",
+      "problem_id": "SY-2026-00123",
+      "event_type": "SOLUTION_APPROVED",
+      "stage": 5,
+      "actor_role": "Government",
+      "description": "Statutory civic permit and technical validation granted",
+      "timestamp": "2026-09-21T11:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-01",
+      "problem_id": "SY-2026-00124",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Banjara Hills Sector 4, Hyderabad",
+      "timestamp": "2026-09-21T06:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-02",
+      "problem_id": "SY-2026-00124",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Waste Management -> Municipal Waste Management Department",
+      "timestamp": "2026-09-21T06:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-03",
+      "problem_id": "SY-2026-00124",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 4 organizations",
+      "timestamp": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-04",
+      "problem_id": "SY-2026-00124",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-05",
+      "problem_id": "SY-2026-00124",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Dual-compartment smart bins & scheduled morning route rerouting\" submitted by ClearCity Recycling & Resource Recovery",
+      "timestamp": "2026-09-21T10:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-06",
+      "problem_id": "SY-2026-00124",
+      "event_type": "SOLUTION_APPROVED",
+      "stage": 5,
+      "actor_role": "Government",
+      "description": "Statutory civic permit and technical validation granted",
+      "timestamp": "2026-09-21T12:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00124-07",
+      "problem_id": "SY-2026-00124",
+      "event_type": "VERIFIED",
+      "stage": 8,
+      "actor_role": "Citizen",
+      "description": "Citizen on-ground verification: CONFIRMED RESOLVED — \"Citizen on-ground sign-off: Waste cleared on schedule every morning. No overflow observed for 2 weeks. Problem closed successfully.\"",
+      "timestamp": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00119-01",
+      "problem_id": "SY-2026-00119",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Charminar Market Road, Hyderabad",
+      "timestamp": "2026-09-21T07:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00119-02",
+      "problem_id": "SY-2026-00119",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Environment -> State Pollution Control Board",
+      "timestamp": "2026-09-21T07:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00106-01",
+      "problem_id": "SY-2026-00106",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Citizen submitted problem report at Mehdipatnam Junction, Hyderabad",
+      "timestamp": "2026-09-21T08:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00106-02",
+      "problem_id": "SY-2026-00106",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Rule-based classification assigned to Education -> Department of Education",
+      "timestamp": "2026-09-21T08:39:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00106-03",
+      "problem_id": "SY-2026-00106",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Multi-stakeholder solver matching recommended 3 organizations",
+      "timestamp": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00106-04",
+      "problem_id": "SY-2026-00106",
+      "event_type": "ASSIGNED",
+      "stage": 3,
+      "actor_role": "Government",
+      "description": "Statutory authority acknowledged problem and opened solution collaboration",
+      "timestamp": "2026-09-21T10:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-00106-05",
+      "problem_id": "SY-2026-00106",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "University",
+      "description": "Solution proposal \"Solar-powered flashing pedestrian beacons & high-friction thermoplastic rumble strips\" submitted by SafeRoads Community Safety Action Foundation",
+      "timestamp": "2026-09-21T12:38:32.988Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-01",
+      "problem_id": "SY-2026-1109",
+      "event_type": "REPORTED",
+      "stage": 1,
+      "actor_role": "Citizen",
+      "description": "Problem reported at Near LIET Campus, Hyderabad (Source: PHOTO_EXIF)",
+      "timestamp": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-02",
+      "problem_id": "SY-2026-1109",
+      "event_type": "CLASSIFIED",
+      "stage": 1,
+      "actor_role": "System",
+      "description": "Ontology classified problem as \"Roads & Infrastructure\". Mandated Authority: Public Works Department",
+      "metadata": {
+        "method": "RULE_BASED_PROTOTYPE",
+        "confidence": 92
+      },
+      "timestamp": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-03",
+      "problem_id": "SY-2026-1109",
+      "event_type": "MATCHED",
+      "stage": 2,
+      "actor_role": "System",
+      "description": "Recommended 4 solver organizations across Government, University, Industry, and NGO sectors.",
+      "timestamp": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-1789983584273",
+      "problem_id": "SY-2026-1109",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 3,
+      "actor_role": "University",
+      "description": "Solution proposal \"High-Pressure Trenchless Sleeve Seal\" submitted by LIET Sustainable Infrastructure Lab.",
+      "timestamp": "2026-09-21T09:39:44.273Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-1789983595293",
+      "problem_id": "SY-2026-1109",
+      "event_type": "VERIFIED",
+      "stage": 7,
+      "actor_role": "Citizen",
+      "description": "Citizen ground-truth sign-off: CONFIRMED RESOLUTION — \"Citizen on-ground inspection confirmed: drainage pipe fully sealed and road dry.\"",
+      "timestamp": "2026-09-21T09:39:55.293Z"
+    }
+  ],
+  "verifications": [
+    {
+      "id": "VER-SY-2026-00124",
+      "problem_id": "SY-2026-00124",
+      "status": "VERIFIED_RESOLVED",
+      "feedback": "Citizen on-ground sign-off: Waste cleared on schedule every morning. No overflow observed for 2 weeks. Problem closed successfully.",
+      "verified_by": "Citizen Reporter (On-Ground Inspection)",
+      "timestamp": "2026-09-21T09:38:32.988Z"
+    },
+    {
+      "id": "VER-SY-2026-1109",
+      "problem_id": "SY-2026-1109",
+      "status": "VERIFIED_RESOLVED",
+      "feedback": "Citizen on-ground inspection confirmed: drainage pipe fully sealed and road dry.",
+      "evidence_ref": "",
+      "verified_by": "Citizen Reporter",
+      "timestamp": "2026-09-21T09:39:55.293Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "NOTIF-1789983595293",
+      "text": "Citizen ground-truth verification completed for SY-2026-1109: Resolved.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-21T09:39:55.293Z"
+    },
+    {
+      "id": "NOTIF-1789983584273",
+      "text": "New technical solution proposed for SY-2026-1109 by LIET Sustainable Infrastructure Lab.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-21T09:39:44.273Z"
+    },
+    {
+      "id": "NOTIF-1789983571698",
+      "text": "New problem SY-2026-1109 reported in Near LIET Campus, Hyderabad and classified under Roads & Infrastructure.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "citizen",
+      "created_at": "2026-09-21T09:39:31.698Z"
+    },
+    {
+      "id": "NOTIF-1",
+      "text": "Flagship Problem SY-2026-00101 (LIET Campus Gate Potholes) is ready for SIH demonstration.",
+      "unread": true,
+      "time": "15m ago",
+      "created_at": "2026-09-21T09:38:32.989Z"
+    },
+    {
+      "id": "NOTIF-2",
+      "text": "LIET Sustainable Infrastructure Lab submitted a solution for SY-2026-00101.",
+      "unread": true,
+      "time": "30m ago",
+      "created_at": "2026-09-21T09:38:32.989Z"
+    },
+    {
+      "id": "NOTIF-3",
+      "text": "Municipal Drainage Division solution for SY-2026-00122 was approved by Civic Authority.",
+      "unread": true,
+      "time": "45m ago",
+      "created_at": "2026-09-21T09:38:32.989Z"
+    },
+    {
+      "id": "NOTIF-4",
+      "text": "SY-2026-00124 (Banjara Hills Waste) completed citizen on-ground verification.",
+      "unread": false,
+      "time": "60m ago",
+      "created_at": "2026-09-21T09:38:32.989Z"
+    }
+  ]
+}
