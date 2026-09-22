@@ -494,9 +494,101 @@ export const INITIAL_NOTIFICATIONS = [
 ];
 
 export const WORKFLOW_STEPS = [
-  'Problem Details',
-  'Evidence & Photos',
-  'Location Selection',
-  'Prototype Classification',
-  'Report Summary'
+  'Capture Photo',
+  'Location & Duplicates',
+  'Impact & Severity',
+  'Prefilled Details',
+  'Review & Submit'
 ];
+
+export const ROAD_AFFECTED_OPTIONS = [
+  { id: 'small', label: 'Small section (< 1 meter)', score: 1, text: 'Small road section affected' },
+  { id: 'part_lane', label: 'Part of a traffic lane (1–2 meters)', score: 2, text: 'Partial traffic lane affected' },
+  { id: 'most_lane', label: 'Most of a traffic lane (2–3 meters)', score: 3, text: 'Major portion of traffic lane obstructed' },
+  { id: 'multi_lane', label: 'Multiple lanes / Entire roadway (> 3 meters)', score: 4, text: 'Multiple lanes severely obstructed' },
+] as const;
+
+export const TRAFFIC_IMPACT_OPTIONS = [
+  { id: 'none', label: 'No significant disruption (vehicles pass freely)', score: 1, text: 'Normal vehicle flow maintained' },
+  { id: 'minor', label: 'Slight traffic slowdown / Swerving required', score: 2, text: 'Vehicles required to swerve; minor slowdown' },
+  { id: 'severe', label: 'Severe congestion / Two-wheeler risk / Lane blockage', score: 3, text: 'Severe congestion with elevated two-wheeler skid hazard' },
+] as const;
+
+export const CONTEXT_PROXIMITY_OPTIONS = [
+  { id: 'school_hospital', label: 'Near school, college or hospital zone', factor: 'Proximity to educational/healthcare facility', priorityBoost: true },
+  { id: 'transit_stop', label: 'Near public bus stop or transit junction', factor: 'Public transit & bus stop proximity', priorityBoost: true },
+  { id: 'pedestrian', label: 'Pedestrian-heavy market or zebra crossing', factor: 'High pedestrian footfall exposure', priorityBoost: true },
+  { id: 'waterlogged', label: 'Standing water / Submerged hazard', factor: 'Standing water conceals road crater depth', severityBoost: true },
+] as const;
+
+export interface ImpactAssessment {
+  roadAffectedId: string;
+  trafficImpactId: string;
+  contextProximityIds: string[];
+}
+
+export function calculateImpactSeverity(assessment: ImpactAssessment): {
+  suggestedSeverity: 'Low' | 'Medium' | 'High' | 'Critical';
+  suggestedPriority: 'Low' | 'Medium' | 'High' | 'Critical';
+  factors: string[];
+  totalScore: number;
+} {
+  const road = ROAD_AFFECTED_OPTIONS.find(r => r.id === assessment.roadAffectedId) || ROAD_AFFECTED_OPTIONS[1];
+  const traffic = TRAFFIC_IMPACT_OPTIONS.find(t => t.id === assessment.trafficImpactId) || TRAFFIC_IMPACT_OPTIONS[1];
+  const selectedContexts = CONTEXT_PROXIMITY_OPTIONS.filter(c => assessment.contextProximityIds.includes(c.id));
+
+  const factors: string[] = [road.text, traffic.text];
+  selectedContexts.forEach(c => factors.push(c.factor));
+
+  let physicalScore = road.score + traffic.score;
+  if (assessment.contextProximityIds.includes('waterlogged')) {
+    physicalScore += 1;
+  }
+
+  let priorityScore = physicalScore;
+  const priorityBoostCount = selectedContexts.filter(c => 'priorityBoost' in c && (c as any).priorityBoost).length;
+  priorityScore += priorityBoostCount * 1.5;
+
+  let suggestedSeverity: 'Low' | 'Medium' | 'High' | 'Critical' = 'Medium';
+  if (physicalScore <= 2) suggestedSeverity = 'Low';
+  else if (physicalScore <= 4) suggestedSeverity = 'Medium';
+  else if (physicalScore <= 6) suggestedSeverity = 'High';
+  else suggestedSeverity = 'Critical';
+
+  let suggestedPriority: 'Low' | 'Medium' | 'High' | 'Critical' = 'Medium';
+  if (priorityScore <= 3) suggestedPriority = 'Low';
+  else if (priorityScore <= 5) suggestedPriority = 'Medium';
+  else if (priorityScore <= 7.5) suggestedPriority = 'High';
+  else suggestedPriority = 'Critical';
+
+  return {
+    suggestedSeverity,
+    suggestedPriority,
+    factors,
+    totalScore: physicalScore
+  };
+}
+
+export function generatePrefilledDetails(params: {
+  category: string;
+  detectedProblem: string;
+  location: string;
+  landmark?: string;
+  severity: string;
+  priority: string;
+  factors: string[];
+}): { suggestedTitle: string; suggestedDescription: string } {
+  const areaDesc = params.landmark || params.location.split(',')[0] || 'problem site';
+  const problemName = params.detectedProblem || (params.category === 'Roads & Infrastructure' ? 'Pothole & road surface damage' : params.category);
+
+  const suggestedTitle = `${params.severity === 'Critical' || params.severity === 'High' ? 'Severe ' : ''}${problemName} near ${areaDesc}`;
+
+  const factorSummary = params.factors.length > 0
+    ? ` Visible field conditions indicate: ${params.factors.join('; ')}.`
+    : '';
+
+  const suggestedDescription = `A ${problemName.toLowerCase()} has been documented near ${areaDesc}.${factorSummary} This condition poses an immediate disruption to civic transit and requires inter-agency coordination for prompt structural remediation. Suggested physical severity is assessed as ${params.severity} (Priority: ${params.priority}).`;
+
+  return { suggestedTitle, suggestedDescription };
+}
+

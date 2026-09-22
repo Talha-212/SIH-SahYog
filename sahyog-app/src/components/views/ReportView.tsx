@@ -164,54 +164,32 @@ export default function ReportView() {
         <div>
           <div className="card">
             {error && <div className="error-msg">{error}</div>}
-            <div className="field">
-              <label htmlFor="f-title">Problem title *</label>
-              <input type="text" id="f-title" placeholder="e.g. Broken water mains flooding colony road" value={title} onChange={e => setTitle(e.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor="f-desc">Detailed description *</label>
-              <textarea id="f-desc" placeholder="Describe what you observed, since when, and how it's affecting the area..." value={desc} onChange={e => setDesc(e.target.value)} />
-            </div>
-            <div className="row-2">
-              <div className="field">
-                <label htmlFor="f-category">Category *</label>
-                <select id="f-category" value={category} onChange={e => setCategory(e.target.value)}>
-                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                </select>
+
+            {/* 1. Evidence First */}
+            <div className="field" style={{ background: '#fbfcfe', border: '1px solid var(--line)', padding: 14, borderRadius: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
+                <label style={{ margin: 0, fontWeight: 700, fontSize: 13.5 }}>1. Capture / Upload Photo Evidence *</label>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    const benchmarkSrc = '/demo/pothole_before.jpg';
+                    dispatch({
+                      type: 'SET_UPLOADED_PHOTOS',
+                      photos: [{ src: benchmarkSrc, isVideo: false, exifGpsFound: true }]
+                    });
+                    useDemoLocation();
+                    setTitle('Severe pothole & road damage near Lord’s Institute main gate');
+                    setDesc('A pothole has been documented near the main gate. The damaged section affects vehicle movement and creates safety risks for two-wheelers.');
+                    setCategory('Roads & Infrastructure');
+                    dispatch({ type: 'SET_SEVERITY', sev: 'High' });
+                    toast('🎯 Loaded SIH Benchmark photo and pre-filled report details!', 'success');
+                  }}
+                >
+                  🎯 Use SIH Benchmark Photo
+                </button>
               </div>
-              <div className="field">
-                <label htmlFor="f-sub">Subcategory</label>
-                <input type="text" id="f-sub" placeholder="Auto-suggested by rule classifier" disabled />
-              </div>
-            </div>
-            <div className="field">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <label htmlFor="f-location" style={{ margin: 0 }}>Location &amp; Coordinates *</label>
-                <span className="proto-tag" style={{ fontSize: 10 }}>Source: {locationSource}</span>
-              </div>
-              <div className="locate-row" style={{ flexWrap: 'wrap', gap: 6 }}>
-                <input type="text" id="f-location" placeholder="Search area or let GPS/Photo detect" value={location} onChange={e => handleLocationInput(e.target.value)} />
-                <button type="button" className="btn btn-primary btn-sm" onClick={useDemoLocation}>Demo Location (LIET)</button>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={useCurrentLocation}>📡 Detect Device GPS</button>
-              </div>
-              <div className="latlng-note">{latlng}</div>
-            </div>
-            <div className="row-2">
-              <div className="field">
-                <label>Severity *</label>
-                <div className="sev-group">
-                  {['Low', 'Medium', 'High'].map(s => (
-                    <div key={s} className={`sev-opt ${selectedSeverity === s ? 'selected' : ''}`} data-sev={s} onClick={() => dispatch({ type: 'SET_SEVERITY', sev: s })}>{s}</div>
-                  ))}
-                </div>
-              </div>
-              <div className="field">
-                <label htmlFor="f-affected">People affected (approx.)</label>
-                <input type="number" id="f-affected" min={1} placeholder="e.g. 150" value={affected} onChange={e => setAffected(e.target.value)} />
-              </div>
-            </div>
-            <div className="field">
-              <label>Add photos / evidence (Auto-Extracts GPS EXIF)</label>
+
               <div
                 className={`drop-zone ${drag ? 'drag' : ''}`}
                 onDragEnter={e => { e.preventDefault(); setDrag(true); }}
@@ -219,11 +197,11 @@ export default function ReportView() {
                 onDragLeave={e => { e.preventDefault(); setDrag(false); }}
                 onDrop={e => { e.preventDefault(); setDrag(false); handleFiles(e.dataTransfer.files); }}
               >
-                <p>Drag photos here, or upload from your device</p>
+                <p>Drag photos here, or click to upload from camera/storage</p>
                 <div className="hl">JPEG, PNG, WebP up to 8MB · EXIF GPS automatically extracted if available</div>
                 <label className="file-input-btn">
                   Choose files
-                  <input type="file" accept="image/*,video/*" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
+                  <input type="file" accept="image/*,video/*" capture="environment" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
                 </label>
                 <div className="thumbs">
                   {uploadedPhotos.map((ph, i) => (
@@ -239,8 +217,49 @@ export default function ReportView() {
                   ))}
                 </div>
               </div>
-              <div className="privacy-note">Notice: Coordinates are shared with verified solver teams for on-ground inspection.</div>
             </div>
+
+            {/* 2. Location Detection */}
+            <div className="field">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <label htmlFor="f-location" style={{ margin: 0, fontWeight: 700 }}>2. Problem Location &amp; Coordinates *</label>
+                <span className="proto-tag" style={{ fontSize: 10 }}>Source: {locationSource}</span>
+              </div>
+              <div className="locate-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+                <input type="text" id="f-location" placeholder="Search area or let GPS/Photo detect" value={location} onChange={e => handleLocationInput(e.target.value)} />
+                <button type="button" className="btn btn-primary btn-sm" onClick={useDemoLocation}>Demo Location (LIET)</button>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={useCurrentLocation}>📡 Detect Device GPS</button>
+              </div>
+              <div className="latlng-note">{latlng}</div>
+            </div>
+
+            {/* 3. Pre-filled / Editable Problem Details */}
+            <div className="field">
+              <label htmlFor="f-title" style={{ fontWeight: 700 }}>3. Problem Title *</label>
+              <input type="text" id="f-title" placeholder="e.g. Broken water mains flooding colony road" value={title} onChange={e => setTitle(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="f-desc" style={{ fontWeight: 700 }}>Detailed Description *</label>
+              <textarea id="f-desc" placeholder="Describe what you observed, since when, and how it's affecting the area..." value={desc} onChange={e => setDesc(e.target.value)} />
+            </div>
+
+            <div className="row-2">
+              <div className="field">
+                <label htmlFor="f-category">Category *</label>
+                <select id="f-category" value={category} onChange={e => setCategory(e.target.value)}>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>Severity *</label>
+                <div className="sev-group">
+                  {['Low', 'Medium', 'High', 'Critical'].map(s => (
+                    <div key={s} className={`sev-opt ${selectedSeverity === s ? 'selected' : ''}`} data-sev={s} onClick={() => dispatch({ type: 'SET_SEVERITY', sev: s })}>{s}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <button className="btn btn-primary btn-block" onClick={submit} disabled={submitting}>
               {submitting ? 'Submitting to Backend Pipeline…' : 'Submit Problem to Pipeline'}
             </button>
