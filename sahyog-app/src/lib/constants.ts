@@ -262,7 +262,7 @@ export const DEMO_METRICS = [
   { value: '8', label: 'Structured Demo Cases', sub: 'Multi-category test suite' },
   { value: '5', label: 'Stakeholder Roles', sub: 'Citizen · Govt · Univ · Industry · NGO' },
   { value: '4', label: 'Solver Sectors', sub: 'Multi-stakeholder collaboration' },
-  { value: '100%', label: 'Closed-Loop Verification', sub: 'Citizen sign-off before case closure' }
+  { value: 'Verified', label: 'Closed-Loop Workflow', sub: 'Citizen sign-off before case closure' }
 ];
 
 function makeId(n: number) { return 'SY-2026-' + String(n).padStart(5,'0'); }
@@ -532,16 +532,29 @@ export function calculateImpactSeverity(assessment: ImpactAssessment): {
   suggestedPriority: 'Low' | 'Medium' | 'High' | 'Critical';
   factors: string[];
   totalScore: number;
+  isPending: boolean;
 } {
-  const road = ROAD_AFFECTED_OPTIONS.find(r => r.id === assessment.roadAffectedId) || ROAD_AFFECTED_OPTIONS[1];
-  const traffic = TRAFFIC_IMPACT_OPTIONS.find(t => t.id === assessment.trafficImpactId) || TRAFFIC_IMPACT_OPTIONS[1];
-  const selectedContexts = CONTEXT_PROXIMITY_OPTIONS.filter(c => assessment.contextProximityIds.includes(c.id));
+  const road = ROAD_AFFECTED_OPTIONS.find(r => r.id === assessment.roadAffectedId);
+  const traffic = TRAFFIC_IMPACT_OPTIONS.find(t => t.id === assessment.trafficImpactId);
+  const selectedContexts = CONTEXT_PROXIMITY_OPTIONS.filter(c => assessment.contextProximityIds?.includes(c.id));
 
-  const factors: string[] = [road.text, traffic.text];
+  if (!road && !traffic) {
+    return {
+      suggestedSeverity: 'Medium',
+      suggestedPriority: 'Medium',
+      factors: ['Awaiting citizen field impact assessment (select options below)'],
+      totalScore: 0,
+      isPending: true
+    };
+  }
+
+  const factors: string[] = [];
+  if (road) factors.push(road.text);
+  if (traffic) factors.push(traffic.text);
   selectedContexts.forEach(c => factors.push(c.factor));
 
-  let physicalScore = road.score + traffic.score;
-  if (assessment.contextProximityIds.includes('waterlogged')) {
+  let physicalScore = (road?.score || 2) + (traffic?.score || 1);
+  if (assessment.contextProximityIds?.includes('waterlogged')) {
     physicalScore += 1;
   }
 
@@ -565,7 +578,8 @@ export function calculateImpactSeverity(assessment: ImpactAssessment): {
     suggestedSeverity,
     suggestedPriority,
     factors,
-    totalScore: physicalScore
+    totalScore: physicalScore,
+    isPending: false
   };
 }
 

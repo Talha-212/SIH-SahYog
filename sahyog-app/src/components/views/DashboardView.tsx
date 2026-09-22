@@ -262,7 +262,7 @@ function OrgDash({ role, problems, openDetail, dispatch }: any) {
         <div className="dc"><div className="n">{recommended.length}</div><div className="l">Matched Challenges</div></div>
         <div className="dc"><div className="n">{active.length}</div><div className="l">Active Solution Projects</div></div>
         <div className="dc"><div className="n">{completed.length}</div><div className="l">Deployed Projects</div></div>
-        <div className="dc"><div className="n">100%</div><div className="l">Collaborative Model</div></div>
+        <div className="dc"><div className="n">5 Roles</div><div className="l">Collaborative Framework</div></div>
       </div>
 
       <div className="card" style={{ marginTop: 16 }}>

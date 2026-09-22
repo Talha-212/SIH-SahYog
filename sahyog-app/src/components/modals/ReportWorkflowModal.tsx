@@ -47,35 +47,34 @@ export default function ReportWorkflowModal() {
 
   // Step 1: Capture Photo
   // Step 2: Location & Duplicates
-  // Step 3: Impact & Severity
+  // Step 3: Help SahYog Assess Impact
   // Step 4: Prefilled Details
   // Step 5: Review & Submit
   const [step, setStep] = useState(1);
 
   // Evidence state
   const [files, setFiles] = useState<Photo[]>([]);
-  const [photoQuality, setPhotoQuality] = useState<'GOOD' | 'FAIR' | 'POOR' | null>(null);
-  const [photoQualityReason, setPhotoQualityReason] = useState('');
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState('');
 
-  // Location state
+  // Location state (Strictly automatic hierarchy: EXIF -> Device GPS -> Map/Search fallback)
   const [locationConfirmed, setLocationConfirmed] = useState(false);
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [address, setAddress] = useState('');
-  const [locationSource, setLocationSource] = useState<LocationSource>('DEVICE_GPS');
-  const [locationAccuracy, setLocationAccuracy] = useState('High Accuracy (Device GPS API)');
+  const [locationSource, setLocationSource] = useState<LocationSource | null>(null);
+  const [locationAccuracy, setLocationAccuracy] = useState('');
   const [exifFound, setExifFound] = useState(false);
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
   const [mapStatus, setMapStatus] = useState('');
   const [mapStatusType, setMapStatusType] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
   const [landmark, setLandmark] = useState('');
 
-  // Impact Assessment state
-  const [roadAffectedId, setRoadAffectedId] = useState<string>('most_lane');
-  const [trafficImpactId, setTrafficImpactId] = useState<string>('severe');
-  const [contextProximityIds, setContextProximityIds] = useState<string[]>(['school_hospital']);
+  // Impact Assessment state (Neutral unselected defaults — NO severe preselection!)
+  const [roadAffectedId, setRoadAffectedId] = useState<string>('');
+  const [trafficImpactId, setTrafficImpactId] = useState<string>('');
+  const [contextProximityIds, setContextProximityIds] = useState<string[]>([]);
   const [customSeverity, setCustomSeverity] = useState<string>('');
   const [isCustomizingSeverity, setIsCustomizingSeverity] = useState(false);
 
@@ -90,10 +89,9 @@ export default function ReportWorkflowModal() {
   const [aiResult, setAiResult] = useState<Record<string, string> | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
-  // Submission & Result state
+  // Submission state
   const [createdId, setCreatedId] = useState('');
   const [createdCat, setCreatedCat] = useState('');
-  const [createdDate, setCreatedDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -106,7 +104,7 @@ export default function ReportWorkflowModal() {
   const wfMarkerRef = useRef<any>(null);
   const wfGeocoderRef = useRef<any>(null);
 
-  // Calculate suggested severity and priority
+  // Dynamic impact calculation
   const impactResult = useMemo(() => {
     return calculateImpactSeverity({
       roadAffectedId,
@@ -118,14 +116,13 @@ export default function ReportWorkflowModal() {
   const activeSeverity = isCustomizingSeverity && customSeverity ? customSeverity : impactResult.suggestedSeverity;
   const activePriority = impactResult.suggestedPriority;
 
-  // Detect nearby duplicate problems
+  // Nearby duplicate detection (<600m)
   const nearbyDuplicate = useMemo(() => {
     const currentLat = Number(lat);
     const currentLng = Number(lng);
     if (!currentLat || !currentLng || !problems || problems.length === 0) return null;
 
     let closest: { problem: Problem; distance: number } | null = null;
-
     for (const p of problems) {
       if (typeof p.latitude === 'number' && typeof p.longitude === 'number') {
         const d = getDistanceMeters(currentLat, currentLng, p.latitude, p.longitude);
@@ -144,8 +141,6 @@ export default function ReportWorkflowModal() {
     if (wfOpen) {
       setStep(1);
       setFiles([]);
-      setPhotoQuality(null);
-      setPhotoQualityReason('');
       setIsCameraActive(false);
       setCameraError('');
       setLocationConfirmed(false);
@@ -154,9 +149,10 @@ export default function ReportWorkflowModal() {
       setAddress('');
       setMapStatus('');
       setMapStatusType('');
-      setLocationSource('DEVICE_GPS');
-      setLocationAccuracy('High Accuracy (Device GPS API)');
+      setLocationSource(null);
+      setLocationAccuracy('');
       setExifFound(false);
+      setIsDetectingGps(false);
       setAiResult(null);
       setTitle('');
       setDesc('');
@@ -167,9 +163,10 @@ export default function ReportWorkflowModal() {
       setLocationSearch('');
       setIsSubmitting(false);
       setSubmitError(null);
-      setRoadAffectedId('most_lane');
-      setTrafficImpactId('severe');
-      setContextProximityIds(['school_hospital']);
+      // Neutral unselected defaults!
+      setRoadAffectedId('');
+      setTrafficImpactId('');
+      setContextProximityIds([]);
       setCustomSeverity('');
       setIsCustomizingSeverity(false);
       setIsEditingTitle(false);
@@ -180,32 +177,32 @@ export default function ReportWorkflowModal() {
     };
   }, [wfOpen]);
 
-  // Cleanup camera on unmount
+  // Camera cleanup
   useEffect(() => {
     return () => {
       stopCamera();
     };
   }, []);
 
-  // Sync Google Map when step === 2
+  // Map init on step === 2
   useEffect(() => {
     if (step !== 2 || !wfOpen) return;
     const tryInit = () => {
       if (window.google?.maps && mapRef.current && !wfMapRef.current) initMap();
       else if (!window.google && GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') loadMapsScript();
       else if (GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
-        setMapStatus('Replace YOUR_GOOGLE_MAPS_API_KEY in lib/constants.ts with your real key.');
-        setMapStatusType('error');
+        setMapStatus('Google Maps API key is in development mode. Interactive coordinates and search active.');
+        setMapStatusType('info');
       }
     };
     setTimeout(tryInit, 120);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, wfOpen]);
 
-  // When reaching step 4 (Prefilled Details), auto-generate title & description if blank
+  // When step 4 is reached, prefill suggestions if unpopulated
   useEffect(() => {
     if (step === 4) {
-      const locStr = address || locationSearch || landmark || DEMO_LOCATION.address;
+      const locStr = address || locationSearch || landmark || 'Detected problem location';
       const { suggestedTitle, suggestedDescription } = generatePrefilledDetails({
         category,
         detectedProblem,
@@ -222,12 +219,40 @@ export default function ReportWorkflowModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // Camera management
+  // Upload helper: stores file permanently via /api/upload
+  async function uploadPhotoToServer(fileOrDataUrl: File | string, name?: string): Promise<string> {
+    try {
+      if (typeof fileOrDataUrl === 'string') {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl: fileOrDataUrl, name })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.url) return json.url;
+        }
+      } else {
+        const fd = new FormData();
+        fd.append('file', fileOrDataUrl);
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.url) return json.url;
+        }
+      }
+    } catch {
+      // fallback to data URL
+    }
+    return typeof fileOrDataUrl === 'string' ? fileOrDataUrl : URL.createObjectURL(fileOrDataUrl);
+  }
+
+  // Camera controls
   async function startCamera() {
     setCameraError('');
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setCameraError('Direct camera streaming is unsupported by this browser. Please use photo upload.');
+        setCameraError('Direct camera streaming not supported by this browser. Please use photo upload.');
         toast('Camera not supported by browser. Please use photo upload.', 'error');
         return;
       }
@@ -243,8 +268,8 @@ export default function ReportWorkflowModal() {
           videoRef.current.play().catch(() => {});
         }
       }, 100);
-    } catch (err: any) {
-      setCameraError('Camera access denied or device has no connected camera.');
+    } catch {
+      setCameraError('Camera access denied or no camera device connected.');
       toast('Camera permission denied or camera unavailable. Please upload photo.', 'error');
       setIsCameraActive(false);
     }
@@ -258,7 +283,7 @@ export default function ReportWorkflowModal() {
     setIsCameraActive(false);
   }
 
-  function captureSnapshot() {
+  async function captureSnapshot() {
     if (!videoRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current || document.createElement('canvas');
@@ -269,48 +294,25 @@ export default function ReportWorkflowModal() {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       stopCamera();
+
+      // Upload to server
+      const permanentUrl = await uploadPhotoToServer(dataUrl, `camera_${Date.now()}.jpg`);
       setFiles([
         {
-          src: dataUrl,
+          src: permanentUrl,
           isVideo: false,
-          name: `camera_evidence_${Date.now()}.jpg`,
+          name: `camera_snapshot_${Date.now()}.jpg`,
           exifGpsFound: false
         }
       ]);
-      setPhotoQuality('GOOD');
-      setPhotoQualityReason('Photo captured from device camera. Affected area is clear.');
-      toast('📷 Camera snapshot captured!', 'success');
+      toast('📷 Camera snapshot captured and evidence stored!', 'success');
+
+      // Camera images have no EXIF GPS; immediately trigger device GPS
+      autoDetectLocation();
     }
   }
 
-  // SIH Benchmark Photo Loader (1-click judge evaluation)
-  function loadBenchmarkPhoto() {
-    stopCamera();
-    const benchmarkSrc = '/demo/pothole_before.jpg';
-    setFiles([
-      {
-        src: benchmarkSrc,
-        isVideo: false,
-        name: 'sih_benchmark_pothole_before.jpg',
-        exifGpsFound: true
-      }
-    ]);
-    setPhotoQuality('GOOD');
-    setPhotoQualityReason('High resolution benchmark evidence. Sharp road crater boundary and surface texture.');
-    setLat(String(DEMO_LOCATION.lat));
-    setLng(String(DEMO_LOCATION.lng));
-    setAddress(DEMO_LOCATION.address);
-    setLandmark(DEMO_LOCATION.landmark);
-    setLocationSource('PHOTO_EXIF');
-    setLocationAccuracy('Photo EXIF GPS Metadata (~5-15m)');
-    setExifFound(true);
-    setLocationConfirmed(true);
-    setCategory('Roads & Infrastructure');
-    setDetectedProblem('Pothole & road surface damage');
-    toast('🎯 Loaded SIH Benchmark Evidence & LIET Coordinates!', 'success');
-  }
-
-  // File Upload with EXIF Extraction
+  // File Upload with EXIF GPS extraction
   async function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
     const fl = e.target.files;
     if (!fl || fl.length === 0) return;
@@ -338,49 +340,104 @@ export default function ReportWorkflowModal() {
             setLat(String(gps.latitude));
             setLng(String(gps.longitude));
             setLocationSource('PHOTO_EXIF');
-            setLocationAccuracy('Photo EXIF GPS Metadata (~5-15m)');
+            setLocationAccuracy('Photo EXIF Metadata (~5-15m)');
             setExifFound(true);
-            if (!address) {
-              setAddress(`Location from Photo EXIF: ${gps.latitude.toFixed(5)}° N, ${gps.longitude.toFixed(5)}° E`);
-            }
+            setAddress(`Location from Photo EXIF: ${gps.latitude.toFixed(5)}° N, ${gps.longitude.toFixed(5)}° E`);
+            setLocationConfirmed(true);
           }
         } catch {
-          // No EXIF or error
+          // EXIF reading failed or absent
         }
       }
 
-      const src = await new Promise<string>((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result as string);
-        r.onerror = rej;
-        r.readAsDataURL(f);
-      });
-
-      newFiles.push({ src, isVideo: f.type.startsWith('video/'), name: f.name, exifGpsFound: hasExif });
+      const permanentUrl = await uploadPhotoToServer(f);
+      newFiles.push({ src: permanentUrl, isVideo: f.type.startsWith('video/'), name: f.name, exifGpsFound: hasExif });
     }
 
     if (photoGpsFound) {
-      toast('📍 GPS coordinates successfully extracted from photo EXIF!', 'success');
+      toast('✓ Location detected from photo metadata (EXIF GPS)', 'success');
+    } else {
+      // EXIF unavailable: automatically trigger device GPS
+      autoDetectLocation();
     }
 
     setFiles(prev => [...prev, ...newFiles]);
-    setPhotoQuality('GOOD');
-    setPhotoQualityReason('Photo is clear enough for structural analysis.');
     e.target.value = '';
   }
 
   function removeFile(i: number) {
-    setFiles(prev => {
-      const updated = prev.filter((_, idx) => idx !== i);
-      if (updated.length === 0) {
-        setPhotoQuality(null);
-        setPhotoQualityReason('');
-      }
-      return updated;
-    });
+    setFiles(prev => prev.filter((_, idx) => idx !== i));
   }
 
-  // Location handling
+  // Explicit Demo Mode loader (SIH presentation only — isolated from real reporting!)
+  function loadDemoBenchmarkCase() {
+    stopCamera();
+    const benchmarkSrc = '/demo/pothole_before.jpg';
+    setFiles([
+      {
+        src: benchmarkSrc,
+        isVideo: false,
+        name: 'sih_benchmark_pothole_before.jpg',
+        exifGpsFound: true
+      }
+    ]);
+    setLat(String(DEMO_LOCATION.lat));
+    setLng(String(DEMO_LOCATION.lng));
+    setAddress(DEMO_LOCATION.address);
+    setLandmark(DEMO_LOCATION.landmark);
+    setLocationSource('PHOTO_EXIF');
+    setLocationAccuracy('Pre-Calibrated Benchmark Coordinates');
+    setExifFound(true);
+    setLocationConfirmed(true);
+    setCategory('Roads & Infrastructure');
+    setDetectedProblem('Pothole & road surface damage');
+    // Pre-populate benchmark impact for SIH demonstration
+    setRoadAffectedId('most_lane');
+    setTrafficImpactId('severe');
+    setContextProximityIds(['school_hospital']);
+    toast('🎯 Demo Mode: Loaded SIH Benchmark Case (LIET Campus Hyderabad)', 'success');
+  }
+
+  // Automatic Location Detection (EXIF -> Device GPS -> Manual fallback)
+  function autoDetectLocation() {
+    if (!navigator.geolocation) {
+      setMapStatus('Location could not be detected automatically. Device GPS is not supported.');
+      setMapStatusType('error');
+      setLocationConfirmed(false);
+      return;
+    }
+
+    setIsDetectingGps(true);
+    setMapStatus('Detecting your location via device GPS...');
+    setMapStatusType('info');
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setIsDetectingGps(false);
+        setLocationSource('DEVICE_GPS');
+        setLocationAccuracy(`Device GPS API (±${Math.round(pos.coords.accuracy || 10)}m)`);
+        setLat(String(pos.coords.latitude));
+        setLng(String(pos.coords.longitude));
+        const detectedAddr = `Current Location: ${pos.coords.latitude.toFixed(5)}° N, ${pos.coords.longitude.toFixed(5)}° E`;
+        setAddress(detectedAddr);
+        setLocationConfirmed(true);
+        setMapStatus('✓ Location detected from device GPS');
+        setMapStatusType('success');
+        toast('✓ Location detected from device GPS', 'success');
+        if (wfMapRef.current) placeMarker(pos.coords.latitude, pos.coords.longitude, true);
+      },
+      () => {
+        setIsDetectingGps(false);
+        // CRITICAL: NEVER silently use demo location!
+        setMapStatus('Location could not be detected automatically. Permission denied or GPS unavailable. Please select on map or search.');
+        setMapStatusType('error');
+        setLocationConfirmed(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  }
+
+  // Google Maps init and helpers
   function loadMapsScript() {
     if (document.getElementById('gmap-script')) return;
     window.initSahYogGoogleMap = initMap;
@@ -390,7 +447,7 @@ export default function ReportWorkflowModal() {
     s.async = true;
     s.defer = true;
     s.onerror = () => {
-      setMapStatus('Google Maps failed to load. Fallback to browser GPS & SIH Demo Location active.');
+      setMapStatus('Interactive map view unavailable. Device GPS and manual address search active.');
       setMapStatusType('error');
     };
     document.head.appendChild(s);
@@ -403,12 +460,12 @@ export default function ReportWorkflowModal() {
       const initialCenter =
         lat && lng
           ? { lat: Number(lat), lng: Number(lng) }
-          : { lat: DEMO_LOCATION.lat, lng: DEMO_LOCATION.lng };
+          : { lat: 17.385, lng: 78.4867 }; // Central Hyderabad default center
       wfMapRef.current = new window.google.maps.Map(mapRef.current, {
         center: initialCenter,
-        zoom: 16,
-        mapTypeControl: true,
-        streetViewControl: true,
+        zoom: 15,
+        mapTypeControl: false,
+        streetViewControl: false,
         fullscreenControl: true,
         gestureHandling: 'greedy',
         mapTypeId: 'roadmap'
@@ -448,85 +505,18 @@ export default function ReportWorkflowModal() {
         );
         addr = results[0].formatted_address;
       } catch {
-        addr = 'Address could not be determined';
+        addr = `Selected Point: ${pos.lat.toFixed(5)}° N, ${pos.lng.toFixed(5)}° E`;
       }
     }
     setLat(String(pos.lat));
     setLng(String(pos.lng));
     setAddress(addr);
-    setLocationConfirmed(false);
-    setMapStatus('Location pin placed. Click "Confirm Location" below.');
-    setMapStatusType('info');
-  }
-
-  function useDemoLocation() {
-    setAddress(DEMO_LOCATION.address);
-    setLat(String(DEMO_LOCATION.lat));
-    setLng(String(DEMO_LOCATION.lng));
-    setLocationSource('DEMO_LOCATION');
-    setLocationAccuracy('Pre-Calibrated SIH Benchmark Coordinates (LIET Campus)');
-    if (!landmark) setLandmark(DEMO_LOCATION.landmark);
     setLocationConfirmed(true);
-    setMapStatus("✅ Confirmed SIH Demo Location: Lord's Institute of Engineering & Technology, Hyderabad.");
+    setMapStatus('Location confirmed from map pin.');
     setMapStatusType('success');
-    toast('SIH Demo Location (LIET Hyderabad) loaded & confirmed!', 'success');
-    if (wfMapRef.current && window.google?.maps) {
-      const pos = { lat: DEMO_LOCATION.lat, lng: DEMO_LOCATION.lng };
-      wfMapRef.current.setCenter(pos);
-      wfMapRef.current.setZoom(16);
-      if (wfMarkerRef.current) wfMarkerRef.current.setPosition(pos);
-      else
-        wfMarkerRef.current = new window.google.maps.Marker({
-          position: pos,
-          map: wfMapRef.current,
-          title: "Lord's Institute (SIH Demo Location)"
-        });
-    }
   }
 
-  function useMyLocation() {
-    if (!navigator.geolocation) {
-      setMapStatus('GPS unavailable on this browser. Click map or use Demo Location.');
-      setMapStatusType('error');
-      return;
-    }
-    setMapStatus('Requesting device GPS coordinates…');
-    setMapStatusType('info');
-    toast('Requesting device location…', 'info');
-
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        setLocationSource('DEVICE_GPS');
-        setLocationAccuracy(`High Accuracy GPS (±${Math.round(pos.coords.accuracy || 10)}m)`);
-        setLat(String(pos.coords.latitude));
-        setLng(String(pos.coords.longitude));
-        setAddress(`Device GPS: ${pos.coords.latitude.toFixed(5)}° N, ${pos.coords.longitude.toFixed(5)}° E`);
-        setLocationConfirmed(true);
-        if (wfMapRef.current) placeMarker(pos.coords.latitude, pos.coords.longitude, true);
-        toast('📍 Device GPS coordinates successfully detected!', 'success');
-      },
-      () => {
-        setMapStatus('Device GPS permission denied. Map selection and SIH Demo Location active.');
-        setMapStatusType('error');
-        toast('GPS access denied. Use map selection or SIH Demo Location.', 'info');
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-    );
-  }
-
-  function confirmLocation() {
-    if (!lat || !lng) {
-      setMapStatus('Please detect GPS, select a map point, or click "Use SIH Demo Location".');
-      setMapStatusType('error');
-      return;
-    }
-    setLocationConfirmed(true);
-    setMapStatus('✅ Problem location confirmed.');
-    setMapStatusType('success');
-    toast('Problem location confirmed.', 'success');
-  }
-
-  // Classification API
+  // Truthful Prototype Classification API (Backend authoritative)
   async function runAI() {
     setAiLoading(true);
     setAiResult(null);
@@ -546,17 +536,17 @@ export default function ReportWorkflowModal() {
             'Suggested Physical Severity': activeSeverity,
             'Suggested Response Priority': activePriority,
             'Mandated Authority': c.authority || AUTHORITY[category] || 'Public Works Department',
-            'Recommended Action': c.action || 'Site inspection and rapid materials estimation',
-            'Classification Method': 'Prototype Classification Engine (Ontology Mapping)',
-            'Prototype Rule Confidence': `${score}% (Keyword Dictionary Match)`,
-            'Matched Terms': c.matched_terms?.join(', ') || 'pothole, road damage, transit'
+            'Recommended Action': c.action || 'Site inspection and field assessment',
+            'Classification Method': 'Prototype Rule-Based Classification (Ontology Match)',
+            'Rule Match Confidence': `${score}% (Keyword Dictionary Match)`,
+            'Matched Terms': c.matched_terms?.join(', ') || 'pothole, road damage'
           });
           setAiLoading(false);
           return;
         }
       }
     } catch {
-      // Fallback to local classifier
+      // Local fallback
     }
 
     const a = classify(title || detectedProblem, desc, category);
@@ -566,9 +556,9 @@ export default function ReportWorkflowModal() {
       'Suggested Physical Severity': activeSeverity,
       'Suggested Response Priority': activePriority,
       'Mandated Authority': a.authority || AUTHORITY[category] || 'Public Works Department',
-      'Recommended Action': a.action || 'Site inspection and rapid materials estimation',
-      'Classification Method': 'Prototype Classification Engine (Ontology Mapping)',
-      'Prototype Rule Confidence': `${score}% (Keyword Dictionary Match)`
+      'Recommended Action': a.action || 'Site inspection and field assessment',
+      'Classification Method': 'Prototype Rule-Based Classification (Ontology Match)',
+      'Rule Match Confidence': `${score}% (Keyword Dictionary Match)`
     });
     setAiLoading(false);
   }
@@ -577,31 +567,31 @@ export default function ReportWorkflowModal() {
   async function createProblem(): Promise<boolean> {
     setIsSubmitting(true);
     setSubmitError(null);
-    const finalLat = lat ? Number(lat) : DEMO_LOCATION.lat;
-    const finalLng = lng ? Number(lng) : DEMO_LOCATION.lng;
-    const finalAddress = address || locationSearch || DEMO_LOCATION.address;
+    const finalLat = lat ? Number(lat) : null;
+    const finalLng = lng ? Number(lng) : null;
+    const finalAddress = address || locationSearch || 'Reported civic location';
 
     const res = await submitProblem({
-      title: title || `${activeSeverity} ${detectedProblem} near ${landmark || 'Lord’s Institute'}`,
+      title: title || `${activeSeverity} ${detectedProblem}`,
       desc: desc || 'Civic infrastructure problem reported by citizen.',
       category,
       severity: activeSeverity,
       location: finalAddress,
-      landmark: landmark || (finalLat === DEMO_LOCATION.lat ? DEMO_LOCATION.landmark : ''),
+      landmark,
       contact,
       datetime: new Date().toISOString(),
       affected: roadAffectedId === 'multi_lane' ? 'Multi-lane traffic' : 'Commuters and two-wheelers',
-      latitude: finalLat,
-      longitude: finalLng,
-      location_source: locationSource,
-      location_accuracy: locationAccuracy,
+      latitude: finalLat ?? DEMO_LOCATION.lat,
+      longitude: finalLng ?? DEMO_LOCATION.lng,
+      location_source: locationSource || 'MANUAL_ENTRY',
+      location_accuracy: locationAccuracy || 'User specified',
       photos: files.slice()
     });
 
     setIsSubmitting(false);
 
     if (!res.success || !res.data) {
-      const err = res.error || 'Failed to register problem in backend database.';
+      const err = res.error || 'Failed to register problem in backend datastore.';
       setSubmitError(err);
       toast(err, 'error');
       return false;
@@ -609,38 +599,39 @@ export default function ReportWorkflowModal() {
 
     setCreatedId(res.data.id);
     setCreatedCat(res.data.category);
-    setCreatedDate(new Date().toLocaleString('en-IN'));
-    toast(`Problem ${res.data.id} registered in persistent database.`, 'success');
+    toast(`Problem ${res.data.id} registered in persistent datastore.`, 'success');
     return true;
   }
 
-  // Navigation controller
-  async function goNext() {
+  // Step navigation
+  function goNext() {
     if (step === 1) {
       if (files.length === 0) {
-        toast('Please take a photo, upload an image, or use SIH Benchmark Evidence.', 'error');
+        toast('Please capture or upload photo evidence to proceed.', 'error');
         return;
       }
       stopCamera();
+      // If location is not yet known, trigger auto GPS immediately
+      if (!lat || !lng) {
+        autoDetectLocation();
+      }
       setStep(2);
     } else if (step === 2) {
       if (!lat || !lng) {
-        useDemoLocation();
+        toast('Please confirm a location, select on map, or use Demo Mode.', 'error');
+        return;
       }
       setStep(3);
     } else if (step === 3) {
       setStep(4);
     } else if (step === 4) {
       if (!title) {
-        toast('Please confirm or enter a problem title.', 'error');
+        toast('Please provide a problem title.', 'error');
         return;
       }
       setStep(5);
     } else if (step === 5) {
-      const ok = await createProblem();
-      if (ok) {
-        // Leave at step 5 or navigate to detail
-      }
+      createProblem();
     }
   }
 
@@ -653,11 +644,11 @@ export default function ReportWorkflowModal() {
 
   const nextLabel =
     step === 1
-      ? 'Confirm Evidence → Location'
+      ? 'Continue to Location'
       : step === 2
-      ? 'Confirm Location → Assess Impact'
+      ? 'Continue to Impact'
       : step === 3
-      ? 'Confirm Impact → Prefilled Details'
+      ? 'Continue to Review Details'
       : step === 4
       ? 'Review Report Summary'
       : createdId
@@ -670,7 +661,7 @@ export default function ReportWorkflowModal() {
     <div className="overlay workflow-overlay show" aria-hidden="false">
       <div className="modal" role="dialog" aria-modal={true} aria-labelledby="wfTitle">
         <div className="workflow-shell">
-          {/* Head */}
+          {/* Header */}
           <div className="wf-head">
             <div className="modal-head" style={{ margin: 0 }}>
               <div>
@@ -690,7 +681,7 @@ export default function ReportWorkflowModal() {
             </div>
           </div>
 
-          {/* Steps Indicator */}
+          {/* Workflow Steps Indicator */}
           <div className="wf-steps">
             {WORKFLOW_STEPS.map((s, i) => (
               <div
@@ -703,9 +694,9 @@ export default function ReportWorkflowModal() {
             ))}
           </div>
 
-          {/* Body */}
+          {/* Workflow Body */}
           <div className="wf-body">
-            {/* PANE 1: CAMERA & PHOTO FIRST */}
+            {/* STEP 1: PHOTO EVIDENCE FIRST */}
             <div className={`wf-pane ${step === 1 ? 'active' : ''}`}>
               <div style={{ marginBottom: 16 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
@@ -716,12 +707,12 @@ export default function ReportWorkflowModal() {
                 </p>
               </div>
 
-              {/* Primary Action Buttons */}
+              {/* Primary Photo Actions */}
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
                 <button
                   type="button"
                   className="btn btn-primary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 13.5 }}
                   onClick={() => {
                     if (isCameraActive) captureSnapshot();
                     else startCamera();
@@ -736,7 +727,8 @@ export default function ReportWorkflowModal() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '10px 18px',
+                    padding: '10px 20px',
+                    fontSize: 13.5,
                     cursor: 'pointer',
                     margin: 0
                   }}
@@ -751,19 +743,9 @@ export default function ReportWorkflowModal() {
                     onChange={handleFileInput}
                   />
                 </label>
-
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px' }}
-                  onClick={loadBenchmarkPhoto}
-                  title="Loads evaluated LIET campus road damage photo"
-                >
-                  🎯 Use SIH Benchmark Photo
-                </button>
               </div>
 
-              {/* Live WebRTC Camera Stream Container */}
+              {/* WebRTC Live Camera Stream */}
               {isCameraActive && (
                 <div className="camera-container" style={{ marginBottom: 16 }}>
                   <video ref={videoRef} autoPlay playsInline muted className="camera-video" />
@@ -799,40 +781,31 @@ export default function ReportWorkflowModal() {
                     marginBottom: 12
                   }}
                 >
-                  ⚠️ {cameraError} (You can still upload a photo or use the SIH Benchmark).
+                  ⚠️ {cameraError} (You can upload a photo from your device instead).
                 </div>
               )}
 
-              {/* Captured Photo Previews & Quality Assessment */}
+              {/* Captured Photo Previews & Truthful Evidence Badge */}
               {files.length > 0 && (
-                <div style={{ background: '#fbfcfe', border: '1px solid var(--line)', borderRadius: 12, padding: 16 }}>
+                <div style={{ background: '#fbfcfe', border: '1px solid var(--line)', borderRadius: 12, padding: 16, marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <b style={{ fontSize: 13 }}>Evidence Captured ({files.length})</b>
-                      {photoQuality && (
-                        <span className={`quality-chip ${photoQuality}`}>
-                          Quality: {photoQuality}
-                        </span>
-                      )}
+                      <b style={{ fontSize: 13 }}>Evidence Attached ({files.length})</b>
+                      <span className="quality-chip GOOD">
+                        ✓ Evidence Ready
+                      </span>
                     </div>
                     <button
                       type="button"
                       className="btn btn-secondary btn-sm"
                       onClick={() => {
                         setFiles([]);
-                        setPhotoQuality(null);
                         startCamera();
                       }}
                     >
-                      🔄 Retake / Change Photo
+                      🔄 Retake / Change
                     </button>
                   </div>
-
-                  {photoQualityReason && (
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>
-                      {photoQualityReason}
-                    </div>
-                  )}
 
                   <div className="wf-preview" style={{ marginTop: 0 }}>
                     {files.map((f, i) => (
@@ -863,53 +836,70 @@ export default function ReportWorkflowModal() {
                 </div>
               )}
 
-              {/* Evidence Guidelines */}
+              {/* Explicit SIH Benchmark Demo Mode Drawer */}
               <div
                 style={{
-                  marginTop: 14,
                   padding: '12px 14px',
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: '#f1f6fb',
+                  border: '1px dashed #b7cde3',
                   borderRadius: 10,
-                  fontSize: 12,
-                  color: 'var(--muted)',
                   display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: 10
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  marginTop: 10
                 }}
               >
-                <span style={{ fontSize: 18 }}>💡</span>
                 <div>
-                  <b>Evidence Quality Tip:</b> Capture the affected road crater or infrastructure clearly in frame. Including nearby buildings or road edges helps solvers assess repair scale.
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className="demo-tag">DEMO MODE</span>
+                    <b style={{ fontSize: 12.5, color: 'var(--blue)' }}>SIH 2026 Evaluation Benchmark Case</b>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                    Demonstrates verified LIET Hyderabad entrance road pothole evidence &amp; coordinates.
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={loadDemoBenchmarkCase}
+                >
+                  🎯 Load Benchmark Case
+                </button>
               </div>
             </div>
 
-            {/* PANE 2: AUTOMATIC LOCATION & DUPLICATE DETECTION */}
+            {/* STEP 2: LOCATION & DUPLICATE DETECTION */}
             <div className={`wf-pane ${step === 2 ? 'active' : ''}`}>
               <div style={{ marginBottom: 14 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
                   Location &amp; Proximity Check
                 </h3>
                 <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                  Automatically determined via photo metadata or device GPS. Nearby duplicate reports are detected automatically.
+                  Automatically determined via photo metadata or device GPS. Nearby reports are checked automatically.
                 </p>
               </div>
 
-              {/* DUPLICATE WARNING BANNER IF NEARBY REPORT DETECTED */}
+              {/* Nearby Duplicate Detection Banner */}
               {nearbyDuplicate && (
                 <div className="duplicate-alert-banner">
                   <div className="duplicate-alert-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span>⚠️</span>
-                      <span>Similar problem already reported nearby (~{nearbyDuplicate.distance} meters away)</span>
+                      <span>Nearby problem detected within 600m (~{nearbyDuplicate.distance} meters away)</span>
                     </div>
                     <span className="proto-tag" style={{ background: '#f5c878', color: '#593900' }}>
-                      Duplicate Guard
+                      Proximity Notice
                     </span>
                   </div>
                   <div style={{ fontSize: 12.5, color: '#593900' }}>
                     <b>Problem #{nearbyDuplicate.problem.id}:</b> {nearbyDuplicate.problem.title} ({nearbyDuplicate.problem.category})
+                    {nearbyDuplicate.problem.category === category && (
+                      <span style={{ marginLeft: 6, fontWeight: 700, color: '#14548f' }}>
+                        • Same Category ({category})
+                      </span>
+                    )}
                     <div style={{ marginTop: 3, opacity: 0.9 }}>
                       Status: <b>{STAGES[nearbyDuplicate.problem.stage] || 'Reported'}</b> · Location: {nearbyDuplicate.problem.location}
                     </div>
@@ -925,15 +915,15 @@ export default function ReportWorkflowModal() {
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      onClick={() => toast('Continuing to submit additional citizen evidence.', 'info')}
+                      onClick={() => toast('Continuing as a separate report.', 'info')}
                     >
-                      ➕ Report Anyway / Add Evidence
+                      Continue as New Report
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Location Status & Detection Banner */}
+              {/* Location Source Status Banner */}
               <div
                 style={{
                   background: '#f8fafc',
@@ -949,111 +939,118 @@ export default function ReportWorkflowModal() {
                 }}
               >
                 <div style={{ fontSize: 12.5 }}>
-                  <span style={{ color: 'var(--muted)' }}>Detected Location Source: </span>
-                  <b style={{ color: 'var(--blue)', textTransform: 'uppercase' }}>
-                    {locationSource === 'PHOTO_EXIF' ? '✓ Photo Metadata (EXIF GPS)' : locationSource}
-                  </b>
-                  <div style={{ color: 'var(--muted)', fontSize: 11.5, marginTop: 2 }}>{locationAccuracy}</div>
+                  <span style={{ color: 'var(--muted)' }}>Location Source: </span>
+                  {locationSource ? (
+                    <b style={{ color: 'var(--blue)' }}>
+                      {locationSource === 'PHOTO_EXIF'
+                        ? '✓ Location detected from photo metadata (EXIF GPS)'
+                        : locationSource === 'DEVICE_GPS'
+                        ? '✓ Location detected from device GPS'
+                        : 'Map Selection'}
+                    </b>
+                  ) : (
+                    <span style={{ color: '#8f5a00' }}>Awaiting automatic detection or map pin</span>
+                  )}
+                  {locationAccuracy && (
+                    <div style={{ color: 'var(--muted)', fontSize: 11.5, marginTop: 2 }}>{locationAccuracy}</div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={useMyLocation}>
-                    📡 Device GPS
-                  </button>
-                  <button type="button" className="btn btn-primary btn-sm" onClick={useDemoLocation}>
-                    📍 SIH LIET Benchmark
-                  </button>
-                </div>
-              </div>
-
-              {/* Detected Location Card */}
-              <div className="sahyog-location-card" style={{ marginTop: 0, marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="sahyog-location-title" style={{ margin: 0 }}>📍 Problem Location</div>
-                  <span className="proto-tag">
-                    {locationConfirmed ? '✓ Confirmed' : 'Ready to Confirm'}
-                  </span>
-                </div>
-                <div className="location-kv" style={{ margin: '10px 0' }}>
-                  <div>
-                    <span>Human-Readable Area / Address</span>
-                    <b>{address || locationSearch || DEMO_LOCATION.address}</b>
-                  </div>
-                  <div>
-                    <span>Latitude</span>
-                    <b>{lat ? Number(lat).toFixed(5) : DEMO_LOCATION.lat}</b>
-                  </div>
-                  <div>
-                    <span>Longitude</span>
-                    <b>{lng ? Number(lng).toFixed(5) : DEMO_LOCATION.lng}</b>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button
                     type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={confirmLocation}
-                    disabled={locationConfirmed}
+                    className="btn btn-secondary btn-sm"
+                    onClick={autoDetectLocation}
+                    disabled={isDetectingGps}
                   >
-                    {locationConfirmed ? '✅ Location Confirmed' : 'Confirm This Location'}
+                    {isDetectingGps ? 'Detecting GPS…' : '📡 Retry Device GPS'}
                   </button>
-                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                    Coordinates will be attached to report for municipal jurisdiction matching.
-                  </span>
                 </div>
               </div>
 
-              {/* Interactive Google Map Pinning */}
-              <div className="sahyog-google-map" id="wf-map" ref={mapRef} role="application" aria-label="Google Map" />
-
-              {/* Fallback Simulation Box when API key is default */}
-              {(!window.google?.maps || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') && (
+              {/* Detected Coordinates Card */}
+              {lat && lng ? (
+                <div className="sahyog-location-card" style={{ marginTop: 0, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="sahyog-location-title" style={{ margin: 0 }}>📍 Problem Location</div>
+                    <span className="proto-tag">
+                      {locationConfirmed ? '✓ Confirmed' : 'Ready to Confirm'}
+                    </span>
+                  </div>
+                  <div className="location-kv" style={{ margin: '10px 0' }}>
+                    <div>
+                      <span>Area / Address</span>
+                      <b>{address || locationSearch || 'Coordinates registered'}</b>
+                    </div>
+                    <div>
+                      <span>Latitude</span>
+                      <b>{Number(lat).toFixed(5)}</b>
+                    </div>
+                    <div>
+                      <span>Longitude</span>
+                      <b>{Number(lng).toFixed(5)}</b>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div
                   style={{
-                    background: '#eef4fa',
-                    border: '2px dashed #b7cde3',
+                    padding: '12px 16px',
+                    background: '#fff8eb',
+                    border: '1px solid #f9dfad',
                     borderRadius: 8,
-                    padding: 14,
-                    textAlign: 'center',
-                    marginTop: 8,
-                    cursor: 'pointer'
+                    fontSize: 12.5,
+                    color: '#8f5a00',
+                    marginBottom: 12
                   }}
-                  onClick={() => useDemoLocation()}
                 >
-                  <b style={{ fontSize: 13, color: 'var(--blue)' }}>SIH 2026 Evaluation Location Benchmark</b>
-                  <p style={{ fontSize: 12, color: 'var(--muted)', margin: '4px 0 8px' }}>
-                    Click to load verified coordinates: <b>Lord&apos;s Institute of Engineering &amp; Technology, Hyderabad (17.3486° N, 78.3683° E)</b>
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    onClick={e => {
-                      e.stopPropagation();
-                      useDemoLocation();
-                    }}
-                  >
-                    Confirm LIET Benchmark Location
-                  </button>
+                  <b>Location could not be detected automatically.</b>
+                  <div style={{ marginTop: 4 }}>
+                    Please click a point on the interactive map below, search your area, or load the SIH Demo Benchmark.
+                  </div>
                 </div>
               )}
+
+              {/* Map View */}
+              <div className="sahyog-google-map" id="wf-map" ref={mapRef} role="application" aria-label="Google Map" />
+
+              {/* Explicit Demo Coordinates Button for Presentation */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: 11.5 }}
+                  onClick={() => {
+                    setAddress(DEMO_LOCATION.address);
+                    setLat(String(DEMO_LOCATION.lat));
+                    setLng(String(DEMO_LOCATION.lng));
+                    setLocationSource('DEMO_LOCATION');
+                    setLocationAccuracy('Pre-Calibrated Benchmark Coordinates');
+                    setLocationConfirmed(true);
+                    toast('🎯 Demo Mode: Loaded LIET Campus Coordinates', 'info');
+                  }}
+                >
+                  📍 Demo Mode — Use LIET Campus Coordinates
+                </button>
+              </div>
 
               {mapStatus && <div className={`map-status ${mapStatusType}`} style={{ marginTop: 8 }}>{mapStatus}</div>}
             </div>
 
-            {/* PANE 3: IMPACT-BASED SEVERITY & PRIORITY */}
+            {/* STEP 3: HELP SAHYOG ASSESS THE IMPACT */}
             <div className={`wf-pane ${step === 3 ? 'active' : ''}`}>
               <div style={{ marginBottom: 16 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
-                  Impact &amp; Severity Assessment
+                  Help SahYog assess the impact
                 </h3>
                 <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                  SahYog calculates suggested severity and priority based on physical damage and surrounding civic context.
+                  Quick selections help the prototype calculate a suggested severity based on field disruption and civic context.
                 </p>
               </div>
 
               {/* Question 1: Road Coverage */}
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  1. How much of the roadway is physically affected? *
+                  1. How much of the roadway is affected? (Select impact)
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
                   {ROAD_AFFECTED_OPTIONS.map(opt => (
@@ -1079,7 +1076,7 @@ export default function ReportWorkflowModal() {
               {/* Question 2: Traffic Disruption */}
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  2. Is vehicle traffic currently disrupted? *
+                  2. Is vehicle traffic currently disrupted? (Select impact)
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
                   {TRAFFIC_IMPACT_OPTIONS.map(opt => (
@@ -1102,10 +1099,10 @@ export default function ReportWorkflowModal() {
                 </div>
               </div>
 
-              {/* Question 3: Surrounding Context & Hazards */}
+              {/* Question 3: Surrounding Context */}
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  3. Critical facility proximity &amp; hazard context (select all that apply)
+                  3. Critical facility proximity &amp; hazard context (optional)
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
                   {CONTEXT_PROXIMITY_OPTIONS.map(opt => {
@@ -1134,16 +1131,16 @@ export default function ReportWorkflowModal() {
                 </div>
               </div>
 
-              {/* Calculated Severity & Priority Result Box */}
+              {/* Prototype Severity Recommendation Box */}
               <div style={{ background: '#f7fbff', border: '1px solid #cfe0f1', borderRadius: 12, padding: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <div>
                     <b style={{ fontSize: 14, color: 'var(--blue)' }}>Prototype Impact-Based Assessment</b>
                     <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                      Distinguishes physical problem severity from civic response priority.
+                      Suggested severity based on reported road impact and traffic disruption.
                     </div>
                   </div>
-                  <span className="proto-tag">Heuristic Calculation</span>
+                  <span className="proto-tag">Prototype Heuristic</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
@@ -1158,7 +1155,7 @@ export default function ReportWorkflowModal() {
                         className="prefill-edit-toggle"
                         onClick={() => setIsCustomizingSeverity(!isCustomizingSeverity)}
                       >
-                        {isCustomizingSeverity ? 'Use Suggested' : 'Edit'}
+                        {isCustomizingSeverity ? 'Use Suggested' : 'Change Severity'}
                       </button>
                     </div>
                     {isCustomizingSeverity && (
@@ -1184,7 +1181,7 @@ export default function ReportWorkflowModal() {
                       <span className={`status-chip ${activePriority}`}>{activePriority}</span>
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                      Elevated due to proximity to educational/civic facilities.
+                      Elevated if in vicinity of educational/medical facilities.
                     </div>
                   </div>
                 </div>
@@ -1200,30 +1197,30 @@ export default function ReportWorkflowModal() {
               </div>
             </div>
 
-            {/* PANE 4: PREFILLED DETAILS & CLASSIFICATION */}
+            {/* STEP 4: PREFILLED DETAILS & RULE-BASED CLASSIFICATION */}
             <div className={`wf-pane ${step === 4 ? 'active' : ''}`}>
               <div style={{ marginBottom: 16 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
                   Problem Details &amp; Classification
                 </h3>
                 <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                  Pre-filled by SahYog prototype ontology. You retain full edit control before submission.
+                  Pre-filled by prototype rule-based ontology. You retain full edit control before submission.
                 </p>
               </div>
 
-              {/* Classification Engine Card */}
+              {/* Transparent Classifier Card */}
               <div className="ai-demo-card" style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <b>Prototype Classification Engine</b>
-                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>Rule-Based Ontology &amp; Authority Mapping</div>
+                    <b>Prototype Rule-Based Classification</b>
+                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>Rule-Based Ontology &amp; Statutory Authority Mapping</div>
                   </div>
                   <span className="proto-tag">Rule-Based Prototype</span>
                 </div>
 
                 {aiLoading ? (
                   <div style={{ padding: 20, textAlign: 'center', color: 'var(--muted)' }}>
-                    Analyzing problem evidence and matching civic ontology…
+                    Analyzing report context and available evidence against municipal ontology…
                   </div>
                 ) : (
                   <div className="ai-demo-grid" style={{ marginTop: 10 }}>
@@ -1247,7 +1244,7 @@ export default function ReportWorkflowModal() {
                 )}
               </div>
 
-              {/* Auto-Generated Title with Edit Toggle */}
+              {/* Title Field with Edit Toggle */}
               <div className="field" style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <label style={{ margin: 0 }}>Problem Title *</label>
@@ -1283,7 +1280,7 @@ export default function ReportWorkflowModal() {
                 )}
               </div>
 
-              {/* Auto-Generated Description with Edit Toggle */}
+              {/* Description Field with Edit Toggle */}
               <div className="field" style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <label style={{ margin: 0 }}>Description *</label>
@@ -1326,7 +1323,7 @@ export default function ReportWorkflowModal() {
                   <input
                     type="text"
                     maxLength={120}
-                    placeholder="Nearby gate, junction, building..."
+                    placeholder="Nearby gate, building, or junction..."
                     value={landmark}
                     onChange={e => setLandmark(e.target.value)}
                   />
@@ -1342,13 +1339,9 @@ export default function ReportWorkflowModal() {
                   />
                 </div>
               </div>
-
-              <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--muted)' }}>
-                🕒 <b>Timestamp:</b> Automatically recorded on submission ({new Date().toLocaleDateString('en-IN')}).
-              </div>
             </div>
 
-            {/* PANE 5: REVIEW & SUBMIT */}
+            {/* STEP 5: REVIEW & SUBMIT */}
             <div className={`wf-pane ${step === 5 ? 'active' : ''}`}>
               {!createdId ? (
                 <div>
@@ -1357,12 +1350,11 @@ export default function ReportWorkflowModal() {
                       Report Review
                     </h3>
                     <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                      Review and confirm all details before dispatching to the multi-stakeholder collaborative pipeline.
+                      Review and edit anything before submitting to the collaborative pipeline.
                     </p>
                   </div>
 
                   <div className="card" style={{ background: '#fbfcfe', border: '1px solid var(--line)', padding: 18 }}>
-                    {/* Summary Header */}
                     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', borderBottom: '1px solid var(--line)', paddingBottom: 14, marginBottom: 14 }}>
                       {files[0] && (
                         <div style={{ width: 100, height: 75, borderRadius: 8, overflow: 'hidden', flexShrink: 0, border: '1px solid var(--line)' }}>
@@ -1379,22 +1371,21 @@ export default function ReportWorkflowModal() {
                       </div>
                     </div>
 
-                    {/* Summary KVs */}
                     <div className="kv" style={{ padding: '6px 0' }}>
                       <span>Location</span>
-                      <b>{address || locationSearch || DEMO_LOCATION.address}</b>
+                      <b>{address || locationSearch || 'Reported civic area'}</b>
                     </div>
                     <div className="kv" style={{ padding: '6px 0' }}>
                       <span>Location Source</span>
-                      <span className="status-chip Low">{locationSource}</span>
+                      <span className="status-chip Low">{locationSource || 'MANUAL_ENTRY'}</span>
                     </div>
                     <div className="kv" style={{ padding: '6px 0' }}>
                       <span>Mandated Authority</span>
                       <b>{AUTHORITY[category] || 'Public Works Department'}</b>
                     </div>
                     <div className="kv" style={{ padding: '6px 0' }}>
-                      <span>Evidence Quality</span>
-                      <span className={`quality-chip ${photoQuality || 'GOOD'}`}>{photoQuality || 'GOOD'}</span>
+                      <span>Evidence Status</span>
+                      <span className="quality-chip GOOD">✓ Evidence Attached</span>
                     </div>
 
                     <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
@@ -1420,23 +1411,24 @@ export default function ReportWorkflowModal() {
                       }}
                     >
                       <b>Submission Error:</b> {submitError}
+                      <div style={{ marginTop: 4 }}>Click &ldquo;Submit to Collaborative Pipeline&rdquo; to retry.</div>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="success-box">
                   <div className="success-icon">✓</div>
-                  <h3 style={{ fontSize: 20 }}>Problem Registered in Database</h3>
+                  <h3 style={{ fontSize: 20 }}>Problem Registered in Pipeline</h3>
                   <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 16px' }}>
-                    Successfully created and persisted in the relational database. Central source of truth across all 5 stakeholder dashboards.
+                    Created in persistent datastore as the central source of truth across all 5 stakeholder dashboards.
                   </p>
                   <div className="card" style={{ textAlign: 'left', background: '#fbfcfe' }}>
                     <div className="kv"><span>Problem ID</span><b>{createdId}</b></div>
                     <div className="kv"><span>Category</span><span>{createdCat || category}</span></div>
-                    <div className="kv"><span>Location</span><span>{address || locationSearch || DEMO_LOCATION.address}</span></div>
+                    <div className="kv"><span>Location</span><span>{address || locationSearch}</span></div>
                     <div className="kv"><span>Severity &amp; Priority</span><span>{activeSeverity} · Priority: {activePriority}</span></div>
                     <div className="kv"><span>Status</span><span className="status-chip High">Stage 1 · Submitted &amp; Classified</span></div>
-                    <div className="kv"><span>Database Status</span><b>Persistent (data/sahyog.db.json)</b></div>
+                    <div className="kv"><span>Datastore Status</span><b>Persistent Prototype Datastore (data/sahyog.db.json)</b></div>
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--blue)', marginTop: 14 }}>
                     Click &ldquo;View Stakeholder Workspace&rdquo; to track solver matching and collaboration!
@@ -1446,7 +1438,7 @@ export default function ReportWorkflowModal() {
             </div>
           </div>
 
-          {/* Action Footer */}
+          {/* Actions */}
           <div className="wf-actions">
             <button
               className="btn btn-secondary"
@@ -1481,7 +1473,7 @@ export default function ReportWorkflowModal() {
                 }}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Registering in Database…' : nextLabel}
+                {isSubmitting ? 'Registering in Pipeline…' : nextLabel}
               </button>
             </div>
           </div>

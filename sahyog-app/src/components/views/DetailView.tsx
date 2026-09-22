@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSahYog } from '@/store/useSahYog';
 import { STAGES } from '@/lib/constants';
 import type { Solution, OrgMatch } from '@/lib/types';
@@ -27,6 +27,117 @@ export default function DetailView() {
   const [fbResolved, setFbResolved] = useState(false);
   const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isAfterCameraActive, setIsAfterCameraActive] = useState(false);
+  const [uploadingAfterEvidence, setUploadingAfterEvidence] = useState(false);
+  const afterVideoRef = useRef<HTMLVideoElement>(null);
+  const afterCanvasRef = useRef<HTMLCanvasElement>(null);
+  const afterMediaStreamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (afterMediaStreamRef.current) {
+        afterMediaStreamRef.current.getTracks().forEach(t => t.stop());
+        afterMediaStreamRef.current = null;
+      }
+    };
+  }, []);
+
+  async function startAfterCamera() {
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        toast('Live camera not supported by browser. Please use photo upload.', 'error');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      afterMediaStreamRef.current = stream;
+      setIsAfterCameraActive(true);
+      setTimeout(() => {
+        if (afterVideoRef.current) {
+          afterVideoRef.current.srcObject = stream;
+          afterVideoRef.current.play().catch(() => {});
+        }
+      }, 100);
+    } catch {
+      toast('Camera permission denied or camera unavailable. Please upload photo.', 'error');
+      setIsAfterCameraActive(false);
+    }
+  }
+
+  function stopAfterCamera() {
+    if (afterMediaStreamRef.current) {
+      afterMediaStreamRef.current.getTracks().forEach(t => t.stop());
+      afterMediaStreamRef.current = null;
+    }
+    setIsAfterCameraActive(false);
+  }
+
+  async function captureAfterSnapshot() {
+    if (!afterVideoRef.current) return;
+    const video = afterVideoRef.current;
+    const canvas = afterCanvasRef.current || document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      stopAfterCamera();
+      setUploadingAfterEvidence(true);
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl, name: `after_verification_${Date.now()}.jpg` })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.url) {
+            setEvidenceRef(json.url);
+            toast('📷 After-repair evidence photo captured and uploaded!', 'success');
+            setUploadingAfterEvidence(false);
+            return;
+          }
+        }
+      } catch {}
+      setEvidenceRef(dataUrl);
+      setUploadingAfterEvidence(false);
+      toast('📷 After-repair snapshot attached!', 'success');
+    }
+  }
+
+  async function handleAfterFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const fl = e.target.files;
+    if (!fl || fl.length === 0) return;
+    const file = fl[0];
+    stopAfterCamera();
+    setUploadingAfterEvidence(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.url) {
+          setEvidenceRef(json.url);
+          toast('🖼 After-repair photo uploaded to server!', 'success');
+          setUploadingAfterEvidence(false);
+          return;
+        }
+      }
+    } catch {}
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (ev.target?.result) {
+        setEvidenceRef(ev.target.result as string);
+        toast('After-repair photo attached locally!', 'info');
+      }
+    };
+    reader.readAsDataURL(file);
+    setUploadingAfterEvidence(false);
+  }
 
   const p = problems.find(x => x.id === currentDetailId);
   if (!p) return null;
@@ -610,28 +721,93 @@ export default function DetailView() {
               </button>
             </div>
 
-            <div className="field" style={{ marginTop: 12 }}>
-              <label style={{ fontSize: 12 }}>After-Repair Verification Evidence Photo</label>
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <input
-                  type="text"
-                  placeholder="/demo/pothole_after.jpg"
-                  style={{ fontSize: 12 }}
-                  value={evidenceRef}
-                  onChange={e => setEvidenceRef(e.target.value)}
-                />
+            <div className="field" style={{ marginTop: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, display: 'block', marginBottom: 6 }}>
+                Attach After-Repair Ground Verification Evidence *
+              </label>
+
+              {/* Action Buttons for After Evidence */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  onClick={() => {
+                    if (isAfterCameraActive) captureAfterSnapshot();
+                    else startAfterCamera();
+                  }}
+                >
+                  {isAfterCameraActive ? '📸 Capture Snapshot' : '📷 Take After Photo'}
+                </button>
+
+                <label
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer', margin: 0 }}
+                >
+                  <span>🖼 Upload After Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={handleAfterFileUpload}
+                  />
+                </label>
+
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => setEvidenceRef('/demo/pothole_after.jpg')}
-                  title="Load verified SIH demo after photo"
+                  style={{ fontSize: 11.5 }}
+                  onClick={() => {
+                    stopAfterCamera();
+                    setEvidenceRef('/demo/pothole_after.jpg');
+                    toast('🎯 Demo Mode: Loaded SIH Benchmark After Photo (/demo/pothole_after.jpg)', 'info');
+                  }}
+                  title="Load verified SIH benchmark after photo"
                 >
-                  SIH Evidence
+                  🎯 Load Benchmark After-Photo (Demo)
                 </button>
               </div>
-              <small style={{ fontSize: 11, color: 'var(--muted)' }}>
-                Demonstration after-photo: <code>/demo/pothole_after.jpg</code> (Compacted asphalt repair)
-              </small>
+
+              {/* Live WebRTC Camera Stream for Citizen Verification */}
+              {isAfterCameraActive && (
+                <div className="camera-container" style={{ marginBottom: 12, minHeight: 220 }}>
+                  <video ref={afterVideoRef} autoPlay playsInline muted className="camera-video" style={{ maxHeight: 240 }} />
+                  <canvas ref={afterCanvasRef} style={{ display: 'none' }} />
+                  <div className="camera-controls">
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={captureAfterSnapshot}
+                    >
+                      📸 Capture
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={stopAfterCamera}
+                    >
+                      ✕ Close Camera
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* After Photo Preview */}
+              {evidenceRef && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 8, background: '#f8fafc', border: '1px solid var(--line)', borderRadius: 8 }}>
+                  <div style={{ width: 80, height: 60, borderRadius: 6, overflow: 'hidden', flexShrink: 0, border: '1px solid #cbd5e1' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={evidenceRef} alt="After Evidence Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <div style={{ flex: 1, fontSize: 12 }}>
+                    <b style={{ color: 'var(--green)' }}>✓ After-Repair Evidence Attached</b>
+                    <div style={{ color: 'var(--muted)', fontSize: 11, marginTop: 2, wordBreak: 'break-all' }}>
+                      {uploadingAfterEvidence ? 'Uploading to server…' : evidenceRef.startsWith('data:') ? 'Captured image ready for sign-off' : evidenceRef}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="field" style={{ marginTop: 12 }}>
