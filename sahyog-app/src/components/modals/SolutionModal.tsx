@@ -5,8 +5,8 @@ import type { Solution } from '@/lib/types';
 import { toast } from '@/components/ToastStack';
 
 export default function SolutionModal() {
-  const { state, dispatch } = useSahYog();
-  const { solutionOpen, currentRole } = state;
+  const { state, dispatch, submitSolution } = useSahYog();
+  const { solutionOpen, currentRole, currentDetailId } = state;
 
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -16,26 +16,44 @@ export default function SolutionModal() {
   const [impact, setImpact] = useState('');
   const [resources, setResources] = useState('');
   const [plan, setPlan] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function submit() {
+  async function submit() {
     if (!title) { toast('Please add a solution title.', 'error'); return; }
+    if (!currentDetailId) { toast('No active problem selected.', 'error'); return; }
+
+    if (currentRole === 'citizen') {
+      toast('Citizens report and verify issues. Switch role to University or Industry to submit technical proposals.', 'error');
+      return;
+    }
+
     const org = currentRole === 'university'
-      ? "Lord's Institute Infrastructure Lab (You)"
+      ? "Lord's Institute Infrastructure Lab (Academic)"
       : currentRole === 'industry'
-      ? 'Deccan InfraTech Partner (You)'
+      ? 'Deccan InfraTech Partner (Industry)'
       : currentRole === 'ngo'
-      ? 'Community Action Partner (You)'
-      : 'Collaborative Problem Solver (You)';
-    const sol: Omit<Solution, 'id'> = {
-      title, org, status: 'Proposed',
+      ? 'Community Action Partner (NGO)'
+      : 'Technical Solution Partner';
+
+    setIsSubmitting(true);
+    const res = await submitSolution({
+      problem_id: currentDetailId,
+      title,
+      org_name: org,
       desc: desc || 'Engineered collaborative solution.',
       tech: tech || '—',
       cost: cost ? `₹${cost}` : '—',
       time: time || '—',
       impact: impact || '—',
-    };
-    dispatch({ type: 'SUBMIT_SOLUTION', sol });
-    toast('Solution proposal submitted to collaboration workspace!', 'success');
+    });
+    setIsSubmitting(false);
+
+    if (!res.success) {
+      toast(res.error || 'Failed to submit solution proposal to backend.', 'error');
+      return;
+    }
+
+    toast('Solution proposal submitted and logged to collaboration workspace!', 'success');
     setTitle(''); setDesc(''); setTech(''); setCost(''); setTime(''); setImpact(''); setResources(''); setPlan('');
   }
 

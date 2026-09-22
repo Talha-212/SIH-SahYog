@@ -12,12 +12,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const actorRole = request.headers.get('x-user-role') || body.actor_role || 'citizen';
+
     const updatedProblem = await recordVerificationRecord({
       problem_id: body.problem_id,
       resolved: body.resolved,
       comment: body.comment || (body.resolved ? 'Verified on ground by citizen: Issue resolved.' : 'Citizen feedback: Issue still unresolved.'),
       evidence_ref: body.evidence_ref,
-      verified_by: body.verified_by || 'Citizen Reporter'
+      verified_by: body.verified_by || 'Citizen Reporter',
+      actor_role: actorRole
     });
 
     if (!updatedProblem) {
@@ -35,9 +38,10 @@ export async function POST(request: Request) {
       data: updatedProblem
     });
   } catch (error: any) {
+    const isForbidden = error?.message?.toLowerCase().includes('permission denied');
     return NextResponse.json(
       { success: false, error: error?.message || 'Failed to record verification' },
-      { status: 500 }
+      { status: isForbidden ? 403 : 500 }
     );
   }
 }

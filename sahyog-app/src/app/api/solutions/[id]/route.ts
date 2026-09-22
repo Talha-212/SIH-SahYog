@@ -33,10 +33,12 @@ export async function PATCH(
       );
     }
 
+    const actorRole = (request.headers.get('x-user-role') || body.actor_role || 'Government') as 'Government' | 'Industry' | 'University' | 'Citizen';
+
     const updatedProblem = await updateSolutionStatus(
       id,
       body.status,
-      body.actor_role || 'Government'
+      actorRole
     );
 
     if (!updatedProblem) {
@@ -52,9 +54,10 @@ export async function PATCH(
       data: updatedProblem
     });
   } catch (error: any) {
+    const isForbidden = error?.message?.toLowerCase().includes('permission denied');
     return NextResponse.json(
       { success: false, error: error?.message || 'Failed to update solution' },
-      { status: 500 }
+      { status: isForbidden ? 403 : 500 }
     );
   }
 }

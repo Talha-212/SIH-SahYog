@@ -81,7 +81,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Urban road maintenance & statutory municipal oversight',
       location: 'Rajendranagar Circle Office, Hyderabad',
       resources: 'Heavy road repair machinery, civic inspection team, municipal budget',
-      projects: '42 completed municipal road works (demo)',
+      projects: 'Municipal road network oversight & statutory maintenance mandate (DEMO DATA)',
       reasons: ['Statutory jurisdiction over Himayat Sagar arterial roads', 'Mandated authority for civic infrastructure approval'],
       factors: { domain: 38, jurisdiction: 28, expertise: 18, capacity: 10 }
     },
@@ -92,7 +92,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Polymer-modified cold asphalt & fast-curing composite patch formulations',
       location: "Lord's Institute of Engineering & Technology, Hyderabad",
       resources: 'Materials testing lab, student technical squad, core testing apparatus',
-      projects: '7 applied university road stabilization pilots (demo)',
+      projects: 'Polymer cold-mix research & pavement durability testing capability (DEMO DATA)',
       reasons: ['Immediate campus proximity to problem site', 'Specialized cold-mix fast-curing asphalt research'],
       factors: { domain: 36, jurisdiction: 26, expertise: 17, capacity: 8 }
     },
@@ -103,7 +103,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Rapid pothole compaction technology & industrial cold-mix supply',
       location: 'Kattedan Industrial Area, Hyderabad',
       resources: 'Compactor trucks, rapid thermal patchers, field workforce',
-      projects: '31 infrastructure execution contracts (demo)',
+      projects: 'Industrial asphalt production & mechanized road compaction fleet (DEMO DATA)',
       reasons: ['Local manufacturing of rapid cold-mix composite', 'Quick-response field deployment crew within 8km'],
       factors: { domain: 34, jurisdiction: 24, expertise: 16, capacity: 8 }
     },
@@ -114,7 +114,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Pedestrian safety audits, volunteer coordination & road marking',
       location: 'Mehdipatnam, Hyderabad',
       resources: 'Community volunteer network, reflective safety signage gear',
-      projects: '19 community road safety campaigns (demo)',
+      projects: 'Pedestrian safety audits & community volunteer liaison (DEMO DATA)',
       reasons: ['Active civic volunteer presence in South Hyderabad', 'Liaison capability for citizen verification surveys'],
       factors: { domain: 30, jurisdiction: 25, expertise: 14, capacity: 7 }
     }
@@ -127,7 +127,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Scheduled route collection, dumping oversight, municipal zoning',
       location: 'City Zone Office',
       resources: 'Compactor vehicles, sanitation crew, disposal permits',
-      projects: '34 completed sanitation drives (demo)',
+      projects: 'Zonal sanitation planning & scheduled route collection oversight (DEMO DATA)',
       reasons: ['Direct civic mandate for zone sanitation', 'Authority for waste disposal routing'],
       factors: { domain: 38, jurisdiction: 28, expertise: 18, capacity: 10 }
     },
@@ -138,7 +138,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Waste volume estimation, IoT sensor prototypes, composting science',
       location: 'City Institute of Technology',
       resources: 'IoT lab, ultrasonic sensor nodes, student data team',
-      projects: '9 university environmental sensor pilots (demo)',
+      projects: 'IoT fill-level telemetry & organic composting science (DEMO DATA)',
       reasons: ['Smart bin telemetry research', 'Prior localized waste optimization models'],
       factors: { domain: 35, jurisdiction: 26, expertise: 18, capacity: 8 }
     },
@@ -149,7 +149,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Mechanized waste segregation & material recycling',
       location: 'Industrial Estate, Hyderabad',
       resources: 'Segregation units, secondary collection vans',
-      projects: '21 contracted recovery projects (demo)',
+      projects: 'Mechanized waste sorting & secondary resource recovery capability (DEMO DATA)',
       reasons: ['Private recycling capacity', 'Available on-demand secondary logistics'],
       factors: { domain: 33, jurisdiction: 25, expertise: 16, capacity: 8 }
     },
@@ -160,7 +160,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Community mobilization & source-segregation workshops',
       location: 'Zone 4 Civic Center',
       resources: '50+ community volunteers, bilingual educational material',
-      projects: '14 citizen awareness campaigns (demo)',
+      projects: 'Grassroots community mobilization & segregation liaison (DEMO DATA)',
       reasons: ['Grassroots presence in residential sector', 'Assistance in ground verification'],
       factors: { domain: 30, jurisdiction: 26, expertise: 13, capacity: 7 }
     }
@@ -173,7 +173,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Municipal mains supply lines & sewerage infrastructure',
       location: 'Central Water Board Office',
       resources: 'Pipeline repair teams, emergency isolation valves',
-      projects: '47 water board interventions (demo)',
+      projects: 'Statutory municipal pipeline authority & valve isolation custody (DEMO DATA)',
       reasons: ['Statutory custody of distribution pipelines', 'Mandated authority for supply shutdowns'],
       factors: { domain: 38, jurisdiction: 28, expertise: 18, capacity: 10 }
     },
@@ -184,7 +184,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Hydraulic modeling, acoustic leak detection algorithms',
       location: 'Institute of Engineering & Tech',
       resources: 'Acoustic leak loggers, flow simulation software',
-      projects: '8 smart water grid pilot studies (demo)',
+      projects: 'Acoustic leak detection algorithms & pressure surge modeling (DEMO DATA)',
       reasons: ['Specialized non-invasive pipeline assessment', 'Student research support'],
       factors: { domain: 36, jurisdiction: 25, expertise: 18, capacity: 8 }
     },
@@ -195,7 +195,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Trenchless slip-lining & rapid composite pipe clamping',
       location: 'Cherlapally Industrial Area',
       resources: 'Trenchless boring units, composite sleeves',
-      projects: '18 industrial pipeline repair jobs (demo)',
+      projects: 'Trenchless slip-lining & composite pipe clamping capability (DEMO DATA)',
       reasons: ['No-dig repair capabilities avoiding road excavation', 'Quick deployment response'],
       factors: { domain: 34, jurisdiction: 24, expertise: 16, capacity: 8 }
     }
@@ -208,7 +208,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Zonal civic administration & inter-departmental routing',
       location: 'District Administration Complex',
       resources: 'Field inspection officers, municipal liaison staff',
-      projects: '25 administrative referrals (demo)',
+      projects: 'Zonal administrative routing & multi-departmental coordination (DEMO DATA)',
       reasons: ['General statutory responsibility for civic infrastructure'],
       factors: { domain: 36, jurisdiction: 26, expertise: 16, capacity: 10 }
     },
@@ -219,7 +219,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Applied societal engineering & low-cost solution prototyping',
       location: 'City Engineering College',
       resources: 'Prototyping makerspace, faculty advisory panel',
-      projects: '11 civic engineering prototypes (demo)',
+      projects: 'Low-cost societal engineering prototyping & makerspace research (DEMO DATA)',
       reasons: ['Interdisciplinary engineering student project capability'],
       factors: { domain: 34, jurisdiction: 25, expertise: 16, capacity: 8 }
     },
@@ -230,7 +230,7 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
       expertise: 'Turnkey civic civil and electrical execution',
       location: 'Regional Hub',
       resources: 'Equipment crews, field workforce',
-      projects: '15 local civil executions (demo)',
+      projects: 'Turnkey civic electrical & civil field execution crew (DEMO DATA)',
       reasons: ['On-ground deployment capability in municipal jurisdiction'],
       factors: { domain: 32, jurisdiction: 24, expertise: 15, capacity: 8 }
     }
@@ -240,7 +240,8 @@ export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
 export const STAGES = [
   'Reported',
   'Verified',
-  'Matched & Assigned',
+  'Matched',
+  'Collaborating',
   'Solution Proposed',
   'Approved',
   'In Deployment',
@@ -248,7 +249,7 @@ export const STAGES = [
   'Citizen Verified'
 ];
 
-export const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
 export const DEMO_LOCATION = {
   address: "Lord's Institute of Engineering & Technology, Himayat Sagar Road, Hyderabad, Telangana 500091",
@@ -282,7 +283,7 @@ export const INITIAL_PROBLEMS: Problem[] = [
     location: "Lord's Institute of Engg & Tech, Himayat Sagar, Hyderabad",
     affected: '~450 daily students & commuters (Demo Context)',
     severity: 'High',
-    stage: 3, // Solution Proposed
+    stage: 4, // Solution Proposed
     date: 'Today',
     landmark: 'Near LIET Main Campus Gate, Himayat Sagar',
     datetime: '2026-09-21T09:30',
@@ -291,7 +292,7 @@ export const INITIAL_PROBLEMS: Problem[] = [
     mapX: 48,
     mapY: 42,
     photos: [
-      { src: sampleSvg('Roads & Infrastructure', 'Potholes at Campus Gate (Realistic Demo Photo)'), isVideo: false, name: 'gate_pothole_evidence.jpg' }
+      { src: '/demo/pothole_before.jpg', isVideo: false, name: 'college_gate_pothole_evidence.jpg' }
     ],
     solutions: [
       {

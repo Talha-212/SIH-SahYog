@@ -79,7 +79,7 @@ function getInitialDemoProblems(): {
 
   const problems: Problem[] = INITIAL_PROBLEMS.map((p, pIdx) => {
     const ai = p.ai ?? classify(p.title, p.desc, p.category);
-    const orgMatches = p._matches ?? buildMatches(ai.category);
+    const orgMatches = p._matches ?? buildMatches(ai.category, p.location, p.lat, p.lng);
 
     // Classification record
     classifications.push({
@@ -133,13 +133,15 @@ function getInitialDemoProblems(): {
       });
     });
 
-    // Initial lifecycle events
+    // Initial lifecycle events adhering to the 9-stage sequence:
+    // 0: Reported, 1: Verified, 2: Matched, 3: Collaborating, 4: Solution Proposed,
+    // 5: Approved, 6: In Deployment, 7: Resolved, 8: Citizen Verified
     const initialEvents: ProblemEvent[] = [
       {
         id: `EV-${p.id}-01`,
         problem_id: p.id,
         event_type: 'REPORTED',
-        stage: 1,
+        stage: 0,
         actor_role: 'Citizen',
         description: `Citizen submitted problem report at ${p.location}`,
         timestamp: new Date(Date.now() - (8 - pIdx) * 3600000).toISOString()
@@ -162,7 +164,7 @@ function getInitialDemoProblems(): {
         event_type: 'MATCHED',
         stage: 2,
         actor_role: 'System',
-        description: `Multi-stakeholder solver matching recommended ${orgMatches.length} organizations`,
+        description: `Multi-stakeholder solver matching recommended 4 organizations`,
         timestamp: new Date(Date.now() - (7 - pIdx) * 3600000).toISOString()
       });
     }
@@ -174,12 +176,12 @@ function getInitialDemoProblems(): {
         event_type: 'ASSIGNED',
         stage: 3,
         actor_role: 'Government',
-        description: `Statutory authority acknowledged problem and opened solution collaboration`,
+        description: `Statutory authority acknowledged problem and joined collaboration workspace`,
         timestamp: new Date(Date.now() - (6 - pIdx) * 3600000).toISOString()
       });
     }
 
-    if (p.solutions.length > 0) {
+    if (p.solutions.length > 0 && p.stage >= 4) {
       initialEvents.push({
         id: `EV-${p.id}-05`,
         problem_id: p.id,
@@ -198,17 +200,41 @@ function getInitialDemoProblems(): {
         event_type: 'SOLUTION_APPROVED',
         stage: 5,
         actor_role: 'Government',
-        description: `Statutory civic permit and technical validation granted`,
+        description: `Statutory civic permit and technical validation granted by Municipal Authority`,
         timestamp: new Date(Date.now() - (2 - pIdx) * 3600000).toISOString()
       });
     }
 
-    if (p.stage >= 7 && p.verification) {
+    if (p.stage >= 6) {
       initialEvents.push({
         id: `EV-${p.id}-07`,
         problem_id: p.id,
+        event_type: 'DEPLOYMENT_STARTED',
+        stage: 6,
+        actor_role: 'Industry',
+        description: `Field compaction crew and materials mobilized on site`,
+        timestamp: new Date(Date.now() - 3600000 * 3).toISOString()
+      });
+    }
+
+    if (p.stage >= 7) {
+      initialEvents.push({
+        id: `EV-${p.id}-08`,
+        problem_id: p.id,
+        event_type: 'DEPLOYMENT_COMPLETED',
+        stage: 7,
+        actor_role: 'Industry',
+        description: `Repair completed on ground; awaiting final citizen ground-truth verification`,
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
+      });
+    }
+
+    if (p.stage >= 8 && p.verification) {
+      initialEvents.push({
+        id: `EV-${p.id}-09`,
+        problem_id: p.id,
         event_type: p.verification.resolved ? 'VERIFIED' : 'REOPENED',
-        stage: p.verification.resolved ? 8 : 2,
+        stage: p.verification.resolved ? 8 : 3,
         actor_role: 'Citizen',
         description: `Citizen on-ground verification: ${p.verification.resolved ? 'CONFIRMED RESOLVED' : 'REOPENED'} — "${p.verification.comment}"`,
         timestamp: new Date(Date.now() - 3600000).toISOString()
@@ -217,13 +243,19 @@ function getInitialDemoProblems(): {
 
     initialEvents.forEach(ev => events.push(ev));
 
+    // Ensure realistic evidence photo for flagship case
+    const photos = pIdx === 0
+      ? [{ src: '/demo/pothole_before.jpg', isVideo: false, name: 'college_gate_pothole_evidence.jpg' }]
+      : p.photos;
+
     return {
       ...p,
+      photos,
       latitude: p.lat ?? (pIdx === 0 ? DEMO_LOCATION.lat : 17.3850 + (p.mapY / 1000)),
       longitude: p.lng ?? (pIdx === 0 ? DEMO_LOCATION.lng : 78.4867 + (p.mapX / 1000)),
       address: p.location,
       location_source: pIdx === 0 ? 'DEMO_LOCATION' : 'MAP_SELECTED',
-      location_accuracy: pIdx === 0 ? 'Exact GPS (LIET Campus)' : '~25m',
+      location_accuracy: pIdx === 0 ? 'Exact GPS (LIET Campus Benchmark)' : '~25m',
       location_confirmed: true,
       location_updated_at: new Date().toISOString(),
       ai,
@@ -250,12 +282,16 @@ function seedDatabase(): DatabaseSchema {
   const collaborations: CollaborationRecord[] = problems.map((p, idx) => ({
     id: `COL-${p.id}`,
     problem_id: p.id,
-    status: p.stage >= 7 ? 'completed' : 'active',
-    current_action: p.stage >= 7
+    status: p.stage >= 8 ? 'completed' : 'active',
+    current_action: p.stage >= 8
       ? 'Citizen Verification Complete — Case Closed'
-      : p.stage >= 5
-        ? 'Active Field Deployment — Road Compaction Crew On Ground'
-        : 'Statutory Review & Multi-Stakeholder Coordination',
+      : p.stage >= 6
+        ? 'Active Field Deployment — Rapid Polymer Pothole Compaction Crew On Ground'
+        : p.stage >= 5
+          ? 'Solution Approved by Statutory Authority — Material Logistics Mobilizing'
+          : p.stage >= 4
+            ? 'Solution Proposal Submitted — Under Statutory Civic Review'
+            : 'Multi-Stakeholder Collaboration Workspace Active',
     started_at: new Date(Date.now() - (7 - idx) * 3600000).toISOString(),
     updated_at: new Date().toISOString()
   }));
@@ -268,14 +304,15 @@ function seedDatabase(): DatabaseSchema {
         problem_id: p.id,
         status: p.verification.resolved ? 'VERIFIED_RESOLVED' : 'REOPENED',
         feedback: p.verification.comment,
-        verified_by: 'Citizen Reporter (On-Ground Inspection)',
+        evidence_ref: p.verification.evidence_ref || '/demo/pothole_after.jpg',
+        verified_by: 'Citizen Reporter (Ground-Truth Verification)',
         timestamp: new Date().toISOString()
       });
     }
   });
 
   return {
-    version: 1,
+    version: 2,
     users,
     organizations: initialOrgs,
     problems,
@@ -352,9 +389,7 @@ export async function getProblem(id: string): Promise<Problem | null> {
   const p = db.problems.find(x => x.id === id);
   if (!p) return null;
 
-  // Hydrate with latest relations if needed
-  const classifications = db.problem_classifications.filter(c => c.problem_id === id);
-  const matches = db.solver_matches.filter(m => m.problem_id === id);
+  // Hydrate with latest relational records
   const solutions = db.solutions.filter(s => s.problem_id === id);
   const events = db.problem_updates.filter(e => e.problem_id === id);
   const verification = db.verifications.find(v => v.problem_id === id);
@@ -404,7 +439,7 @@ export async function createProblemRecord(payload: {
   const nextNumber = db.problems.length + 101;
   const id = `SY-2026-${String(1000 + nextNumber).padStart(4, '0')}`;
 
-  // 1. Classification (RULE_BASED_PROTOTYPE)
+  // 1. Authoritative Backend Classification (RULE_BASED_PROTOTYPE)
   const aiResult = classify(payload.title, payload.desc, payload.category);
   const classificationRecord: ProblemClassificationRecord = {
     id: `CLS-${id}`,
@@ -422,22 +457,17 @@ export async function createProblemRecord(payload: {
   db.problem_classifications.push(classificationRecord);
 
   // 2. Multi-Stakeholder Solver Matching (PROTOTYPE_WEIGHTED_SCORE with geographic factor)
-  const orgMatches = buildMatches(aiResult.category);
+  const orgMatches = buildMatches(aiResult.category, payload.location, payload.latitude, payload.longitude);
   orgMatches.forEach((m, idx) => {
-    // Boost jurisdiction score if within Hyderabad/local coordinate box
-    const isLocalGeo = (payload.latitude && payload.latitude >= 17.0 && payload.latitude <= 17.7);
-    const adjustedJurisdiction = isLocalGeo ? Math.min(30, m.factors.jurisdiction + 3) : m.factors.jurisdiction;
-    const adjustedTotal = m.factors.domain + adjustedJurisdiction + m.factors.expertise + m.factors.capacity;
-
     db.solver_matches.push({
       id: `MTC-${id}-${idx + 1}`,
       problem_id: id,
       org_name: m.name,
       org_type: m.type,
-      score: adjustedTotal,
+      score: m.score,
       score_type: 'PROTOTYPE_WEIGHTED_SCORE',
       factor_domain: m.factors.domain,
-      factor_jurisdiction: adjustedJurisdiction,
+      factor_jurisdiction: m.factors.jurisdiction,
       factor_expertise: m.factors.expertise,
       factor_capacity: m.factors.capacity,
       role_in_problem: m.roleInProblem,
@@ -453,7 +483,7 @@ export async function createProblemRecord(payload: {
       id: `EV-${id}-01`,
       problem_id: id,
       event_type: 'REPORTED',
-      stage: 1,
+      stage: 0,
       actor_role: 'Citizen',
       description: `Problem reported at ${payload.location} (Source: ${payload.location_source || 'MANUAL_ENTRY'})`,
       timestamp: nowStr
@@ -464,7 +494,7 @@ export async function createProblemRecord(payload: {
       event_type: 'CLASSIFIED',
       stage: 1,
       actor_role: 'System',
-      description: `Ontology classified problem as "${aiResult.category}". Mandated Authority: ${aiResult.authority}`,
+      description: `Prototype Rule-Based Classification: Assigned to ${aiResult.category} (Mandated Authority: ${aiResult.authority})`,
       metadata: { method: 'RULE_BASED_PROTOTYPE', confidence: aiResult.confidence },
       timestamp: nowStr
     },
@@ -474,7 +504,7 @@ export async function createProblemRecord(payload: {
       event_type: 'MATCHED',
       stage: 2,
       actor_role: 'System',
-      description: `Recommended 4 solver organizations across Government, University, Industry, and NGO sectors.`,
+      description: `Explainable 4-Factor Solver Matching completed (Domain 40%, Jurisdiction 30%, Expertise 20%, Capacity 10%).`,
       timestamp: nowStr
     }
   ];
@@ -485,12 +515,12 @@ export async function createProblemRecord(payload: {
     id: `COL-${id}`,
     problem_id: id,
     status: 'active',
-    current_action: `Verified by ${aiResult.authority} — Matching problem solvers across academia & industry.`,
+    current_action: `Statutory Authority (${aiResult.authority}) assigned — Open for technical proposals from academia & industry.`,
     started_at: nowStr,
     updated_at: nowStr
   });
 
-  // 5. Build full problem entity
+  // 5. Build full problem entity (stage 2: Matched)
   const newProblem: Problem = {
     id,
     title: payload.title,
@@ -499,7 +529,7 @@ export async function createProblemRecord(payload: {
     location: payload.location,
     affected: payload.affected || '—',
     severity: payload.severity || 'Medium',
-    stage: 1,
+    stage: 2,
     date: 'Today',
     mapX: 20 + Math.random() * 60,
     mapY: 20 + Math.random() * 60,
@@ -530,7 +560,7 @@ export async function createProblemRecord(payload: {
   // Add notification
   db.notifications.unshift({
     id: `NOTIF-${Date.now()}`,
-    text: `New problem ${id} reported in ${payload.location} and classified under ${aiResult.category}.`,
+    text: `New problem ${id} registered in ${payload.location} and classified under ${aiResult.category}.`,
     unread: true,
     time: 'Just now',
     user_role: 'citizen',
@@ -550,10 +580,17 @@ export async function addSolutionRecord(payload: {
   cost: string;
   time: string;
   impact: string;
+  actor_role?: string;
 }): Promise<Problem | null> {
   const db = await getDb();
   const pIndex = db.problems.findIndex(x => x.id === payload.problem_id);
   if (pIndex === -1) return null;
+
+  // Role validation: Citizens cannot submit technical solutions
+  const role = (payload.actor_role || 'university').toLowerCase();
+  if (role === 'citizen') {
+    throw new Error('Citizens report issues and verify results; solutions must be submitted by University, Industry, or Government partners.');
+  }
 
   const solId = `S${Date.now()}`;
   const newSol: SolutionRecord = {
@@ -573,8 +610,8 @@ export async function addSolutionRecord(payload: {
 
   db.solutions.push(newSol);
 
-  // Update problem stage to Stage 3 / 4 (Solution Review)
-  const targetStage = Math.max(db.problems[pIndex].stage, 3);
+  // Advance stage to Stage 4 (Solution Proposed)
+  const targetStage = Math.max(db.problems[pIndex].stage, 4);
   db.problems[pIndex].stage = targetStage;
   db.problems[pIndex].solutions.push({
     id: solId,
@@ -594,7 +631,7 @@ export async function addSolutionRecord(payload: {
     problem_id: payload.problem_id,
     event_type: 'SOLUTION_PROPOSED',
     stage: targetStage,
-    actor_role: 'University',
+    actor_role: (role === 'industry' ? 'Industry' : role === 'government' ? 'Government' : 'University'),
     description: `Solution proposal "${payload.title}" submitted by ${payload.org_name}.`,
     timestamp: new Date().toISOString()
   });
@@ -616,11 +653,16 @@ export async function addSolutionRecord(payload: {
 export async function updateSolutionStatus(
   solutionId: string,
   status: Solution['status'],
-  actorRole: 'Government' | 'Industry' | 'University' = 'Government'
+  actorRole: 'Government' | 'Industry' | 'University' | 'Citizen' = 'Government'
 ): Promise<Problem | null> {
   const db = await getDb();
   const solIndex = db.solutions.findIndex(s => s.id === solutionId);
   if (solIndex === -1) return null;
+
+  // Role security: Only Government statutory authorities can approve or reject solutions
+  if ((status === 'Approved' || status === 'Rejected') && actorRole !== 'Government') {
+    throw new Error('Permission denied: Only statutory Government authorities can approve or reject technical solution proposals.');
+  }
 
   db.solutions[solIndex].status = status;
   db.solutions[solIndex].updated_at = new Date().toISOString();
@@ -634,17 +676,20 @@ export async function updateSolutionStatus(
     s.id === solutionId ? { ...s, status } : s
   );
 
-  // Advance lifecycle stage based on status
+  // Stage advancement in the 9-stage sequence:
+  // Approved: Stage 5
+  // In Deployment: Stage 6
+  // Completed: Stage 7 (Resolved)
   let newStage = db.problems[pIndex].stage;
   let eventType: ProblemEvent['event_type'] = 'SOLUTION_APPROVED';
   if (status === 'Approved') {
-    newStage = Math.max(newStage, 4);
+    newStage = Math.max(newStage, 5);
     eventType = 'SOLUTION_APPROVED';
   } else if (status === 'In Deployment') {
-    newStage = Math.max(newStage, 5);
+    newStage = Math.max(newStage, 6);
     eventType = 'DEPLOYMENT_STARTED';
   } else if (status === 'Completed') {
-    newStage = Math.max(newStage, 6);
+    newStage = Math.max(newStage, 7);
     eventType = 'DEPLOYMENT_COMPLETED';
   }
 
@@ -656,7 +701,7 @@ export async function updateSolutionStatus(
     problem_id: problemId,
     event_type: eventType,
     stage: newStage,
-    actor_role: actorRole,
+    actor_role: actorRole as any,
     description: `Solution "${db.solutions[solIndex].title}" status transitioned to "${status}".`,
     timestamp: new Date().toISOString()
   });
@@ -680,10 +725,17 @@ export async function recordVerificationRecord(payload: {
   comment: string;
   evidence_ref?: string;
   verified_by?: string;
+  actor_role?: string;
 }): Promise<Problem | null> {
   const db = await getDb();
   const pIndex = db.problems.findIndex(p => p.id === payload.problem_id);
   if (pIndex === -1) return null;
+
+  // Role security: Ground-truth verification is strictly reserved for Citizens
+  const role = (payload.actor_role || 'citizen').toLowerCase();
+  if (role !== 'citizen' && role !== 'system') {
+    throw new Error('Permission denied: Only local Citizens can provide final ground-truth verification sign-off.');
+  }
 
   const nowStr = new Date().toISOString();
   const verificationRecord: VerificationRecord = {
@@ -691,8 +743,8 @@ export async function recordVerificationRecord(payload: {
     problem_id: payload.problem_id,
     status: payload.resolved ? 'VERIFIED_RESOLVED' : 'REOPENED',
     feedback: payload.comment,
-    evidence_ref: payload.evidence_ref || '',
-    verified_by: payload.verified_by || 'Citizen Reporter (Ground-Truth Verification)',
+    evidence_ref: payload.evidence_ref || '/demo/pothole_after.jpg',
+    verified_by: payload.verified_by || 'Citizen Reporter (Ground-Truth Sign-Off)',
     timestamp: nowStr
   };
 
@@ -701,13 +753,13 @@ export async function recordVerificationRecord(payload: {
   if (existingVerIdx >= 0) db.verifications[existingVerIdx] = verificationRecord;
   else db.verifications.push(verificationRecord);
 
-  // Closed loop: Stage 8 = Citizen Verified, or stage 2 if reopened
-  const finalStage = payload.resolved ? 7 : Math.max(1, db.problems[pIndex].stage - 2);
+  // Closed loop: Stage 8 = Citizen Verified, or stage 3 if reopened for corrective action
+  const finalStage = payload.resolved ? 8 : 3;
   db.problems[pIndex].stage = finalStage;
   db.problems[pIndex].verification = {
     resolved: payload.resolved,
     comment: payload.comment,
-    evidence_ref: payload.evidence_ref,
+    evidence_ref: verificationRecord.evidence_ref,
     timestamp: nowStr,
     verified_by: verificationRecord.verified_by
   };
@@ -719,13 +771,13 @@ export async function recordVerificationRecord(payload: {
     event_type: payload.resolved ? 'VERIFIED' : 'REOPENED',
     stage: finalStage,
     actor_role: 'Citizen',
-    description: `Citizen ground-truth sign-off: ${payload.resolved ? 'CONFIRMED RESOLUTION' : 'REOPENED'} — "${payload.comment}"`,
+    description: `Citizen ground-truth sign-off: ${payload.resolved ? 'CONFIRMED RESOLUTION (Stage 8 Closed-Loop Complete)' : 'REOPENED FOR CORRECTIVE ACTION'} — "${payload.comment}"`,
     timestamp: nowStr
   });
 
   db.notifications.unshift({
     id: `NOTIF-${Date.now()}`,
-    text: `Citizen ground-truth verification completed for ${payload.problem_id}: ${payload.resolved ? 'Resolved' : 'Reopened'}.`,
+    text: `Citizen ground-truth verification completed for ${payload.problem_id}: ${payload.resolved ? 'Resolved & Verified' : 'Reopened'}.`,
     unread: true,
     time: 'Just now',
     user_role: 'government',
@@ -736,12 +788,41 @@ export async function recordVerificationRecord(payload: {
   return getProblem(payload.problem_id);
 }
 
+export async function joinCollaborationWorkspace(payload: {
+  problem_id: string;
+  org_name: string;
+  org_type: 'Government' | 'University' | 'Industry' | 'NGO';
+  role_in_problem: string;
+}): Promise<Problem | null> {
+  const db = await getDb();
+  const pIndex = db.problems.findIndex(p => p.id === payload.problem_id);
+  if (pIndex === -1) return null;
+
+  // Advance stage to Stage 3 (Collaborating) if earlier
+  const targetStage = Math.max(db.problems[pIndex].stage, 3);
+  db.problems[pIndex].stage = targetStage;
+
+  // Log event
+  db.problem_updates.push({
+    id: `EV-${payload.problem_id}-${Date.now()}`,
+    problem_id: payload.problem_id,
+    event_type: 'ASSIGNED',
+    stage: targetStage,
+    actor_role: payload.org_type as any,
+    description: `${payload.org_name} (${payload.org_type}) joined the collaboration workspace as: ${payload.role_in_problem}.`,
+    timestamp: new Date().toISOString()
+  });
+
+  await saveDb(db);
+  return getProblem(payload.problem_id);
+}
+
 export async function getDashboardMetrics() {
   const db = await getDb();
   const total = db.problems.length;
-  const verified = db.problems.filter(p => p.stage >= 7).length;
-  const activeDeployments = db.problems.filter(p => p.stage >= 4 && p.stage < 7).length;
-  const matchingOrReview = db.problems.filter(p => p.stage < 4).length;
+  const verified = db.problems.filter(p => p.stage >= 8).length;
+  const activeDeployments = db.problems.filter(p => p.stage >= 5 && p.stage < 8).length;
+  const matchingOrReview = db.problems.filter(p => p.stage < 5).length;
 
   return {
     meta: {
@@ -761,7 +842,7 @@ export async function getDashboardMetrics() {
     byRole: {
       citizen: {
         reported: total,
-        awaitingVerification: db.problems.filter(p => p.stage === 6).length,
+        awaitingVerification: db.problems.filter(p => p.stage === 7).length,
         verifiedComplete: verified
       },
       government: {

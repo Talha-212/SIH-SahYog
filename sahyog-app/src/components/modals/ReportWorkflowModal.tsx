@@ -16,7 +16,7 @@ declare global {
 }
 
 export default function ReportWorkflowModal() {
-  const { state, dispatch } = useSahYog();
+  const { state, dispatch, submitProblem } = useSahYog();
   const { wfOpen } = state;
 
   const [step, setStep] = useState(1);
@@ -35,6 +35,8 @@ export default function ReportWorkflowModal() {
   const [createdId, setCreatedId] = useState('');
   const [createdCat, setCreatedCat] = useState('');
   const [createdDate, setCreatedDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // form fields
   const [title, setTitle] = useState('');
@@ -61,6 +63,7 @@ export default function ReportWorkflowModal() {
       setExifFound(false);
       setAiResult(null); setTitle(''); setDesc(''); setCategory(''); setSeverity('');
       setLandmark(''); setContact(''); setLocationSearch('');
+      setIsSubmitting(false); setSubmitError(null);
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       setDatetime(now.toISOString().slice(0, 16));
@@ -206,56 +209,92 @@ export default function ReportWorkflowModal() {
     toast('Problem location confirmed.', 'success');
   }
 
-  function runAI() {
+  async function runAI() {
     setAiLoading(true); setAiResult(null);
-    setTimeout(() => {
-      const a = classify(title, desc, category);
-      const score = Math.min(99, Math.max(62, a.confidence));
-      setAiResult({
-        'Classified Category': a.category || category,
-        'Problem Severity': severity,
-        'Mandated Authority': a.authority || 'Municipal Corporation',
-        'Recommended Action': a.action || 'Field survey and cost estimation',
-        'Classification Method': 'RULE_BASED_PROTOTYPE (Ontology Match)',
-        'Prototype Rule Confidence': `${score}% (Keyword Dictionary Match)`,
-        'Roadmap Status': 'Rules-based prototype. Production models will use fine-tuned NLP.'
+    try {
+      const res = await fetch('/api/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, desc, category })
       });
-      setAiLoading(false);
-    }, 600);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const c = json.data;
+          const score = Math.min(99, Math.max(62, c.confidence));
+          setAiResult({
+            'Classified Category': c.category || category,
+            'Problem Severity': severity,
+            'Mandated Authority': c.authority || 'Municipal Corporation',
+            'Recommended Action': c.action || 'Field survey and cost estimation',
+            'Classification Method': `${c.method} (Ontology Match)`,
+            'Prototype Rule Confidence': `${score}% (Keyword Dictionary Match)`,
+            'Matched Keywords': c.matched_terms?.join(', ') || 'context terms',
+            'Roadmap Status': 'Rules-based prototype. Production models will use fine-tuned NLP.'
+          });
+          setAiLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // Fallback if API fails
+    }
+
+    const a = classify(title, desc, category);
+    const score = Math.min(99, Math.max(62, a.confidence));
+    setAiResult({
+      'Classified Category': a.category || category,
+      'Problem Severity': severity,
+      'Mandated Authority': a.authority || 'Municipal Corporation',
+      'Recommended Action': a.action || 'Field survey and cost estimation',
+      'Classification Method': 'RULE_BASED_PROTOTYPE (Ontology Match)',
+      'Prototype Rule Confidence': `${score}% (Keyword Dictionary Match)`,
+      'Roadmap Status': 'Rules-based prototype. Production models will use fine-tuned NLP.'
+    });
+    setAiLoading(false);
   }
 
-  function createProblem() {
+  async function createProblem(): Promise<boolean> {
+    setIsSubmitting(true);
+    setSubmitError(null);
     const finalLat = lat ? Number(lat) : DEMO_LOCATION.lat;
     const finalLng = lng ? Number(lng) : DEMO_LOCATION.lng;
     const finalAddress = address || locationSearch || DEMO_LOCATION.address;
 
-    dispatch({
-      type: 'CREATE_FROM_WORKFLOW',
-      data: {
-        title, desc, category,
-        severity, location: finalAddress,
-        landmark, contact, datetime,
-        affected: '—', stage: 1, date: 'Today',
-        mapX: 15 + Math.random() * 70, mapY: 18 + Math.random() * 64,
-        lat: finalLat, lng: finalLng,
-        latitude: finalLat, longitude: finalLng,
-        address: finalAddress,
-        location_source: locationSource,
-        location_accuracy: locationAccuracy,
-        location_confirmed: true,
-        location_updated_at: new Date().toISOString(),
-        photos: files.slice(),
-      }
+    const res = await submitProblem({
+      title,
+      desc,
+      category,
+      severity: severity || 'Medium',
+      location: finalAddress,
+      landmark,
+      contact,
+      datetime,
+      affected: '—',
+      latitude: finalLat,
+      longitude: finalLng,
+      location_source: locationSource,
+      location_accuracy: locationAccuracy,
+      photos: files.slice()
     });
 
-    const newId = `SY-2026-${String(1000 + state.problemCounter + 1).padStart(4, '0')}`;
-    setCreatedId(newId);
-    setCreatedCat(category);
+    setIsSubmitting(false);
+
+    if (!res.success || !res.data) {
+      const err = res.error || 'Failed to register problem in backend database.';
+      setSubmitError(err);
+      toast(err, 'error');
+      return false;
+    }
+
+    setCreatedId(res.data.id);
+    setCreatedCat(res.data.category);
     setCreatedDate(new Date().toLocaleString('en-IN'));
-    toast(`Problem registered and saved in backend database.`, 'success');
+    toast(`Problem ${res.data.id} registered and saved in backend database.`, 'success');
+    return true;
   }
 
-  function goNext() {
+  async function goNext() {
     if (step === 1) {
       if (!title || !desc || !category || !severity) { toast('Please complete the required problem details.', 'error'); return; }
       setStep(2);
@@ -265,7 +304,8 @@ export default function ReportWorkflowModal() {
       if (!locationConfirmed) { setMapStatus('Please select and confirm a location before continuing.'); setMapStatusType('error'); return; }
       setStep(4); runAI();
     } else if (step === 4) {
-      createProblem(); setStep(5);
+      const ok = await createProblem();
+      if (ok) setStep(5);
     } else if (step === 5) {
       dispatch({ type: 'CLOSE_WORKFLOW' });
       if (createdId) dispatch({ type: 'OPEN_DETAIL', id: createdId, from: 'home' });
@@ -402,8 +442,12 @@ export default function ReportWorkflowModal() {
               </div>
 
               {exifFound && (
-                <div style={{ marginTop: 12, padding: 12, background: '#eaf7ef', border: '1px solid #b7e3ca', borderRadius: 8, fontSize: 12.5, color: 'var(--green)' }}>
-                  <b>📍 EXIF GPS Coordinates Detected:</b> Lat: {Number(lat).toFixed(5)}, Lng: {Number(lng).toFixed(5)}. Location will be automatically populated in Step 3!
+                <div style={{ marginTop: 12, padding: '10px 14px', background: '#eaf7ef', border: '1px solid #b7e3ca', borderRadius: 8, fontSize: 13, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>📍</span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13 }}>Location found from photo metadata</div>
+                    <div style={{ fontSize: 11.5, opacity: 0.9 }}>EXIF GPS detected: {Number(lat).toFixed(5)}° N, {Number(lng).toFixed(5)}° E (Auto-filled for Step 3)</div>
+                  </div>
                 </div>
               )}
             </div>
@@ -527,6 +571,12 @@ export default function ReportWorkflowModal() {
                     ))}
                   </div>
                 )}
+                {submitError && (
+                  <div style={{ marginTop: 12, padding: 12, background: '#fdf2f2', border: '1px solid #f8b4b4', borderRadius: 6, color: '#9b1c1c', fontSize: 12 }}>
+                    <b>Database Error:</b> {submitError}
+                    <div style={{ marginTop: 4 }}>Please verify backend server and click &ldquo;Confirm &amp; Submit to Pipeline&rdquo; to retry.</div>
+                  </div>
+                )}
                 <div style={{ marginTop: 12, padding: 10, background: '#f8fafc', borderRadius: 6, border: '1px solid #eef2f6', fontSize: 11.5, color: 'var(--muted)' }}>
                   <b>Evaluator Note:</b> Stored in backend database as <code>RULE_BASED_PROTOTYPE</code>. Solver matching combines domain relevance (40%), geographic jurisdiction (30%), technical expertise (20%), and capacity (10%).
                 </div>
@@ -561,7 +611,9 @@ export default function ReportWorkflowModal() {
             <button className="btn btn-secondary" onClick={() => setStep(s => s - 1)} style={{ visibility: step > 1 ? 'visible' : 'hidden' }}>Back</button>
             <div className="right">
               {step < 5 && <button className="btn btn-secondary" onClick={() => dispatch({ type: 'CLOSE_WORKFLOW' })}>Cancel</button>}
-              <button className="btn btn-primary" onClick={goNext}>{nextLabel}</button>
+              <button className="btn btn-primary" onClick={goNext} disabled={isSubmitting}>
+                {isSubmitting ? 'Registering in Database…' : nextLabel}
+              </button>
             </div>
           </div>
         </div>

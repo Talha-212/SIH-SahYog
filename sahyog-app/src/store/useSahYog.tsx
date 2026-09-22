@@ -1,8 +1,8 @@
 'use client';
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from 'react';
 import type { Problem, Notification, Role, View, ExploreTab, Photo, Solution, OrgMatch, LocationSource } from '@/lib/types';
 import { INITIAL_PROBLEMS, INITIAL_NOTIFICATIONS, DEMO_LOCATION } from '@/lib/constants';
-import { classify, buildMatches, makeId } from '@/lib/classifier';
+import { classify, buildMatches } from '@/lib/classifier';
 
 const STORE_KEY = 'sahyog_demo_v2';
 
@@ -30,6 +30,9 @@ interface State {
   solutionOpen: boolean;
   orgProfileOpen: boolean;
   orgProfileData: OrgMatch | null;
+  // network & sync state
+  isSubmitting: boolean;
+  networkError: string | null;
 }
 
 const init = (): State => ({
@@ -57,6 +60,8 @@ const init = (): State => ({
   solutionOpen: false,
   orgProfileOpen: false,
   orgProfileData: null,
+  isSubmitting: false,
+  networkError: null,
 });
 
 // ---------- Actions ----------
@@ -74,13 +79,11 @@ type Action =
   | { type: 'OPEN_LIGHTBOX'; photos: Photo[]; index: number }
   | { type: 'CLOSE_LIGHTBOX' }
   | { type: 'LB_NAV'; dir: number }
-  | { type: 'SUBMIT_PROBLEM'; title: string; desc: string; category: string; location: string; affected: string; latitude?: number | null; longitude?: number | null; location_source?: LocationSource }
-  | { type: 'REVIEW_SOLUTION'; problemId: string; solId: string; status: Solution['status'] }
-  | { type: 'SUBMIT_SOLUTION'; sol: Omit<Solution,'id'> }
-  | { type: 'GIVE_FEEDBACK'; resolved: boolean; comment: string }
-  | { type: 'GOV_ACTION'; action: 'assign' | 'verify' }
-  | { type: 'INVITE_ORG'; name: string }
-  | { type: 'SET_PROBLEM_STAGE'; id: string; stage: number }
+  | { type: 'SET_PROBLEMS'; problems: Problem[] }
+  | { type: 'ADD_PROBLEM'; problem: Problem }
+  | { type: 'UPDATE_PROBLEM'; problem: Problem }
+  | { type: 'SET_SUBMITTING'; isSubmitting: boolean }
+  | { type: 'SET_ERROR'; error: string | null }
   | { type: 'TOGGLE_LOGIN' }
   | { type: 'OPEN_SOLUTION_MODAL' }
   | { type: 'CLOSE_SOLUTION_MODAL' }
@@ -90,8 +93,8 @@ type Action =
   | { type: 'CLOSE_WORKFLOW' }
   | { type: 'SET_WF_FILES'; files: Photo[] }
   | { type: 'SET_WF_LOCATION_CONFIRMED'; confirmed: boolean }
-  | { type: 'CREATE_FROM_WORKFLOW'; data: Omit<Problem,'id'|'solutions'|'verification'|'_matches'> }
-  | { type: 'RESTORE'; state: Partial<Pick<State,'problems'|'problemCounter'|'notifications'>> }
+  | { type: 'SET_WF_CREATED_ID'; id: string }
+  | { type: 'RESTORE'; state: Partial<Pick<State, 'problems' | 'problemCounter' | 'notifications'>> }
   | { type: 'RESET' };
 
 function now() {
@@ -118,7 +121,7 @@ function reducer(state: State, action: Action): State {
     }
     case 'OPEN_DETAIL': {
       const p = state.problems.find(x => x.id === action.id);
-      if (!p) return state;
+      if (!p) return { ...state, currentDetailId: action.id, detailFromView: action.from, currentView: 'detail' };
       const ai = p.ai ?? classify(p.title, p.desc, p.category);
       const matches = p._matches && p._matches.length > 0 ? p._matches : buildMatches(ai.category, p.location, p.lat, p.lng);
       const updated = state.problems.map(x => x.id === action.id ? { ...x, ai, _matches: matches } : x);
@@ -138,158 +141,45 @@ function reducer(state: State, action: Action): State {
       return { ...state, lightboxPhotos: [], lightboxIndex: 0 };
     case 'LB_NAV': {
       const photos = state.lightboxPhotos.filter(p => !p.isVideo);
+      if (photos.length === 0) return state;
       const next = (state.lightboxIndex + action.dir + photos.length) % photos.length;
       return { ...state, lightboxIndex: next };
     }
-    case 'SUBMIT_PROBLEM': {
-      const counter = state.problemCounter + 1;
-      const result = classify(action.title, action.desc, action.category);
-      const latVal = action.latitude ?? DEMO_LOCATION.lat;
-      const lngVal = action.longitude ?? DEMO_LOCATION.lng;
-      const newP: Problem = {
-        id: makeId(counter),
-        title: action.title,
-        desc: action.desc,
-        category: result.category,
-        location: action.location,
-        affected: action.affected || '—',
-        severity: state.selectedSeverity ?? 'Medium',
-        stage: 1,
-        date: 'Today',
-        mapX: 20 + Math.random() * 60,
-        mapY: 20 + Math.random() * 60,
-        lat: latVal,
-        lng: lngVal,
-        latitude: latVal,
-        longitude: lngVal,
-        address: action.location,
-        location_source: action.location_source || 'MANUAL_ENTRY',
-        location_accuracy: '~15m',
-        location_confirmed: true,
-        location_updated_at: new Date().toISOString(),
-        photos: state.uploadedPhotos.slice(),
-        solutions: [],
-        verification: null,
-        ai: result
-      };
-      const notifs = addNotif(state.notifications, `Problem ${newP.id} submitted and rule-classified under ${result.category}.`);
-      const matches = buildMatches(result.category, action.location, latVal, lngVal);
 
-      // Async backend persistence
-      fetch('/api/problems', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: newP.title,
-          desc: newP.desc,
-          category: newP.category,
-          location: newP.location,
-          severity: newP.severity,
-          affected: newP.affected,
-          latitude: newP.latitude,
-          longitude: newP.longitude,
-          location_source: newP.location_source,
-          photos: newP.photos
-        })
-      }).catch(() => {});
-
+    // Authoritative state updates
+    case 'SET_PROBLEMS':
+      return { ...state, problems: action.problems, problemCounter: action.problems.length + 100 };
+    case 'ADD_PROBLEM': {
+      const exists = state.problems.some(p => p.id === action.problem.id);
+      const updatedProblems = exists
+        ? state.problems.map(p => p.id === action.problem.id ? action.problem : p)
+        : [action.problem, ...state.problems];
       return {
         ...state,
-        problemCounter: counter,
-        problems: [{ ...newP, _matches: matches }, ...state.problems],
-        notifications: notifs,
-        currentDetailId: newP.id,
+        problems: updatedProblems,
+        problemCounter: state.problemCounter + 1,
+        currentDetailId: action.problem.id,
         detailFromView: 'report',
-        currentView: 'detail'
+        currentView: 'detail',
+        uploadedPhotos: [],
+        wfCreatedId: action.problem.id,
+        notifications: addNotif(state.notifications, `Problem ${action.problem.id} registered and classified in backend database.`)
       };
     }
-    case 'REVIEW_SOLUTION': {
-      const problems = state.problems.map(p => {
-        if (p.id !== action.problemId) return p;
-        const solutions = p.solutions.map(s => s.id === action.solId ? { ...s, status: action.status } : s);
-        let stage = p.stage;
-        if (action.status === 'Approved') stage = Math.max(stage, 4);
-        if (action.status === 'In Deployment') stage = Math.max(stage, 5);
-        if (action.status === 'Completed') stage = Math.max(stage, 6);
-        return { ...p, solutions, stage };
-      });
-      const sol = state.problems.find(x => x.id === action.problemId)?.solutions.find(s => s.id === action.solId);
-      const notifs = addNotif(state.notifications, `Solution "${sol?.title}" for ${action.problemId} is now: ${action.status}.`);
-
-      // Async backend update
-      fetch(`/api/solutions/${action.solId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: action.status, actor_role: 'Government' })
-      }).catch(() => {});
-
-      return { ...state, problems, notifications: notifs };
+    case 'UPDATE_PROBLEM': {
+      const updatedProblems = state.problems.map(p =>
+        p.id === action.problem.id ? action.problem : p
+      );
+      return {
+        ...state,
+        problems: updatedProblems
+      };
     }
-    case 'SUBMIT_SOLUTION': {
-      if (!state.currentDetailId) return state;
-      const sol: Solution = { ...action.sol, id: 'S' + Date.now() };
-      const problems = state.problems.map(p => {
-        if (p.id !== state.currentDetailId) return p;
-        return { ...p, solutions: [...p.solutions, sol], stage: Math.max(p.stage, 3) };
-      });
-      const notifs = addNotif(state.notifications, `Solution "${sol.title}" submitted for ${state.currentDetailId}.`);
+    case 'SET_SUBMITTING':
+      return { ...state, isSubmitting: action.isSubmitting };
+    case 'SET_ERROR':
+      return { ...state, networkError: action.error };
 
-      // Async backend persistence
-      fetch('/api/solutions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          problem_id: state.currentDetailId,
-          title: sol.title,
-          org_name: sol.org,
-          desc: sol.desc,
-          tech: sol.tech,
-          cost: sol.cost,
-          time: sol.time,
-          impact: sol.impact
-        })
-      }).catch(() => {});
-
-      return { ...state, problems, notifications: notifs, solutionOpen: false };
-    }
-    case 'GIVE_FEEDBACK': {
-      if (!state.currentDetailId) return state;
-      const problems = state.problems.map(p => {
-        if (p.id !== state.currentDetailId) return p;
-        const stage = action.resolved ? 7 : Math.max(1, p.stage - 2);
-        return { ...p, verification: { resolved: action.resolved, comment: action.comment }, stage };
-      });
-      const notifs = addNotif(state.notifications, `${state.currentDetailId} — citizen ${action.resolved ? 'confirmed resolution.' : 'reported it is still unresolved.'}`);
-
-      // Async backend verification record
-      fetch('/api/verifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          problem_id: state.currentDetailId,
-          resolved: action.resolved,
-          comment: action.comment
-        })
-      }).catch(() => {});
-
-      return { ...state, problems, notifications: notifs };
-    }
-    case 'GOV_ACTION': {
-      if (!state.currentDetailId) return state;
-      const p = state.problems.find(x => x.id === state.currentDetailId);
-      if (!p) return state;
-      if (action.action === 'assign') {
-        const problems = state.problems.map(x => x.id === state.currentDetailId ? { ...x, stage: Math.max(x.stage, 2) } : x);
-        const notifs = addNotif(state.notifications, `${state.currentDetailId} assigned to ${p.ai?.authority}.`);
-        return { ...state, problems, notifications: notifs };
-      }
-      const notifs = addNotif(state.notifications, `Verification requested for ${state.currentDetailId}.`);
-      return { ...state, notifications: notifs };
-    }
-    case 'INVITE_ORG': {
-      const notifs = addNotif(state.notifications, `${action.name} has been invited to collaborate on ${state.currentDetailId}.`);
-      return { ...state, notifications: notifs };
-    }
     case 'TOGGLE_LOGIN':
       return { ...state, loginOpen: !state.loginOpen };
     case 'OPEN_SOLUTION_MODAL':
@@ -308,63 +198,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, wfFiles: action.files };
     case 'SET_WF_LOCATION_CONFIRMED':
       return { ...state, wfLocationConfirmed: action.confirmed };
-    case 'CREATE_FROM_WORKFLOW': {
-      const counter = state.problemCounter + 1;
-      const id = 'SY-2026-' + String(1000 + counter).padStart(4, '0');
-      const ai = classify(action.data.title, action.data.desc, action.data.category);
-      const latVal = action.data.latitude ?? action.data.lat ?? DEMO_LOCATION.lat;
-      const lngVal = action.data.longitude ?? action.data.lng ?? DEMO_LOCATION.lng;
-      const newP: Problem = {
-        ...action.data,
-        id,
-        solutions: [],
-        verification: null,
-        ai,
-        category: ai.category || action.data.category,
-        photos: state.wfFiles.slice(),
-        lat: latVal,
-        lng: lngVal,
-        latitude: latVal,
-        longitude: lngVal,
-        address: action.data.address || action.data.location,
-        location_source: action.data.location_source || 'DEMO_LOCATION',
-        location_accuracy: action.data.location_accuracy || '~10m',
-        location_confirmed: true,
-        location_updated_at: new Date().toISOString()
-      };
-      const matches = buildMatches(ai.category, newP.location, latVal, lngVal);
-      const notifs = addNotif(state.notifications, `Your problem ${id} has been submitted and classified.`);
-
-      // Async backend persistence
-      fetch('/api/problems', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: newP.title,
-          desc: newP.desc,
-          category: newP.category,
-          location: newP.location,
-          severity: newP.severity,
-          affected: newP.affected,
-          landmark: newP.landmark,
-          datetime: newP.datetime,
-          contact: newP.contact,
-          latitude: newP.latitude,
-          longitude: newP.longitude,
-          location_source: newP.location_source,
-          location_accuracy: newP.location_accuracy,
-          photos: newP.photos
-        })
-      }).catch(() => {});
-
-      return {
-        ...state,
-        problemCounter: counter,
-        wfCreatedId: id,
-        problems: [{ ...newP, _matches: matches }, ...state.problems],
-        notifications: notifs
-      };
-    }
+    case 'SET_WF_CREATED_ID':
+      return { ...state, wfCreatedId: action.id };
     case 'RESTORE':
       return {
         ...state,
@@ -373,7 +208,6 @@ function reducer(state: State, action: Action): State {
         notifications: action.state.notifications ?? state.notifications,
       };
     case 'RESET': {
-      fetch('/api/seed', { method: 'POST' }).catch(() => {});
       return init();
     }
     default:
@@ -382,11 +216,47 @@ function reducer(state: State, action: Action): State {
 }
 
 // ---------- Context ----------
+interface SubmitProblemPayload {
+  title: string;
+  desc: string;
+  category: string;
+  location: string;
+  severity?: string;
+  affected?: string;
+  landmark?: string;
+  datetime?: string;
+  contact?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_source?: LocationSource;
+  location_accuracy?: string;
+  photos?: Photo[];
+}
+
+interface SubmitSolutionPayload {
+  problem_id: string;
+  title: string;
+  org_name: string;
+  desc?: string;
+  tech?: string;
+  cost?: string;
+  time?: string;
+  impact?: string;
+}
+
 interface ContextValue {
   state: State;
   dispatch: React.Dispatch<Action>;
   showView: (view: View) => void;
   openDetail: (id: string, from: View) => void;
+  // Authoritative Async Actions (Backend Source of Truth)
+  submitProblem: (payload: SubmitProblemPayload) => Promise<{ success: boolean; data?: Problem; error?: string }>;
+  submitSolution: (payload: SubmitSolutionPayload) => Promise<{ success: boolean; data?: Problem; error?: string }>;
+  updateSolutionStatus: (problemId: string, solutionId: string, status: Solution['status']) => Promise<{ success: boolean; data?: Problem; error?: string }>;
+  verifyProblem: (problemId: string, resolved: boolean, comment: string, evidence_ref?: string) => Promise<{ success: boolean; data?: Problem; error?: string }>;
+  joinCollaboration: (problemId: string, org_name: string, org_type: 'Government' | 'University' | 'Industry' | 'NGO', role_in_problem?: string) => Promise<{ success: boolean; data?: Problem; error?: string }>;
+  reloadProblems: () => Promise<void>;
+  resetDatabase: () => Promise<void>;
 }
 
 const SahYogContext = createContext<ContextValue | null>(null);
@@ -394,28 +264,19 @@ const SahYogContext = createContext<ContextValue | null>(null);
 export function SahYogProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, init);
 
-  // Sync with persistent Next.js API / Database on initial load
-  useEffect(() => {
-    async function syncWithBackend() {
-      try {
-        const res = await fetch('/api/problems');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            dispatch({
-              type: 'RESTORE',
-              state: {
-                problems: json.data,
-                problemCounter: json.data.length + 120
-              }
-            });
-            return;
-          }
+  // Authoritative Initial Sync: Fetch from Next.js API / Database first
+  const reloadProblems = useCallback(async () => {
+    try {
+      const res = await fetch('/api/problems');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          dispatch({ type: 'SET_PROBLEMS', problems: json.data });
+          return;
         }
-      } catch {
-        // Backend fetch fallback handled below
       }
-
+    } catch {
+      // Offline fallback: read localStorage only if network/API is down
       try {
         const raw = localStorage.getItem(STORE_KEY);
         if (raw) {
@@ -426,11 +287,13 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
         }
       } catch { /* ignore */ }
     }
-
-    syncWithBackend();
   }, []);
 
-  // Sync to localStorage as client cache
+  useEffect(() => {
+    reloadProblems();
+  }, [reloadProblems]);
+
+  // Sync to localStorage as client cache (secondary to backend)
   useEffect(() => {
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify({
@@ -444,8 +307,223 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
   const showView = useCallback((view: View) => dispatch({ type: 'SET_VIEW', view }), []);
   const openDetail = useCallback((id: string, from: View) => dispatch({ type: 'OPEN_DETAIL', id, from }), []);
 
+  // 1. Submit Problem (Citizen Action -> Backend DB Write -> Authoritative State Update)
+  const submitProblem = useCallback(async (payload: SubmitProblemPayload) => {
+    dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
+    dispatch({ type: 'SET_ERROR', error: null });
+
+    try {
+      const res = await fetch('/api/problems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': state.currentRole || 'citizen'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        const errMsg = json.error || 'Failed to submit problem to backend database.';
+        dispatch({ type: 'SET_ERROR', error: errMsg });
+        dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+        return { success: false, error: errMsg };
+      }
+
+      // Backend write confirmed: update frontend state with authoritative entity
+      dispatch({ type: 'ADD_PROBLEM', problem: json.data });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      const errMsg = err?.message || 'Network error while contacting SahYog API backend.';
+      dispatch({ type: 'SET_ERROR', error: errMsg });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: false, error: errMsg };
+    }
+  }, [state.currentRole]);
+
+  // 2. Submit Solution (University/Industry Action -> Backend DB Write -> Authoritative State Update)
+  const submitSolution = useCallback(async (payload: SubmitSolutionPayload) => {
+    dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
+    dispatch({ type: 'SET_ERROR', error: null });
+
+    try {
+      const res = await fetch('/api/solutions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': state.currentRole || 'university'
+        },
+        body: JSON.stringify({
+          ...payload,
+          actor_role: state.currentRole || 'university'
+        })
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        const errMsg = json.error || 'Failed to submit solution proposal.';
+        dispatch({ type: 'SET_ERROR', error: errMsg });
+        dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+        return { success: false, error: errMsg };
+      }
+
+      dispatch({ type: 'UPDATE_PROBLEM', problem: json.data });
+      dispatch({ type: 'CLOSE_SOLUTION_MODAL' });
+      dispatch({ type: 'ADD_NOTIFICATION', text: `Solution proposal "${payload.title}" recorded in database.` });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      const errMsg = err?.message || 'Network error while contacting SahYog API backend.';
+      dispatch({ type: 'SET_ERROR', error: errMsg });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: false, error: errMsg };
+    }
+  }, [state.currentRole]);
+
+  // 3. Update Solution Status (Government Role Security -> Backend Sync)
+  const updateSolutionStatus = useCallback(async (
+    problemId: string,
+    solutionId: string,
+    status: Solution['status']
+  ) => {
+    dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
+    dispatch({ type: 'SET_ERROR', error: null });
+
+    try {
+      const res = await fetch(`/api/solutions/${solutionId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': state.currentRole === 'government' ? 'Government' : state.currentRole === 'industry' ? 'Industry' : 'Government'
+        },
+        body: JSON.stringify({
+          status,
+          actor_role: state.currentRole === 'government' ? 'Government' : 'Government'
+        })
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        const errMsg = json.error || 'Failed to update solution status in backend.';
+        dispatch({ type: 'SET_ERROR', error: errMsg });
+        dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+        return { success: false, error: errMsg };
+      }
+
+      dispatch({ type: 'UPDATE_PROBLEM', problem: json.data });
+      dispatch({ type: 'ADD_NOTIFICATION', text: `Solution status transitioned to "${status}" in backend.` });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      const errMsg = err?.message || 'Network error updating solution.';
+      dispatch({ type: 'SET_ERROR', error: errMsg });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: false, error: errMsg };
+    }
+  }, [state.currentRole]);
+
+  // 4. Citizen Verification (Ground-Truth Closed Loop -> Backend DB Write -> Authoritative State Update)
+  const verifyProblem = useCallback(async (
+    problemId: string,
+    resolved: boolean,
+    comment: string,
+    evidence_ref?: string
+  ) => {
+    dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
+    dispatch({ type: 'SET_ERROR', error: null });
+
+    try {
+      const res = await fetch('/api/verifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': state.currentRole || 'citizen'
+        },
+        body: JSON.stringify({
+          problem_id: problemId,
+          resolved,
+          comment,
+          evidence_ref: evidence_ref || '/demo/pothole_after.jpg',
+          actor_role: state.currentRole || 'citizen'
+        })
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        const errMsg = json.error || 'Failed to record citizen ground-truth verification.';
+        dispatch({ type: 'SET_ERROR', error: errMsg });
+        dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+        return { success: false, error: errMsg };
+      }
+
+      dispatch({ type: 'UPDATE_PROBLEM', problem: json.data });
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        text: resolved
+          ? `Problem ${problemId} confirmed resolved by citizen on ground (Stage 8 Complete).`
+          : `Problem ${problemId} flagged unresolved by citizen and reopened.`
+      });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      const errMsg = err?.message || 'Network error recording verification.';
+      dispatch({ type: 'SET_ERROR', error: errMsg });
+      dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+      return { success: false, error: errMsg };
+    }
+  }, [state.currentRole]);
+
+  // 5. Join Collaboration Workspace
+  const joinCollaboration = useCallback(async (
+    problemId: string,
+    org_name: string,
+    org_type: 'Government' | 'University' | 'Industry' | 'NGO',
+    role_in_problem?: string
+  ) => {
+    try {
+      const res = await fetch('/api/collaborations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ problem_id: problemId, org_name, org_type, role_in_problem })
+      });
+      const json = await res.json();
+      if (res.ok && json.success && json.data) {
+        dispatch({ type: 'UPDATE_PROBLEM', problem: json.data });
+        dispatch({ type: 'ADD_NOTIFICATION', text: `${org_name} joined problem collaboration workspace.` });
+        return { success: true, data: json.data };
+      }
+      return { success: false, error: json.error };
+    } catch (err: any) {
+      return { success: false, error: err?.message };
+    }
+  }, []);
+
+  // 6. Reset Database (Seed)
+  const resetDatabase = useCallback(async () => {
+    try {
+      await fetch('/api/seed', { method: 'POST' });
+      await reloadProblems();
+      dispatch({ type: 'RESET' });
+    } catch (err) {
+      console.error('Failed to reset DB:', err);
+    }
+  }, [reloadProblems]);
+
   return (
-    <SahYogContext.Provider value={{ state, dispatch, showView, openDetail }}>
+    <SahYogContext.Provider value={{
+      state,
+      dispatch,
+      showView,
+      openDetail,
+      submitProblem,
+      submitSolution,
+      updateSolutionStatus,
+      verifyProblem,
+      joinCollaboration,
+      reloadProblems,
+      resetDatabase
+    }}>
       {children}
     </SahYogContext.Provider>
   );

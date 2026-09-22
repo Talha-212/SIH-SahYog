@@ -7,7 +7,7 @@ import { toast } from '@/components/ToastStack';
 import exifr from 'exifr';
 
 export default function ReportView() {
-  const { state, dispatch } = useSahYog();
+  const { state, dispatch, submitProblem } = useSahYog();
   const { selectedSeverity, uploadedPhotos } = state;
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -20,6 +20,7 @@ export default function ReportView() {
   const [latlng, setLatlng] = useState('Coordinates will appear here once automatically detected or selected.');
   const [error, setError] = useState('');
   const [drag, setDrag] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function useDemoLocation() {
     setLocation(DEMO_LOCATION.address);
@@ -108,25 +109,35 @@ export default function ReportView() {
     dispatch({ type: 'SET_UPLOADED_PHOTOS', photos: updated });
   }
 
-  function submit() {
+  async function submit() {
     setError('');
     if (!title) { setError('Please add a title for the problem.'); return; }
     if (!desc) { setError('Please add a description of the problem.'); return; }
     if (!location) { setError('Please select or detect a location.'); return; }
     if (!selectedSeverity) { setError('Please select a severity level.'); return; }
 
-    dispatch({
-      type: 'SUBMIT_PROBLEM',
+    setSubmitting(true);
+    const res = await submitProblem({
       title,
       desc,
       category,
       location,
       affected,
+      severity: selectedSeverity,
       latitude: lat ?? DEMO_LOCATION.lat,
       longitude: lng ?? DEMO_LOCATION.lng,
-      location_source: locationSource
+      location_source: locationSource,
+      photos: uploadedPhotos.slice()
     });
-    toast('Problem submitted to persistent backend pipeline!', 'success');
+    setSubmitting(false);
+
+    if (!res.success || !res.data) {
+      setError(res.error || 'Failed to submit problem to backend database.');
+      toast(res.error || 'Submission failed. Please check backend connection.', 'error');
+      return;
+    }
+
+    toast(`Problem ${res.data.id} submitted to persistent backend pipeline!`, 'success');
   }
 
   return (
@@ -230,7 +241,9 @@ export default function ReportView() {
               </div>
               <div className="privacy-note">Notice: Coordinates are shared with verified solver teams for on-ground inspection.</div>
             </div>
-            <button className="btn btn-primary btn-block" onClick={submit}>Submit Problem to Pipeline</button>
+            <button className="btn btn-primary btn-block" onClick={submit} disabled={submitting}>
+              {submitting ? 'Submitting to Backend Pipeline…' : 'Submit Problem to Pipeline'}
+            </button>
           </div>
         </div>
         <div>

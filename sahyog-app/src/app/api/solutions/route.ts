@@ -12,6 +12,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const actorRole = request.headers.get('x-user-role') || body.actor_role;
+
     const updatedProblem = await addSolutionRecord({
       problem_id: body.problem_id,
       title: body.title,
@@ -20,7 +22,8 @@ export async function POST(request: Request) {
       tech: body.tech || '',
       cost: body.cost || 'Estimated upon civic approval',
       time: body.time || '10-14 days',
-      impact: body.impact || 'High local impact'
+      impact: body.impact || 'High local impact',
+      actor_role: actorRole
     });
 
     if (!updatedProblem) {
@@ -39,9 +42,10 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error: any) {
+    const isForbidden = error?.message?.toLowerCase().includes('citizens report issues') || error?.message?.toLowerCase().includes('permission denied');
     return NextResponse.json(
       { success: false, error: error?.message || 'Failed to submit solution proposal' },
-      { status: 500 }
+      { status: isForbidden ? 403 : 500 }
     );
   }
 }
