@@ -56,20 +56,21 @@ export const RECOMMENDED_ACTION: Record<string, string> = {
 };
 
 export const KEYWORDS: Record<string, string[]> = {
-  'Waste Management':['garbage','trash','waste','dump','litter','overflow'],
-  'Roads & Infrastructure':['road','pothole','pavement','bridge','crack'],
-  'Water & Sanitation':['water','leak','sewage','sanitation','pipe'],
-  'Electricity':['power','electric','transformer','wire','outage'],
-  'Public Transport':['bus','transport','auto','station','rickshaw'],
+  'Waste Management':['garbage','trash','waste','dump','litter','overflow','debris','refuse','rubbish'],
+  'Roads & Infrastructure':['road','pothole','pavement','bridge','crack','crater','asphalt','bitumen','culvert'],
+  'Water & Sanitation':['water','leak','leakage','pipe','pipeline','potable','drinking water','mains'],
+  'Electricity':['power','electric','electrical','transformer','wire','cable','spark','sparking','shock','hazard'],
+  'Public Transport':['bus','transport','auto','station','rickshaw','metro'],
   'Healthcare':['hospital','clinic','medicine','healthcare','doctor'],
   'Education':['school','college','classroom','teacher','education'],
-  'Environment':['tree','forest','pollution','air','environment'],
+  'Environment':['tree','forest','pollution','air','environment','greenery'],
   'Public Safety':['unsafe','crime','accident','safety','danger'],
   'Agriculture':['crop','farmer','irrigation','field','agriculture'],
-  'Accessibility':['wheelchair','ramp','accessibility','disabled'],
+  'Accessibility':['wheelchair','ramp','accessibility','disabled','footpath','sidewalk','pedestrian','paver'],
   'Pollution':['smoke','pollution','smog','fumes','industrial'],
-  'Drainage':['drain','flood','waterlogged','overflow','drainage'],
-  'Street Lighting':['streetlight','light','lamp','dark','bulb']
+  'Drainage':['drain','drainage','flood','waterlogged','overflow','sewage','sewer','manhole','gutter'],
+  'Street Lighting':['streetlight','street light','light','lamp','dark','bulb','illumination','lamp post'],
+  'Other':['civic','nuisance','community','public','general']
 };
 
 export const ORG_POOL: Record<string, Omit<OrgMatch,'score'>[]> = {
@@ -605,4 +606,24 @@ export function generatePrefilledDetails(params: {
 
   return { suggestedTitle, suggestedDescription };
 }
+
+// Re-export centralized category-aware impact question engine
+export {
+  IMPACT_QUESTIONS_BY_CATEGORY,
+  resolveCategoryKey,
+  getStandardCategoryName,
+  calculateCategoryImpactSeverity,
+  generateCategoryPrefilledDetails,
+  validateEvidenceFile
+} from './impactQuestions';
+export type {
+  CivicCategoryKey,
+  CategoryQuestionConfig,
+  ImpactOption,
+  ContextOption,
+  CategoryImpactAssessment,
+  ImpactSeverityResult,
+  EvidenceValidationStatus,
+  ImageValidationResult
+} from './impactQuestions';
 

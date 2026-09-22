@@ -54,7 +54,8 @@ export async function POST(request: Request) {
       location_source: body.location_source || 'MANUAL_ENTRY',
       location_accuracy: body.location_accuracy || '~15m',
       location_confirmed: body.location_confirmed ?? true,
-      photos: body.photos || []
+      photos: body.photos || [],
+      factors: body.factors || body.assessment_factors || null
     });
 
     return NextResponse.json(

@@ -3,8 +3,16 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import type { Problem, Notification, Role, View, ExploreTab, Photo, Solution, OrgMatch, LocationSource } from '@/lib/types';
 import { INITIAL_PROBLEMS, INITIAL_NOTIFICATIONS, DEMO_LOCATION } from '@/lib/constants';
 import { classify, buildMatches } from '@/lib/classifier';
+import { getBrowserSupabaseClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 const STORE_KEY = 'sahyog_demo_v2';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: Role;
+}
 
 // ---------- State ----------
 interface State {
@@ -12,6 +20,7 @@ interface State {
   problemCounter: number;
   notifications: Notification[];
   currentRole: Role;
+  currentUser: UserProfile | null;
   currentView: View;
   currentDetailId: string | null;
   detailFromView: View;
@@ -44,6 +53,7 @@ const init = (): State => ({
   problemCounter: 124,
   notifications: INITIAL_NOTIFICATIONS.map(n => ({ ...n })),
   currentRole: null,
+  currentUser: null,
   currentView: 'home',
   currentDetailId: null,
   detailFromView: 'explore',
@@ -68,6 +78,7 @@ const init = (): State => ({
 type Action =
   | { type: 'SET_VIEW'; view: View }
   | { type: 'SET_ROLE'; role: Role }
+  | { type: 'SET_USER_PROFILE'; profile: UserProfile | null }
   | { type: 'LOGOUT' }
   | { type: 'ADD_NOTIFICATION'; text: string }
   | { type: 'MARK_NOTIFICATIONS_READ' }
@@ -111,8 +122,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, currentView: action.view };
     case 'SET_ROLE':
       return { ...state, currentRole: action.role };
+    case 'SET_USER_PROFILE':
+      return { ...state, currentUser: action.profile };
     case 'LOGOUT':
-      return { ...state, currentRole: null };
+      return { ...state, currentRole: null, currentUser: null };
     case 'ADD_NOTIFICATION':
       return { ...state, notifications: addNotif(state.notifications, action.text) };
     case 'MARK_NOTIFICATIONS_READ': {
@@ -163,7 +176,7 @@ function reducer(state: State, action: Action): State {
         currentView: 'detail',
         uploadedPhotos: [],
         wfCreatedId: action.problem.id,
-        notifications: addNotif(state.notifications, `Problem ${action.problem.id} registered and classified in backend database.`)
+        notifications: addNotif(state.notifications, `Problem ${action.problem.id} registered and persisted to backend.`)
       };
     }
     case 'UPDATE_PROBLEM': {
@@ -231,6 +244,7 @@ interface SubmitProblemPayload {
   location_source?: LocationSource;
   location_accuracy?: string;
   photos?: Photo[];
+  factors?: any;
 }
 
 interface SubmitSolutionPayload {
@@ -249,6 +263,10 @@ interface ContextValue {
   dispatch: React.Dispatch<Action>;
   showView: (view: View) => void;
   openDetail: (id: string, from: View) => void;
+  // Supabase Auth Integration
+  signInWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUpWithSupabase: (email: string, password: string, fullName: string, role: Role) => Promise<{ success: boolean; error?: string }>;
+  signOutSupabase: () => Promise<void>;
   // Authoritative Async Actions (Backend Source of Truth)
   submitProblem: (payload: SubmitProblemPayload) => Promise<{ success: boolean; data?: Problem; error?: string }>;
   submitSolution: (payload: SubmitSolutionPayload) => Promise<{ success: boolean; data?: Problem; error?: string }>;
@@ -264,7 +282,75 @@ const SahYogContext = createContext<ContextValue | null>(null);
 export function SahYogProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, init);
 
-  // Authoritative Initial Sync: Fetch from Next.js API / Database first
+  // 1. Supabase Auth state listener & profile hydration
+  useEffect(() => {
+    const supabase = getBrowserSupabaseClient();
+    if (!supabase) return;
+
+    // Check existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (profile) {
+            dispatch({ type: 'SET_ROLE', role: profile.role });
+            dispatch({
+              type: 'SET_USER_PROFILE',
+              profile: {
+                id: profile.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                role: profile.role
+              }
+            });
+          }
+        } catch {
+          // ignore profile lookup failure
+        }
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (profile) {
+            dispatch({ type: 'SET_ROLE', role: profile.role });
+            dispatch({
+              type: 'SET_USER_PROFILE',
+              profile: {
+                id: profile.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                role: profile.role
+              }
+            });
+          }
+        } catch {
+          // ignore
+        }
+      } else if (event === 'SIGNED_OUT') {
+        dispatch({ type: 'SET_USER_PROFILE', profile: null });
+        dispatch({ type: 'SET_ROLE', role: null });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // 2. Authoritative Initial Sync: Fetch from Next.js API / Database first
   const reloadProblems = useCallback(async () => {
     try {
       const res = await fetch('/api/problems');
@@ -306,6 +392,99 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
 
   const showView = useCallback((view: View) => dispatch({ type: 'SET_VIEW', view }), []);
   const openDetail = useCallback((id: string, from: View) => dispatch({ type: 'OPEN_DETAIL', id, from }), []);
+
+  // Supabase Auth Methods
+  const signInWithSupabase = useCallback(async (email: string, password: string) => {
+    const supabase = getBrowserSupabaseClient();
+    if (!supabase) return { success: false, error: 'Supabase client is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.' };
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { success: false, error: error.message };
+
+      if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (profile) {
+          dispatch({ type: 'SET_ROLE', role: profile.role });
+          dispatch({
+            type: 'SET_USER_PROFILE',
+            profile: {
+              id: profile.id,
+              email: profile.email,
+              full_name: profile.full_name,
+              role: profile.role
+            }
+          });
+          dispatch({ type: 'ADD_NOTIFICATION', text: `Welcome back, ${profile.full_name}! Authenticated with Supabase.` });
+        }
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Authentication error' };
+    }
+  }, []);
+
+  const signUpWithSupabase = useCallback(async (email: string, password: string, fullName: string, role: Role) => {
+    const supabase = getBrowserSupabaseClient();
+    if (!supabase) return { success: false, error: 'Supabase client is not configured.' };
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: role || 'citizen'
+          }
+        }
+      });
+
+      if (error) return { success: false, error: error.message };
+
+      if (data?.user) {
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          full_name: fullName,
+          email,
+          role: role || 'citizen',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+        dispatch({ type: 'SET_ROLE', role: role || 'citizen' });
+        dispatch({
+          type: 'SET_USER_PROFILE',
+          profile: {
+            id: data.user.id,
+            email,
+            full_name: fullName,
+            role: role || 'citizen'
+          }
+        });
+        dispatch({ type: 'ADD_NOTIFICATION', text: `Account created for ${fullName} with role ${role}.` });
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Sign up error' };
+    }
+  }, []);
+
+  const signOutSupabase = useCallback(async () => {
+    const supabase = getBrowserSupabaseClient();
+    if (supabase) {
+      await supabase.auth.signOut().catch(() => {});
+    }
+    dispatch({ type: 'LOGOUT' });
+    dispatch({ type: 'SET_USER_PROFILE', profile: null });
+  }, []);
 
   // 1. Submit Problem (Citizen Action -> Backend DB Write -> Authoritative State Update)
   const submitProblem = useCallback(async (payload: SubmitProblemPayload) => {
@@ -516,6 +695,9 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
       dispatch,
       showView,
       openDetail,
+      signInWithSupabase,
+      signUpWithSupabase,
+      signOutSupabase,
       submitProblem,
       submitSolution,
       updateSolutionStatus,

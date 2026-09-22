@@ -90,13 +90,18 @@ export default function DetailView() {
         const res = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dataUrl, name: `after_verification_${Date.now()}.jpg` })
+          body: JSON.stringify({
+            dataUrl,
+            name: `after_verification_${Date.now()}.jpg`,
+            bucket: 'verification-evidence',
+            problem_id: problem.id
+          })
         });
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.url) {
             setEvidenceRef(json.url);
-            toast('📷 After-repair evidence photo captured and uploaded!', 'success');
+            toast('📷 After-repair evidence photo captured and uploaded to Supabase Storage!', 'success');
             setUploadingAfterEvidence(false);
             return;
           }
@@ -117,12 +122,14 @@ export default function DetailView() {
     try {
       const fd = new FormData();
       fd.append('file', file);
+      fd.append('bucket', 'verification-evidence');
+      fd.append('problem_id', problem.id);
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.url) {
           setEvidenceRef(json.url);
-          toast('🖼 After-repair photo uploaded to server!', 'success');
+          toast('🖼 After-repair photo uploaded to Supabase Storage!', 'success');
           setUploadingAfterEvidence(false);
           return;
         }
@@ -793,18 +800,42 @@ export default function DetailView() {
                 </div>
               )}
 
-              {/* After Photo Preview */}
+              {/* Before vs After Ground-Truth Evidence Comparison */}
               {evidenceRef && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 8, background: '#f8fafc', border: '1px solid var(--line)', borderRadius: 8 }}>
-                  <div style={{ width: 80, height: 60, borderRadius: 6, overflow: 'hidden', flexShrink: 0, border: '1px solid #cbd5e1' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={evidenceRef} alt="After Evidence Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ marginTop: 10, padding: 10, background: '#f8fafc', border: '1px solid var(--line)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>
+                    Ground-Truth Evidence Comparison (Before &amp; After)
                   </div>
-                  <div style={{ flex: 1, fontSize: 12 }}>
-                    <b style={{ color: 'var(--green)' }}>✓ After-Repair Evidence Attached</b>
-                    <div style={{ color: 'var(--muted)', fontSize: 11, marginTop: 2, wordBreak: 'break-all' }}>
-                      {uploadingAfterEvidence ? 'Uploading to server…' : evidenceRef.startsWith('data:') ? 'Captured image ready for sign-off' : evidenceRef}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--red)', marginBottom: 4 }}>
+                        BEFORE (Incident Evidence)
+                      </div>
+                      <div style={{ width: '100%', height: 95, borderRadius: 6, overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={problem.photos[0]?.src || '/demo/pothole_before.jpg'}
+                          alt="Before Incident Evidence"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
                     </div>
+                    <div>
+                      <div style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--green)', marginBottom: 4 }}>
+                        AFTER (Resolution Evidence)
+                      </div>
+                      <div style={{ width: '100%', height: 95, borderRadius: 6, overflow: 'hidden', border: '1px solid #cbd5e1' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={evidenceRef}
+                          alt="After Resolution Evidence"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ color: 'var(--muted)', fontSize: 11, marginTop: 6, wordBreak: 'break-all' }}>
+                    {uploadingAfterEvidence ? 'Uploading to Supabase verification-evidence bucket…' : `Supabase Storage Ref: ${evidenceRef}`}
                   </div>
                 </div>
               )}

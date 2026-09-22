@@ -7,14 +7,20 @@ import {
   STAGES,
   GOOGLE_MAPS_API_KEY,
   DEMO_LOCATION,
-  ROAD_AFFECTED_OPTIONS,
-  TRAFFIC_IMPACT_OPTIONS,
-  CONTEXT_PROXIMITY_OPTIONS,
-  calculateImpactSeverity,
-  generatePrefilledDetails,
   SUBCATEGORY,
   AUTHORITY
 } from '@/lib/constants';
+import {
+  IMPACT_QUESTIONS_BY_CATEGORY,
+  calculateCategoryImpactSeverity,
+  generateCategoryPrefilledDetails,
+  validateEvidenceFile,
+  resolveCategoryKey,
+  getStandardCategoryName,
+  CIVIC_CATEGORIES,
+  type CivicCategoryKey,
+  type ImageValidationResult
+} from '@/lib/impactQuestions';
 import { classify } from '@/lib/classifier';
 import type { Photo, LocationSource, Problem } from '@/lib/types';
 import { toast } from '@/components/ToastStack';
@@ -52,10 +58,16 @@ export default function ReportWorkflowModal() {
   // Step 5: Review & Submit
   const [step, setStep] = useState(1);
 
-  // Evidence state
+  // Evidence & Validation state
   const [files, setFiles] = useState<Photo[]>([]);
+  const [validationResult, setValidationResult] = useState<ImageValidationResult | null>(null);
+  const [isValidatingImage, setIsValidatingImage] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState('');
+
+  // Category state (Supported 8 civic categories)
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<CivicCategoryKey>('road');
+  const [isChangingCategory, setIsChangingCategory] = useState(false);
 
   // Location state (Strictly automatic hierarchy: EXIF -> Device GPS -> Map/Search fallback)
   const [locationConfirmed, setLocationConfirmed] = useState(false);
@@ -71,15 +83,15 @@ export default function ReportWorkflowModal() {
   const [locationSearch, setLocationSearch] = useState('');
   const [landmark, setLandmark] = useState('');
 
-  // Impact Assessment state (Neutral unselected defaults — NO severe preselection!)
-  const [roadAffectedId, setRoadAffectedId] = useState<string>('');
-  const [trafficImpactId, setTrafficImpactId] = useState<string>('');
-  const [contextProximityIds, setContextProximityIds] = useState<string[]>([]);
+  // Dynamic Category Impact Assessment state (Neutral unselected defaults — NO severe preselection!)
+  const [q1OptionId, setQ1OptionId] = useState<string>('');
+  const [q2OptionId, setQ2OptionId] = useState<string>('');
+  const [contextOptionIds, setContextOptionIds] = useState<string[]>([]);
   const [customSeverity, setCustomSeverity] = useState<string>('');
   const [isCustomizingSeverity, setIsCustomizingSeverity] = useState(false);
 
   // Prefilled & Classification state
-  const [detectedProblem, setDetectedProblem] = useState('Pothole & road surface damage');
+  const [detectedProblem, setDetectedProblem] = useState('Road surface damage or pothole');
   const [category, setCategory] = useState('Roads & Infrastructure');
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -104,17 +116,35 @@ export default function ReportWorkflowModal() {
   const wfMarkerRef = useRef<any>(null);
   const wfGeocoderRef = useRef<any>(null);
 
-  // Dynamic impact calculation
+  // Dynamic impact calculation using selected category config
   const impactResult = useMemo(() => {
-    return calculateImpactSeverity({
-      roadAffectedId,
-      trafficImpactId,
-      contextProximityIds
+    return calculateCategoryImpactSeverity({
+      categoryKey: selectedCategoryKey,
+      q1OptionId,
+      q2OptionId,
+      contextOptionIds
     });
-  }, [roadAffectedId, trafficImpactId, contextProximityIds]);
+  }, [selectedCategoryKey, q1OptionId, q2OptionId, contextOptionIds]);
 
   const activeSeverity = isCustomizingSeverity && customSeverity ? customSeverity : impactResult.suggestedSeverity;
   const activePriority = impactResult.suggestedPriority;
+
+  // Category switch helper: immediately resets questions and updates detected labels
+  function handleCategoryChange(newKey: CivicCategoryKey) {
+    setSelectedCategoryKey(newKey);
+    const standardName = getStandardCategoryName(newKey);
+    setCategory(standardName);
+    const cfg = IMPACT_QUESTIONS_BY_CATEGORY[newKey];
+    if (cfg) {
+      setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
+    }
+    setQ1OptionId('');
+    setQ2OptionId('');
+    setContextOptionIds([]);
+    setCustomSeverity('');
+    setIsCustomizingSeverity(false);
+    toast(`Category switched to ${standardName}. Impact questions updated.`, 'info');
+  }
 
   // Nearby duplicate detection (<600m)
   const nearbyDuplicate = useMemo(() => {
@@ -156,17 +186,21 @@ export default function ReportWorkflowModal() {
       setAiResult(null);
       setTitle('');
       setDesc('');
+      setSelectedCategoryKey('road');
+      setIsChangingCategory(false);
       setCategory('Roads & Infrastructure');
-      setDetectedProblem('Pothole & road surface damage');
+      setDetectedProblem('Road surface damage or pothole');
+      setValidationResult(null);
+      setIsValidatingImage(false);
       setLandmark('');
       setContact('');
       setLocationSearch('');
       setIsSubmitting(false);
       setSubmitError(null);
       // Neutral unselected defaults!
-      setRoadAffectedId('');
-      setTrafficImpactId('');
-      setContextProximityIds([]);
+      setQ1OptionId('');
+      setQ2OptionId('');
+      setContextOptionIds([]);
       setCustomSeverity('');
       setIsCustomizingSeverity(false);
       setIsEditingTitle(false);
@@ -203,14 +237,13 @@ export default function ReportWorkflowModal() {
   useEffect(() => {
     if (step === 4) {
       const locStr = address || locationSearch || landmark || 'Detected problem location';
-      const { suggestedTitle, suggestedDescription } = generatePrefilledDetails({
-        category,
-        detectedProblem,
-        location: locStr,
-        landmark,
-        severity: activeSeverity,
-        priority: activePriority,
-        factors: impactResult.factors
+      const { suggestedTitle, suggestedDescription } = generateCategoryPrefilledDetails({
+        categoryKey: selectedCategoryKey,
+        q1OptionId,
+        q2OptionId,
+        contextOptionIds,
+        locationAddress: locStr,
+        landmark
       });
       if (!title) setTitle(suggestedTitle);
       if (!desc) setDesc(suggestedDescription);
@@ -219,30 +252,56 @@ export default function ReportWorkflowModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // Upload helper: stores file permanently via /api/upload
+  function handleRegenerateDetails() {
+    const locStr = address || locationSearch || landmark || 'Detected problem location';
+    const { suggestedTitle, suggestedDescription } = generateCategoryPrefilledDetails({
+      categoryKey: selectedCategoryKey,
+      q1OptionId,
+      q2OptionId,
+      contextOptionIds,
+      locationAddress: locStr,
+      landmark
+    });
+    setTitle(suggestedTitle);
+    setDesc(suggestedDescription);
+    toast('Regenerated title & description from impact factors.', 'info');
+  }
+
+  // Upload helper: stores file permanently via /api/upload into problem-evidence bucket
   async function uploadPhotoToServer(fileOrDataUrl: File | string, name?: string): Promise<string> {
     try {
       if (typeof fileOrDataUrl === 'string') {
         const res = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dataUrl: fileOrDataUrl, name })
+          body: JSON.stringify({
+            dataUrl: fileOrDataUrl,
+            name,
+            bucket: 'problem-evidence'
+          })
         });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.url) return json.url;
+        const json = await res.json();
+        if (res.ok && json.success && json.url) {
+          return json.url;
+        }
+        if (json.error) {
+          toast(json.error, 'error');
         }
       } else {
         const fd = new FormData();
         fd.append('file', fileOrDataUrl);
+        fd.append('bucket', 'problem-evidence');
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.url) return json.url;
+        const json = await res.json();
+        if (res.ok && json.success && json.url) {
+          return json.url;
+        }
+        if (json.error) {
+          toast(json.error, 'error');
         }
       }
     } catch {
-      // fallback to data URL
+      toast('Evidence upload failed. Checking connectivity...', 'error');
     }
     return typeof fileOrDataUrl === 'string' ? fileOrDataUrl : URL.createObjectURL(fileOrDataUrl);
   }
@@ -295,6 +354,19 @@ export default function ReportWorkflowModal() {
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       stopCamera();
 
+      setIsValidatingImage(true);
+      const validation = await validateEvidenceFile(dataUrl, `camera_snapshot_${Date.now()}.jpg`);
+      setValidationResult(validation);
+      setIsValidatingImage(false);
+
+      if (validation.suggestedCategoryKey) {
+        const catKey = validation.suggestedCategoryKey;
+        setSelectedCategoryKey(catKey);
+        setCategory(getStandardCategoryName(catKey));
+        const cfg = IMPACT_QUESTIONS_BY_CATEGORY[catKey];
+        if (cfg) setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
+      }
+
       // Upload to server
       const permanentUrl = await uploadPhotoToServer(dataUrl, `camera_${Date.now()}.jpg`);
       setFiles([
@@ -305,14 +377,25 @@ export default function ReportWorkflowModal() {
           exifGpsFound: false
         }
       ]);
-      toast('📷 Camera snapshot captured and evidence stored!', 'success');
+
+      if (validation.status === 'valid') {
+        toast('📷 Camera snapshot captured and validated as civic evidence!', 'success');
+      } else if (validation.status === 'selfie') {
+        toast('⚠️ Personal photo/selfie detected. Please provide civic issue photo.', 'error');
+      } else if (validation.status === 'non_civic') {
+        toast('⚠️ Non-civic content detected. Please provide civic issue photo.', 'error');
+      } else if (validation.status === 'low_quality') {
+        toast('⚠️ Low quality or blurry image detected.', 'error');
+      } else if (validation.status === 'uncertain') {
+        toast('ℹ️ Category uncertain. Please pick the civic category below.', 'info');
+      }
 
       // Camera images have no EXIF GPS; immediately trigger device GPS
       autoDetectLocation();
     }
   }
 
-  // File Upload with EXIF GPS extraction
+  // File Upload with evidence validation & EXIF GPS extraction
   async function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
     const fl = e.target.files;
     if (!fl || fl.length === 0) return;
@@ -320,6 +403,7 @@ export default function ReportWorkflowModal() {
     const newFiles: Photo[] = [];
     let photoGpsFound = false;
 
+    setIsValidatingImage(true);
     for (const f of Array.from(fl)) {
       if (f.size > 8 * 1024 * 1024) {
         toast(`${f.name} is larger than 8MB.`, 'error');
@@ -328,6 +412,18 @@ export default function ReportWorkflowModal() {
       if (!/^image\/(jpeg|png|webp)$|^video\/(mp4|webm)$/.test(f.type)) {
         toast(`Unsupported file type: ${f.name}`, 'error');
         continue;
+      }
+
+      // Honest heuristic evidence validation
+      const validation = await validateEvidenceFile(f, f.name);
+      setValidationResult(validation);
+
+      if (validation.suggestedCategoryKey) {
+        const catKey = validation.suggestedCategoryKey;
+        setSelectedCategoryKey(catKey);
+        setCategory(getStandardCategoryName(catKey));
+        const cfg = IMPACT_QUESTIONS_BY_CATEGORY[catKey];
+        if (cfg) setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
       }
 
       let hasExif = false;
@@ -352,7 +448,21 @@ export default function ReportWorkflowModal() {
 
       const permanentUrl = await uploadPhotoToServer(f);
       newFiles.push({ src: permanentUrl, isVideo: f.type.startsWith('video/'), name: f.name, exifGpsFound: hasExif });
+
+      if (validation.status === 'valid') {
+        const catKey = validation.suggestedCategoryKey || 'road';
+        toast(`✓ Evidence validated: ${IMPACT_QUESTIONS_BY_CATEGORY[catKey]?.categoryLabel}`, 'success');
+      } else if (validation.status === 'selfie') {
+        toast('⚠️ Personal photo / selfie detected. Please provide civic issue photo.', 'error');
+      } else if (validation.status === 'non_civic') {
+        toast('⚠️ Non-civic content detected. Please provide civic issue photo.', 'error');
+      } else if (validation.status === 'low_quality') {
+        toast('⚠️ Low quality or blurry image detected.', 'error');
+      } else if (validation.status === 'uncertain') {
+        toast('ℹ️ Category uncertain. Please pick the civic category below.', 'info');
+      }
     }
+    setIsValidatingImage(false);
 
     if (photoGpsFound) {
       toast('✓ Location detected from photo metadata (EXIF GPS)', 'success');
@@ -367,6 +477,7 @@ export default function ReportWorkflowModal() {
 
   function removeFile(i: number) {
     setFiles(prev => prev.filter((_, idx) => idx !== i));
+    setValidationResult(null);
   }
 
   // Explicit Demo Mode loader (SIH presentation only — isolated from real reporting!)
@@ -381,6 +492,20 @@ export default function ReportWorkflowModal() {
         exifGpsFound: true
       }
     ]);
+    setValidationResult({
+      status: 'valid',
+      title: 'Evidence Verified',
+      message: 'Verified LIET Hyderabad entrance road damage benchmark.',
+      reason: 'Verified LIET Hyderabad entrance road damage benchmark.',
+      suggestedCategoryKey: 'road',
+      detectedCategoryKey: 'road',
+      detectedKeywords: ['pothole', 'road'],
+      canProceed: true,
+      requiresManualCategory: false
+    });
+    setSelectedCategoryKey('road');
+    setCategory('Roads & Infrastructure');
+    setDetectedProblem('Road surface damage or pothole');
     setLat(String(DEMO_LOCATION.lat));
     setLng(String(DEMO_LOCATION.lng));
     setAddress(DEMO_LOCATION.address);
@@ -389,12 +514,10 @@ export default function ReportWorkflowModal() {
     setLocationAccuracy('Pre-Calibrated Benchmark Coordinates');
     setExifFound(true);
     setLocationConfirmed(true);
-    setCategory('Roads & Infrastructure');
-    setDetectedProblem('Pothole & road surface damage');
     // Pre-populate benchmark impact for SIH demonstration
-    setRoadAffectedId('most_lane');
-    setTrafficImpactId('severe');
-    setContextProximityIds(['school_hospital']);
+    setQ1OptionId('most_lane');
+    setQ2OptionId('severe');
+    setContextOptionIds(['school_hospital']);
     toast('🎯 Demo Mode: Loaded SIH Benchmark Case (LIET Campus Hyderabad)', 'success');
   }
 
@@ -428,7 +551,6 @@ export default function ReportWorkflowModal() {
       },
       () => {
         setIsDetectingGps(false);
-        // CRITICAL: NEVER silently use demo location!
         setMapStatus('Location could not be detected automatically. Permission denied or GPS unavailable. Please select on map or search.');
         setMapStatusType('error');
         setLocationConfirmed(false);
@@ -539,7 +661,7 @@ export default function ReportWorkflowModal() {
             'Recommended Action': c.action || 'Site inspection and field assessment',
             'Classification Method': 'Prototype Rule-Based Classification (Ontology Match)',
             'Rule Match Confidence': `${score}% (Keyword Dictionary Match)`,
-            'Matched Terms': c.matched_terms?.join(', ') || 'pothole, road damage'
+            'Matched Terms': c.matched_terms?.join(', ') || 'civic infrastructure'
           });
           setAiLoading(false);
           return;
@@ -571,6 +693,9 @@ export default function ReportWorkflowModal() {
     const finalLng = lng ? Number(lng) : null;
     const finalAddress = address || locationSearch || 'Reported civic location';
 
+    const currentConfig = IMPACT_QUESTIONS_BY_CATEGORY[selectedCategoryKey];
+    const q1Label = currentConfig?.question1.options.find(o => o.id === q1OptionId)?.label;
+
     const res = await submitProblem({
       title: title || `${activeSeverity} ${detectedProblem}`,
       desc: desc || 'Civic infrastructure problem reported by citizen.',
@@ -580,12 +705,24 @@ export default function ReportWorkflowModal() {
       landmark,
       contact,
       datetime: new Date().toISOString(),
-      affected: roadAffectedId === 'multi_lane' ? 'Multi-lane traffic' : 'Commuters and two-wheelers',
+      affected: q1Label || 'Citizens and community members',
       latitude: finalLat ?? DEMO_LOCATION.lat,
       longitude: finalLng ?? DEMO_LOCATION.lng,
       location_source: locationSource || 'MANUAL_ENTRY',
       location_accuracy: locationAccuracy || 'User specified',
-      photos: files.slice()
+      photos: files.slice(),
+      factors: {
+        categoryKey: selectedCategoryKey,
+        categoryName: category,
+        q1OptionId,
+        q2OptionId,
+        contextOptionIds,
+        contributingFactors: impactResult.factors,
+        explanation: impactResult.explanation,
+        suggestedSeverity: impactResult.suggestedSeverity,
+        finalSeverity: activeSeverity,
+        responsePriority: activePriority
+      }
     });
 
     setIsSubmitting(false);
@@ -608,6 +745,14 @@ export default function ReportWorkflowModal() {
     if (step === 1) {
       if (files.length === 0) {
         toast('Please capture or upload photo evidence to proceed.', 'error');
+        return;
+      }
+      if (validationResult && (validationResult.status === 'selfie' || validationResult.status === 'non_civic' || validationResult.status === 'low_quality')) {
+        toast('Cannot proceed with invalid or non-civic evidence. Please provide a clear photo of the civic issue.', 'error');
+        return;
+      }
+      if (validationResult?.status === 'uncertain' && !selectedCategoryKey) {
+        toast('Please select a civic category before continuing.', 'error');
         return;
       }
       stopCamera();
@@ -717,6 +862,7 @@ export default function ReportWorkflowModal() {
                     if (isCameraActive) captureSnapshot();
                     else startCamera();
                   }}
+                  disabled={isValidatingImage}
                 >
                   {isCameraActive ? '📸 Capture Snapshot' : '📷 Take Photo'}
                 </button>
@@ -730,7 +876,8 @@ export default function ReportWorkflowModal() {
                     padding: '10px 20px',
                     fontSize: 13.5,
                     cursor: 'pointer',
-                    margin: 0
+                    margin: 0,
+                    opacity: isValidatingImage ? 0.6 : 1
                   }}
                 >
                   <span>🖼 Upload Photo</span>
@@ -741,9 +888,17 @@ export default function ReportWorkflowModal() {
                     multiple
                     style={{ display: 'none' }}
                     onChange={handleFileInput}
+                    disabled={isValidatingImage}
                   />
                 </label>
               </div>
+
+              {/* Image Validation Spinner */}
+              {isValidatingImage && (
+                <div style={{ padding: '12px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, marginBottom: 14, fontSize: 12.5, color: 'var(--muted)' }}>
+                  ⏳ Validating evidence authenticity and scanning civic cues…
+                </div>
+              )}
 
               {/* WebRTC Live Camera Stream */}
               {isCameraActive && (
@@ -785,21 +940,245 @@ export default function ReportWorkflowModal() {
                 </div>
               )}
 
-              {/* Captured Photo Previews & Truthful Evidence Badge */}
+              {/* Evidence Validation Notices */}
+              {files.length > 0 && validationResult && (
+                <>
+                  {/* Case A: Selfie / Portrait */}
+                  {validationResult.status === 'selfie' && (
+                    <div style={{ padding: '14px 16px', background: '#fff5f5', border: '1px solid #fed7d7', borderRadius: 10, marginBottom: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#c53030', fontWeight: 700, fontSize: 13.5 }}>
+                        <span>🚫</span>
+                        <span>Personal Photo / Selfie Detected</span>
+                      </div>
+                      <p style={{ margin: '6px 0 12px', fontSize: 12.5, color: '#742a2a', lineHeight: 1.5 }}>
+                        SahYog is dedicated exclusively to public infrastructure and community issues. Photos containing personal portraits, selfies, or non-civic subjects cannot be registered for municipal resolution.
+                      </p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            setFiles([]);
+                            setValidationResult(null);
+                            startCamera();
+                          }}
+                        >
+                          📸 Retake Photo
+                        </button>
+                        <label
+                          className="btn btn-secondary btn-sm"
+                          style={{ cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center' }}
+                        >
+                          <span>🖼 Choose Another Image</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,video/mp4"
+                            style={{ display: 'none' }}
+                            onChange={handleFileInput}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Case B: Non-Civic Content */}
+                  {validationResult.status === 'non_civic' && (
+                    <div style={{ padding: '14px 16px', background: '#fff5f5', border: '1px solid #fed7d7', borderRadius: 10, marginBottom: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#c53030', fontWeight: 700, fontSize: 13.5 }}>
+                        <span>⚠️</span>
+                        <span>Non-Civic Content Detected</span>
+                      </div>
+                      <p style={{ margin: '6px 0 12px', fontSize: 12.5, color: '#742a2a', lineHeight: 1.5 }}>
+                        {validationResult.reason || 'The image appears unrelated to civic infrastructure, sanitation, or public amenities. Municipal response teams require photographic proof of physical issues.'}
+                      </p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            setFiles([]);
+                            setValidationResult(null);
+                            startCamera();
+                          }}
+                        >
+                          📸 Retake Photo
+                        </button>
+                        <label
+                          className="btn btn-secondary btn-sm"
+                          style={{ cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center' }}
+                        >
+                          <span>🖼 Choose Another Image</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,video/mp4"
+                            style={{ display: 'none' }}
+                            onChange={handleFileInput}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Case C: Low Quality / Blurry */}
+                  {validationResult.status === 'low_quality' && (
+                    <div style={{ padding: '14px 16px', background: '#fffaf0', border: '1px solid #feebc8', borderRadius: 10, marginBottom: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#c05621', fontWeight: 700, fontSize: 13.5 }}>
+                        <span>⚠️</span>
+                        <span>Low Quality / Blurry Image</span>
+                      </div>
+                      <p style={{ margin: '6px 0 12px', fontSize: 12.5, color: '#7b341e', lineHeight: 1.5 }}>
+                        {validationResult.reason || 'The image resolution is too low or blurry to assess physical damage. Please capture or upload a higher clarity photo.'}
+                      </p>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            setFiles([]);
+                            setValidationResult(null);
+                            startCamera();
+                          }}
+                        >
+                          📸 Retake Photo
+                        </button>
+                        <label
+                          className="btn btn-secondary btn-sm"
+                          style={{ cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center' }}
+                        >
+                          <span>🖼 Choose Another Image</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,video/mp4"
+                            style={{ display: 'none' }}
+                            onChange={handleFileInput}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Case D: Category Uncertainty */}
+                  {validationResult.status === 'uncertain' && (
+                    <div style={{ padding: '14px 16px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: 10, marginBottom: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#1e293b', fontWeight: 700, fontSize: 13.5 }}>
+                        <span>ℹ️</span>
+                        <span>Category Classification Uncertainty</span>
+                      </div>
+                      <p style={{ margin: '6px 0 10px', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+                        Category could not be determined automatically from image metadata. Please select the appropriate civic problem category below to continue:
+                      </p>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 8, marginTop: 8 }}>
+                        {CIVIC_CATEGORIES.map(cat => (
+                          <button
+                            key={cat.key}
+                            type="button"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              padding: '8px 12px',
+                              borderRadius: 8,
+                              border: selectedCategoryKey === cat.key ? '2px solid var(--blue)' : '1px solid var(--line)',
+                              background: selectedCategoryKey === cat.key ? '#eef5fc' : '#fff',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              fontSize: 12,
+                              fontWeight: selectedCategoryKey === cat.key ? 700 : 500,
+                              color: selectedCategoryKey === cat.key ? 'var(--blue)' : 'var(--ink)'
+                            }}
+                            onClick={() => {
+                              handleCategoryChange(cat.key);
+                              setValidationResult(prev => prev ? { ...prev, status: 'valid', suggestedCategoryKey: cat.key, detectedCategoryKey: cat.key } : null);
+                            }}
+                          >
+                            <span>{cat.icon}</span>
+                            <span>{cat.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Case E: Valid Civic Evidence */}
+                  {validationResult.status === 'valid' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ color: '#16a34a', fontWeight: 700, fontSize: 14 }}>✓</span>
+                        <div>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: '#15803d' }}>
+                            Evidence Validated: {IMPACT_QUESTIONS_BY_CATEGORY[selectedCategoryKey]?.categoryLabel}
+                          </span>
+                          <div style={{ fontSize: 11, color: '#166534', marginTop: 1 }}>
+                            Category: <b>{category}</b> · Prototype Rule-Based Classification
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="prefill-edit-toggle"
+                        onClick={() => setIsChangingCategory(!isChangingCategory)}
+                      >
+                        {isChangingCategory ? 'Keep Category' : 'Change Category'}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Category selector drawer if user clicks Change Category in Step 1 */}
+              {isChangingCategory && (
+                <div style={{ padding: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, marginBottom: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--ink)' }}>
+                    Select Problem Category:
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 8 }}>
+                    {CIVIC_CATEGORIES.map(cat => (
+                      <button
+                        key={cat.key}
+                        type="button"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '8px 12px',
+                          borderRadius: 8,
+                          border: selectedCategoryKey === cat.key ? '2px solid var(--blue)' : '1px solid var(--line)',
+                          background: selectedCategoryKey === cat.key ? '#eef5fc' : '#fff',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontSize: 12,
+                          fontWeight: selectedCategoryKey === cat.key ? 700 : 500,
+                          color: selectedCategoryKey === cat.key ? 'var(--blue)' : 'var(--ink)'
+                        }}
+                        onClick={() => {
+                          handleCategoryChange(cat.key);
+                          setIsChangingCategory(false);
+                        }}
+                      >
+                        <span>{cat.icon}</span>
+                        <span>{cat.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Captured Photo Previews */}
               {files.length > 0 && (
                 <div style={{ background: '#fbfcfe', border: '1px solid var(--line)', borderRadius: 12, padding: 16, marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <b style={{ fontSize: 13 }}>Evidence Attached ({files.length})</b>
-                      <span className="quality-chip GOOD">
-                        ✓ Evidence Ready
-                      </span>
+                      {validationResult?.status === 'valid' && (
+                        <span className="quality-chip GOOD">✓ Evidence Ready</span>
+                      )}
                     </div>
                     <button
                       type="button"
                       className="btn btn-secondary btn-sm"
                       onClick={() => {
                         setFiles([]);
+                        setValidationResult(null);
                         startCamera();
                       }}
                     >
@@ -1038,163 +1417,228 @@ export default function ReportWorkflowModal() {
 
             {/* STEP 3: HELP SAHYOG ASSESS THE IMPACT */}
             <div className={`wf-pane ${step === 3 ? 'active' : ''}`}>
-              <div style={{ marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
-                  Help SahYog assess the impact
-                </h3>
-                <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                  Quick selections help the prototype calculate a suggested severity based on field disruption and civic context.
-                </p>
-              </div>
-
-              {/* Question 1: Road Coverage */}
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  1. How much of the roadway is affected? (Select impact)
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
-                  {ROAD_AFFECTED_OPTIONS.map(opt => (
-                    <div
-                      key={opt.id}
-                      className={`impact-option-card ${roadAffectedId === opt.id ? 'selected' : ''}`}
-                      onClick={() => setRoadAffectedId(opt.id)}
-                    >
-                      <input
-                        type="radio"
-                        name="road_coverage"
-                        checked={roadAffectedId === opt.id}
-                        onChange={() => setRoadAffectedId(opt.id)}
-                      />
-                      <span style={{ fontSize: 12.5, fontWeight: roadAffectedId === opt.id ? 700 : 500 }}>
-                        {opt.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Question 2: Traffic Disruption */}
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  2. Is vehicle traffic currently disrupted? (Select impact)
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
-                  {TRAFFIC_IMPACT_OPTIONS.map(opt => (
-                    <div
-                      key={opt.id}
-                      className={`impact-option-card ${trafficImpactId === opt.id ? 'selected' : ''}`}
-                      onClick={() => setTrafficImpactId(opt.id)}
-                    >
-                      <input
-                        type="radio"
-                        name="traffic_impact"
-                        checked={trafficImpactId === opt.id}
-                        onChange={() => setTrafficImpactId(opt.id)}
-                      />
-                      <span style={{ fontSize: 12.5, fontWeight: trafficImpactId === opt.id ? 700 : 500 }}>
-                        {opt.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Question 3: Surrounding Context */}
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
-                  3. Critical facility proximity &amp; hazard context (optional)
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
-                  {CONTEXT_PROXIMITY_OPTIONS.map(opt => {
-                    const isChecked = contextProximityIds.includes(opt.id);
-                    return (
-                      <div
-                        key={opt.id}
-                        className={`impact-option-card ${isChecked ? 'selected' : ''}`}
-                        onClick={() => {
-                          setContextProximityIds(prev =>
-                            isChecked ? prev.filter(x => x !== opt.id) : [...prev, opt.id]
-                          );
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                        />
-                        <span style={{ fontSize: 12.5, fontWeight: isChecked ? 700 : 500 }}>
-                          {opt.label}
-                        </span>
+              {(() => {
+                const currentConfig = IMPACT_QUESTIONS_BY_CATEGORY[selectedCategoryKey] || IMPACT_QUESTIONS_BY_CATEGORY['road'];
+                return (
+                  <>
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                        <div>
+                          <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px', color: 'var(--ink)' }}>
+                            Help SahYog assess the impact
+                          </h3>
+                          <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0 }}>
+                            Category-specific questions for <b>{category}</b> calculate an objective severity score for solver matching.
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span className="proto-tag">Heuristic Factor Assessment</span>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setIsChangingCategory(!isChangingCategory)}
+                            style={{ fontSize: 12 }}
+                          >
+                            {isChangingCategory ? 'Done Changing' : '🔄 Change Category'}
+                          </button>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* Prototype Severity Recommendation Box */}
-              <div style={{ background: '#f7fbff', border: '1px solid #cfe0f1', borderRadius: 12, padding: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div>
-                    <b style={{ fontSize: 14, color: 'var(--blue)' }}>Prototype Impact-Based Assessment</b>
-                    <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                      Suggested severity based on reported road impact and traffic disruption.
+                      {/* Category Switcher Drawer in Step 3 */}
+                      {isChangingCategory && (
+                        <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--ink)' }}>
+                            Select Civic Category (resets questions to category defaults):
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 8 }}>
+                            {CIVIC_CATEGORIES.map(cat => (
+                              <button
+                                key={cat.key}
+                                type="button"
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                  padding: '8px 12px',
+                                  borderRadius: 8,
+                                  border: selectedCategoryKey === cat.key ? '2px solid var(--blue)' : '1px solid var(--line)',
+                                  background: selectedCategoryKey === cat.key ? '#eef5fc' : '#fff',
+                                  cursor: 'pointer',
+                                  textAlign: 'left',
+                                  fontSize: 12,
+                                  fontWeight: selectedCategoryKey === cat.key ? 700 : 500,
+                                  color: selectedCategoryKey === cat.key ? 'var(--blue)' : 'var(--ink)'
+                                }}
+                                onClick={() => {
+                                  handleCategoryChange(cat.key);
+                                  setIsChangingCategory(false);
+                                }}
+                              >
+                                <span>{cat.icon}</span>
+                                <span>{cat.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <span className="proto-tag">Prototype Heuristic</span>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                  <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 8, padding: 10 }}>
-                    <small style={{ color: 'var(--muted)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                      Suggested Physical Severity
-                    </small>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                      <span className={`status-chip ${activeSeverity}`}>{activeSeverity}</span>
-                      <button
-                        type="button"
-                        className="prefill-edit-toggle"
-                        onClick={() => setIsCustomizingSeverity(!isCustomizingSeverity)}
-                      >
-                        {isCustomizingSeverity ? 'Use Suggested' : 'Change Severity'}
-                      </button>
+                    {/* Question 1: Scale / Volume / Extent */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
+                        {currentConfig.question1.title}
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
+                        {currentConfig.question1.options.map(opt => (
+                          <div
+                            key={opt.id}
+                            className={`impact-option-card ${q1OptionId === opt.id ? 'selected' : ''}`}
+                            onClick={() => setQ1OptionId(opt.id)}
+                          >
+                            <input
+                              type="radio"
+                              name="category_q1"
+                              checked={q1OptionId === opt.id}
+                              onChange={() => setQ1OptionId(opt.id)}
+                            />
+                            <span style={{ fontSize: 12.5, fontWeight: q1OptionId === opt.id ? 700 : 500 }}>
+                              {opt.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    {isCustomizingSeverity && (
-                      <select
-                        style={{ marginTop: 6, fontSize: 12 }}
-                        value={customSeverity}
-                        onChange={e => setCustomSeverity(e.target.value)}
-                      >
-                        <option value="">Select severity</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Critical">Critical</option>
-                      </select>
-                    )}
-                  </div>
 
-                  <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 8, padding: 10 }}>
-                    <small style={{ color: 'var(--muted)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                      Suggested Response Priority
-                    </small>
-                    <div style={{ marginTop: 4 }}>
-                      <span className={`status-chip ${activePriority}`}>{activePriority}</span>
+                    {/* Question 2: Disruption / Obstruction / Health Risk */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
+                        {currentConfig.question2.title}
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
+                        {currentConfig.question2.options.map(opt => (
+                          <div
+                            key={opt.id}
+                            className={`impact-option-card ${q2OptionId === opt.id ? 'selected' : ''}`}
+                            onClick={() => setQ2OptionId(opt.id)}
+                          >
+                            <input
+                              type="radio"
+                              name="category_q2"
+                              checked={q2OptionId === opt.id}
+                              onChange={() => setQ2OptionId(opt.id)}
+                            />
+                            <span style={{ fontSize: 12.5, fontWeight: q2OptionId === opt.id ? 700 : 500 }}>
+                              {opt.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                      Elevated if in vicinity of educational/medical facilities.
-                    </div>
-                  </div>
-                </div>
 
-                <div>
-                  <b style={{ fontSize: 12, color: 'var(--ink)' }}>Contributing Factors:</b>
-                  <ul style={{ margin: '6px 0 0 16px', padding: 0, fontSize: 12, color: 'var(--muted)' }}>
-                    {impactResult.factors.map((f, i) => (
-                      <li key={i} style={{ marginBottom: 2 }}>{f}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+                    {/* Question 3: Sensitive Context / Hazard Boosts */}
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontWeight: 700, fontSize: 13, display: 'block', marginBottom: 8 }}>
+                        {currentConfig.question3.title}
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
+                        {currentConfig.question3.options.map(opt => {
+                          const isChecked = contextOptionIds.includes(opt.id);
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`impact-option-card ${isChecked ? 'selected' : ''}`}
+                              onClick={() => {
+                                setContextOptionIds(prev =>
+                                  isChecked ? prev.filter(x => x !== opt.id) : [...prev, opt.id]
+                                );
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}}
+                              />
+                              <span style={{ fontSize: 12.5, fontWeight: isChecked ? 700 : 500 }}>
+                                {opt.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Prototype Severity Recommendation Box */}
+                    <div style={{ background: '#f7fbff', border: '1px solid #cfe0f1', borderRadius: 12, padding: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <div>
+                          <b style={{ fontSize: 14, color: 'var(--blue)' }}>Impact-Based Assessment</b>
+                          <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                            Suggested severity based on field scale, civic disruption, and sensitive location context.
+                          </div>
+                        </div>
+                        <span className="proto-tag">Heuristic Factor Assessment</span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                        <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 8, padding: 10 }}>
+                          <small style={{ color: 'var(--muted)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                            Suggested Physical Severity
+                          </small>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <span className={`status-chip ${activeSeverity}`}>{activeSeverity}</span>
+                            <button
+                              type="button"
+                              className="prefill-edit-toggle"
+                              onClick={() => setIsCustomizingSeverity(!isCustomizingSeverity)}
+                            >
+                              {isCustomizingSeverity ? 'Use Suggested' : 'Change Severity'}
+                            </button>
+                          </div>
+                          {isCustomizingSeverity && (
+                            <select
+                              style={{ marginTop: 6, fontSize: 12 }}
+                              value={customSeverity}
+                              onChange={e => setCustomSeverity(e.target.value)}
+                            >
+                              <option value="">Select severity</option>
+                              <option value="Low">Low</option>
+                              <option value="Moderate">Moderate</option>
+                              <option value="High">High</option>
+                              <option value="Critical">Critical</option>
+                            </select>
+                          )}
+                        </div>
+
+                        <div style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 8, padding: 10 }}>
+                          <small style={{ color: 'var(--muted)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                            Suggested Response Priority
+                          </small>
+                          <div style={{ marginTop: 4 }}>
+                            <span className={`status-chip ${activePriority}`}>{activePriority}</span>
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+                            Elevated if in vicinity of educational, hospital, or high-risk zones.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: 8 }}>
+                        <b style={{ fontSize: 12, color: 'var(--ink)' }}>Factual Assessment Summary:</b>
+                        <div style={{ fontSize: 12, color: 'var(--ink)', marginTop: 4, background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--line)' }}>
+                          {impactResult.explanation}
+                        </div>
+                        {impactResult.factors.length > 0 && (
+                          <ul style={{ margin: '8px 0 0 16px', padding: 0, fontSize: 11.5, color: 'var(--muted)' }}>
+                            {impactResult.factors.map((f, i) => (
+                              <li key={i} style={{ marginBottom: 2 }}>{f}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* STEP 4: PREFILLED DETAILS & RULE-BASED CLASSIFICATION */}
@@ -1244,17 +1688,27 @@ export default function ReportWorkflowModal() {
                 )}
               </div>
 
-              {/* Title Field with Edit Toggle */}
+              {/* Title Field with Edit Toggle & Regenerate */}
               <div className="field" style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <label style={{ margin: 0 }}>Problem Title *</label>
-                  <button
-                    type="button"
-                    className="prefill-edit-toggle"
-                    onClick={() => setIsEditingTitle(!isEditingTitle)}
-                  >
-                    {isEditingTitle ? 'Done Editing' : '✏️ Edit Title'}
-                  </button>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                      type="button"
+                      className="prefill-edit-toggle"
+                      onClick={handleRegenerateDetails}
+                      title="Sync title and description with selected category and impact factors"
+                    >
+                      🔄 Re-sync from Factors
+                    </button>
+                    <button
+                      type="button"
+                      className="prefill-edit-toggle"
+                      onClick={() => setIsEditingTitle(!isEditingTitle)}
+                    >
+                      {isEditingTitle ? 'Done Editing' : '✏️ Edit Title'}
+                    </button>
+                  </div>
                 </div>
                 {isEditingTitle ? (
                   <input
@@ -1362,7 +1816,7 @@ export default function ReportWorkflowModal() {
                         </div>
                       )}
                       <div>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4, flexWrap: 'wrap' }}>
                           <span className={`status-chip ${activeSeverity}`}>Severity: {activeSeverity}</span>
                           <span className={`status-chip ${activePriority}`}>Priority: {activePriority}</span>
                           <span className="proto-tag">{category}</span>
@@ -1385,7 +1839,23 @@ export default function ReportWorkflowModal() {
                     </div>
                     <div className="kv" style={{ padding: '6px 0' }}>
                       <span>Evidence Status</span>
-                      <span className="quality-chip GOOD">✓ Evidence Attached</span>
+                      <span className="quality-chip GOOD">✓ Evidence Attached ({files.length})</span>
+                    </div>
+
+                    <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--line)' }}>
+                      <span style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', fontWeight: 700 }}>
+                        Impact Factors &amp; Assessment
+                      </span>
+                      <div style={{ fontSize: 12.5, color: 'var(--ink)', marginTop: 4 }}>
+                        {impactResult.explanation}
+                      </div>
+                      {impactResult.factors.length > 0 && (
+                        <ul style={{ margin: '6px 0 0 16px', padding: 0, fontSize: 11.5, color: 'var(--muted)' }}>
+                          {impactResult.factors.map((f, i) => (
+                            <li key={i} style={{ marginBottom: 2 }}>{f}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
 
                     <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
@@ -1428,7 +1898,7 @@ export default function ReportWorkflowModal() {
                     <div className="kv"><span>Location</span><span>{address || locationSearch}</span></div>
                     <div className="kv"><span>Severity &amp; Priority</span><span>{activeSeverity} · Priority: {activePriority}</span></div>
                     <div className="kv"><span>Status</span><span className="status-chip High">Stage 1 · Submitted &amp; Classified</span></div>
-                    <div className="kv"><span>Datastore Status</span><b>Persistent Prototype Datastore (data/sahyog.db.json)</b></div>
+                    <div className="kv"><span>Datastore Status</span><b>Persistent Supabase Datastore</b></div>
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--blue)', marginTop: 14 }}>
                     Click &ldquo;View Stakeholder Workspace&rdquo; to track solver matching and collaboration!
@@ -1461,20 +1931,32 @@ export default function ReportWorkflowModal() {
                   Cancel
                 </button>
               )}
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  if (createdId) {
-                    dispatch({ type: 'CLOSE_WORKFLOW' });
-                    dispatch({ type: 'OPEN_DETAIL', id: createdId, from: 'home' });
-                  } else {
-                    goNext();
-                  }
-                }}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Registering in Pipeline…' : nextLabel}
-              </button>
+              {(() => {
+                const isStep1Invalid = step === 1 && (
+                  files.length === 0 ||
+                  validationResult?.status === 'selfie' ||
+                  validationResult?.status === 'non_civic' ||
+                  validationResult?.status === 'low_quality' ||
+                  (validationResult?.status === 'uncertain' && !selectedCategoryKey)
+                );
+                return (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      if (createdId) {
+                        dispatch({ type: 'CLOSE_WORKFLOW' });
+                        dispatch({ type: 'OPEN_DETAIL', id: createdId, from: 'home' });
+                      } else {
+                        goNext();
+                      }
+                    }}
+                    disabled={isSubmitting || isValidatingImage || isStep1Invalid}
+                    title={isStep1Invalid ? 'Please attach valid civic evidence to proceed' : ''}
+                  >
+                    {isSubmitting ? 'Registering in Pipeline…' : nextLabel}
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>

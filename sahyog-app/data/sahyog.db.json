@@ -213,6 +213,478 @@
   ],
   "problems": [
     {
+      "id": "SY-2026-1111",
+      "title": "Severe Deep Potholes Causing Traffic Accidents",
+      "desc": "Multiple deep potholes spanning 2 meters across Masab Tank main junction, high risk for two-wheelers and night traffic.",
+      "category": "Roads & Infrastructure",
+      "location": "Masab Tank Junction, Hyderabad, Telangana",
+      "affected": "500+ Daily Commuters",
+      "severity": "High",
+      "stage": 0,
+      "date": "Just now",
+      "mapX": 50,
+      "mapY": 50,
+      "photos": [
+        {
+          "src": "https://xfngrrwtidyjtqyijzdz.supabase.co/storage/v1/object/public/problem-evidence/test-evidence.jpg",
+          "name": "masab_tank_pothole_evidence.jpg",
+          "isVideo": false,
+          "exifGpsFound": true
+        }
+      ],
+      "solutions": [],
+      "verification": null,
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 85,
+        "terms": [
+          "pothole"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "Municipal road network oversight & statutory maintenance mandate (DEMO DATA)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 30,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 96,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "Polymer cold-mix research & pavement durability testing capability (DEMO DATA)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 28,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 89,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "Industrial asphalt production & mechanized road compaction fleet (DEMO DATA)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 84,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "Pedestrian safety audits & community volunteer liaison (DEMO DATA)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 27,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 78,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "landmark": "Near NMDC Building",
+      "datetime": "Just now",
+      "latitude": 17.3984,
+      "longitude": 78.4529,
+      "lat": 17.3984,
+      "lng": 78.4529,
+      "address": "Masab Tank Junction, Hyderabad, Telangana",
+      "location_source": "EXIF_CAMERA_GPS",
+      "location_accuracy": "~15m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-22T16:20:16.066Z",
+      "events": [
+        {
+          "id": "EV-SY-2026-1111-1",
+          "problem_id": "SY-2026-1111",
+          "event_type": "REPORTED",
+          "stage": 0,
+          "actor_role": "Citizen",
+          "description": "Citizen registered issue \"Severe Deep Potholes Causing Traffic Accidents\" with evidence and geolocation (17.3984, 78.4529).",
+          "timestamp": "2026-09-22T16:20:16.066Z"
+        },
+        {
+          "id": "EV-SY-2026-1111-2",
+          "problem_id": "SY-2026-1111",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Prototype classification assigned to Public Works Department (85% confidence). Recommended action: Site inspection and repair cost estimation..",
+          "timestamp": "2026-09-22T16:20:16.066Z"
+        }
+      ],
+      "created_at": "2026-09-22T16:20:16.066Z",
+      "updated_at": "2026-09-22T16:20:16.066Z"
+    },
+    {
+      "id": "SY-2026-1110",
+      "title": "Crater Pothole on Begumpet Flyover",
+      "desc": "Dangerous crater pothole on flyover descent creating severe hazard for two-wheelers.",
+      "category": "Roads & Infrastructure",
+      "location": "Begumpet Flyover, Hyderabad",
+      "affected": "100+ Citizens",
+      "severity": "Critical",
+      "stage": 0,
+      "date": "Just now",
+      "mapX": 50,
+      "mapY": 50,
+      "photos": [
+        {
+          "exifGpsFound": true,
+          "isVideo": false,
+          "name": "pothole_evidence_initial.jpg",
+          "src": "https://xfngrrwtidyjtqyijzdz.supabase.co/storage/v1/object/public/problem-evidence/SY-2026-TEST/1790091267818-xzfv37.jpg"
+        }
+      ],
+      "solutions": [],
+      "verification": null,
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 85,
+        "terms": [
+          "pothole"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "Municipal road network oversight & statutory maintenance mandate (DEMO DATA)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 30,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 96,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "Polymer cold-mix research & pavement durability testing capability (DEMO DATA)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 28,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 89,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "Industrial asphalt production & mechanized road compaction fleet (DEMO DATA)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 84,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "Pedestrian safety audits & community volunteer liaison (DEMO DATA)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 27,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 78,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "datetime": "Just now",
+      "latitude": 17.4447,
+      "longitude": 78.4664,
+      "lat": 17.4447,
+      "lng": 78.4664,
+      "address": "Begumpet Flyover, Hyderabad",
+      "location_source": "DEVICE_GPS",
+      "location_accuracy": "~15m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-22T15:35:55.250Z",
+      "events": [
+        {
+          "id": "EV-SY-2026-1110-1",
+          "problem_id": "SY-2026-1110",
+          "event_type": "REPORTED",
+          "stage": 0,
+          "actor_role": "Citizen",
+          "description": "Citizen registered issue \"Crater Pothole on Begumpet Flyover\" with evidence and geolocation (17.4447, 78.4664).",
+          "timestamp": "2026-09-22T15:35:55.250Z"
+        },
+        {
+          "id": "EV-SY-2026-1110-2",
+          "problem_id": "SY-2026-1110",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Prototype classification assigned to Public Works Department (85% confidence). Recommended action: Site inspection and repair cost estimation..",
+          "timestamp": "2026-09-22T15:35:55.250Z"
+        }
+      ],
+      "created_at": "2026-09-22T15:35:55.250Z",
+      "updated_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "SY-2026-1109",
+      "title": "Severe Pothole Cluster near Chandrayangutta",
+      "desc": "Critical road damage and crater-sized potholes obstructing commuter and ambulance traffic.",
+      "category": "Roads & Infrastructure",
+      "location": "Chandrayangutta Main Road, Hyderabad",
+      "affected": "100+ Citizens",
+      "severity": "High",
+      "stage": 8,
+      "date": "Just now",
+      "mapX": 50,
+      "mapY": 50,
+      "photos": [],
+      "solutions": [
+        {
+          "id": "SOL-SY-2026-1109-mucsp4l9",
+          "title": "Geopolymer Cold Patch Asphalt Formulation",
+          "org": "Lord's Innovation Center",
+          "status": "Proposed",
+          "desc": "Rapid-curing geopolymer matrix designed for monsoonal pothole repair.",
+          "tech": "Rapid-setting eco-polymer cold asphalt",
+          "cost": "INR 45,000",
+          "time": "3 days",
+          "impact": "High local impact"
+        }
+      ],
+      "verification": {
+        "resolved": true,
+        "comment": "Inspected on ground near Chandrayangutta: Road fully paved, potholes sealed.",
+        "evidence_ref": "/demo/pothole_after.jpg",
+        "timestamp": "2026-09-22T14:54:43.806Z",
+        "verified_by": "Citizen Reporter"
+      },
+      "ai": {
+        "category": "Roads & Infrastructure",
+        "subcategory": "Road Damage",
+        "authority": "Public Works Department",
+        "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+        "action": "Site inspection and repair cost estimation.",
+        "confidence": 92,
+        "terms": [
+          "road",
+          "pothole"
+        ],
+        "method": "RULE_BASED_PROTOTYPE"
+      },
+      "_matches": [
+        {
+          "name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+          "type": "Government",
+          "roleInProblem": "Statutory Authority & Final Validation",
+          "expertise": "Urban road maintenance & statutory municipal oversight",
+          "location": "Rajendranagar Circle Office, Hyderabad",
+          "resources": "Heavy road repair machinery, civic inspection team, municipal budget",
+          "projects": "Municipal road network oversight & statutory maintenance mandate (DEMO DATA)",
+          "reasons": [
+            "Statutory jurisdiction over Himayat Sagar arterial roads",
+            "Mandated authority for civic infrastructure approval"
+          ],
+          "factors": {
+            "domain": 38,
+            "jurisdiction": 30,
+            "expertise": 18,
+            "capacity": 10
+          },
+          "score": 96,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "LIET Sustainable Infrastructure & Materials Lab",
+          "type": "University",
+          "roleInProblem": "Research & Low-Cost Materials Formulation",
+          "expertise": "Polymer-modified cold asphalt & fast-curing composite patch formulations",
+          "location": "Lord's Institute of Engineering & Technology, Hyderabad",
+          "resources": "Materials testing lab, student technical squad, core testing apparatus",
+          "projects": "Polymer cold-mix research & pavement durability testing capability (DEMO DATA)",
+          "reasons": [
+            "Immediate campus proximity to problem site",
+            "Specialized cold-mix fast-curing asphalt research"
+          ],
+          "factors": {
+            "domain": 36,
+            "jurisdiction": 28,
+            "expertise": 17,
+            "capacity": 8
+          },
+          "score": 89,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "Deccan InfraTech Road Solutions Ltd.",
+          "type": "Industry",
+          "roleInProblem": "Material Supply & Rapid Mechanized Deployment",
+          "expertise": "Rapid pothole compaction technology & industrial cold-mix supply",
+          "location": "Kattedan Industrial Area, Hyderabad",
+          "resources": "Compactor trucks, rapid thermal patchers, field workforce",
+          "projects": "Industrial asphalt production & mechanized road compaction fleet (DEMO DATA)",
+          "reasons": [
+            "Local manufacturing of rapid cold-mix composite",
+            "Quick-response field deployment crew within 8km"
+          ],
+          "factors": {
+            "domain": 34,
+            "jurisdiction": 26,
+            "expertise": 16,
+            "capacity": 8
+          },
+          "score": 84,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        },
+        {
+          "name": "SafeRoads Community Safety Action Foundation",
+          "type": "NGO",
+          "roleInProblem": "Citizen Awareness & On-Ground Safety Liaison",
+          "expertise": "Pedestrian safety audits, volunteer coordination & road marking",
+          "location": "Mehdipatnam, Hyderabad",
+          "resources": "Community volunteer network, reflective safety signage gear",
+          "projects": "Pedestrian safety audits & community volunteer liaison (DEMO DATA)",
+          "reasons": [
+            "Active civic volunteer presence in South Hyderabad",
+            "Liaison capability for citizen verification surveys"
+          ],
+          "factors": {
+            "domain": 30,
+            "jurisdiction": 27,
+            "expertise": 14,
+            "capacity": 7
+          },
+          "score": 78,
+          "score_type": "PROTOTYPE_WEIGHTED_SCORE"
+        }
+      ],
+      "datetime": "Just now",
+      "latitude": 17.3185,
+      "longitude": 78.4721,
+      "lat": 17.3185,
+      "lng": 78.4721,
+      "address": "Chandrayangutta Main Road, Hyderabad",
+      "location_source": "DEVICE_GPS",
+      "location_accuracy": "~15m",
+      "location_confirmed": true,
+      "location_updated_at": "2026-09-22T14:54:17.625Z",
+      "events": [
+        {
+          "id": "EV-SY-2026-1109-1",
+          "problem_id": "SY-2026-1109",
+          "event_type": "REPORTED",
+          "stage": 0,
+          "actor_role": "Citizen",
+          "description": "Citizen registered issue \"Severe Pothole Cluster near Chandrayangutta\" with evidence and geolocation (17.3185, 78.4721).",
+          "timestamp": "2026-09-22T14:54:17.625Z"
+        },
+        {
+          "id": "EV-SY-2026-1109-2",
+          "problem_id": "SY-2026-1109",
+          "event_type": "CLASSIFIED",
+          "stage": 1,
+          "actor_role": "System",
+          "description": "Prototype classification assigned to Public Works Department (92% confidence). Recommended action: Site inspection and repair cost estimation..",
+          "timestamp": "2026-09-22T14:54:17.625Z"
+        }
+      ],
+      "created_at": "2026-09-22T14:54:17.625Z",
+      "updated_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
       "id": "SY-2026-00101",
       "title": "Severe Road Damage & Potholes at College Main Entrance",
       "desc": "Deep surface depressions and broken bitumen have formed right outside the college main entrance gate along Himayat Sagar arterial road. Potholes cause severe skidding risks for students on two-wheelers, pedestrian stumbling, and massive waterlogging during rains.",
@@ -1661,6 +2133,52 @@
         "school"
       ],
       "created_at": "2026-09-22T08:36:12.828Z"
+    },
+    {
+      "id": "CLS-SY-2026-1109",
+      "problem_id": "SY-2026-1109",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 92,
+      "matched_terms": [
+        "road",
+        "pothole"
+      ],
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
+      "id": "CLS-SY-2026-1110",
+      "problem_id": "SY-2026-1110",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 85,
+      "matched_terms": [
+        "pothole"
+      ],
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "CLS-SY-2026-1111",
+      "problem_id": "SY-2026-1111",
+      "method": "RULE_BASED_PROTOTYPE",
+      "category": "Roads & Infrastructure",
+      "subcategory": "Road Damage",
+      "authority": "Public Works Department",
+      "reason": "This department is responsible for road maintenance and public infrastructure in the selected area.",
+      "action": "Site inspection and repair cost estimation.",
+      "confidence": 85,
+      "matched_terms": [
+        "pothole"
+      ],
+      "created_at": "2026-09-22T16:20:16.066Z"
     }
   ],
   "solver_matches": [
@@ -2068,6 +2586,186 @@
       "role_in_problem": "Field Procurement & Execution",
       "status": "recommended",
       "created_at": "2026-09-22T08:36:12.828Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-1",
+      "problem_id": "SY-2026-1109",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 96,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 30,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-2",
+      "problem_id": "SY-2026-1109",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 89,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-3",
+      "problem_id": "SY-2026-1109",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 84,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
+      "id": "MTC-SY-2026-1109-4",
+      "problem_id": "SY-2026-1109",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 78,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 27,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
+    {
+      "id": "MTC-SY-2026-1110-1",
+      "problem_id": "SY-2026-1110",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 96,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 30,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "MTC-SY-2026-1110-2",
+      "problem_id": "SY-2026-1110",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 89,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "MTC-SY-2026-1110-3",
+      "problem_id": "SY-2026-1110",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 84,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "MTC-SY-2026-1110-4",
+      "problem_id": "SY-2026-1110",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 78,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 27,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "MTC-SY-2026-1111-1",
+      "problem_id": "SY-2026-1111",
+      "org_name": "Greater Hyderabad Municipal Corporation (GHMC) / PWD Wing",
+      "org_type": "Government",
+      "score": 96,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 38,
+      "factor_jurisdiction": 30,
+      "factor_expertise": 18,
+      "factor_capacity": 10,
+      "role_in_problem": "Statutory Authority & Final Validation",
+      "status": "accepted",
+      "created_at": "2026-09-22T16:20:16.066Z"
+    },
+    {
+      "id": "MTC-SY-2026-1111-2",
+      "problem_id": "SY-2026-1111",
+      "org_name": "LIET Sustainable Infrastructure & Materials Lab",
+      "org_type": "University",
+      "score": 89,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 36,
+      "factor_jurisdiction": 28,
+      "factor_expertise": 17,
+      "factor_capacity": 8,
+      "role_in_problem": "Research & Low-Cost Materials Formulation",
+      "status": "recommended",
+      "created_at": "2026-09-22T16:20:16.066Z"
+    },
+    {
+      "id": "MTC-SY-2026-1111-3",
+      "problem_id": "SY-2026-1111",
+      "org_name": "Deccan InfraTech Road Solutions Ltd.",
+      "org_type": "Industry",
+      "score": 84,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 34,
+      "factor_jurisdiction": 26,
+      "factor_expertise": 16,
+      "factor_capacity": 8,
+      "role_in_problem": "Material Supply & Rapid Mechanized Deployment",
+      "status": "recommended",
+      "created_at": "2026-09-22T16:20:16.066Z"
+    },
+    {
+      "id": "MTC-SY-2026-1111-4",
+      "problem_id": "SY-2026-1111",
+      "org_name": "SafeRoads Community Safety Action Foundation",
+      "org_type": "NGO",
+      "score": 78,
+      "score_type": "PROTOTYPE_WEIGHTED_SCORE",
+      "factor_domain": 30,
+      "factor_jurisdiction": 27,
+      "factor_expertise": 14,
+      "factor_capacity": 7,
+      "role_in_problem": "Citizen Awareness & On-Ground Safety Liaison",
+      "status": "recommended",
+      "created_at": "2026-09-22T16:20:16.066Z"
     }
   ],
   "collaborations": [
@@ -2220,6 +2918,20 @@
       "impact": "700+ daily pedestrians",
       "created_at": "2026-09-22T09:36:12.828Z",
       "updated_at": "2026-09-22T13:36:12.828Z"
+    },
+    {
+      "id": "SOL-SY-2026-1109-mucsp4l9",
+      "problem_id": "SY-2026-1109",
+      "title": "Geopolymer Cold Patch Asphalt Formulation",
+      "org_name": "Lord's Innovation Center",
+      "status": "Proposed",
+      "desc": "Rapid-curing geopolymer matrix designed for monsoonal pothole repair.",
+      "tech": "Rapid-setting eco-polymer cold asphalt",
+      "cost": "INR 45,000",
+      "time": "3 days",
+      "impact": "High local impact",
+      "created_at": "2026-09-22T14:54:35.901Z",
+      "updated_at": "2026-09-22T14:54:35.901Z"
     }
   ],
   "problem_updates": [
@@ -2573,6 +3285,24 @@
       "actor_role": "Citizen",
       "description": "Citizen ground-truth sign-off: REOPENED FOR CORRECTIVE ACTION — \"Citizen feedback: Issue still requires attention.\"",
       "timestamp": "2026-09-22T09:39:46.875Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-1790088875901",
+      "problem_id": "SY-2026-1109",
+      "event_type": "SOLUTION_PROPOSED",
+      "stage": 4,
+      "actor_role": "university",
+      "description": "Lord's Innovation Center proposed technical solution: \"Geopolymer Cold Patch Asphalt Formulation\". Technical methodology: Rapid-setting eco-polymer cold asphalt.",
+      "timestamp": "2026-09-22T14:54:35.901Z"
+    },
+    {
+      "id": "EV-SY-2026-1109-1790088883806",
+      "problem_id": "SY-2026-1109",
+      "event_type": "VERIFIED",
+      "stage": 8,
+      "actor_role": "Citizen",
+      "description": "Citizen ground-truth sign-off: CONFIRMED RESOLUTION (Stage 8 Closed-Loop Complete) — \"Inspected on ground near Chandrayangutta: Road fully paved, potholes sealed.\"",
+      "timestamp": "2026-09-22T14:54:43.806Z"
     }
   ],
   "verifications": [
@@ -2593,9 +3323,58 @@
       "evidence_ref": "/demo/pothole_after.jpg",
       "verified_by": "Citizen Reporter",
       "timestamp": "2026-09-22T09:39:46.875Z"
+    },
+    {
+      "id": "VER-SY-2026-1109",
+      "problem_id": "SY-2026-1109",
+      "status": "VERIFIED_RESOLVED",
+      "feedback": "Inspected on ground near Chandrayangutta: Road fully paved, potholes sealed.",
+      "evidence_ref": "/demo/pothole_after.jpg",
+      "verified_by": "Citizen Reporter",
+      "timestamp": "2026-09-22T14:54:43.806Z"
     }
   ],
   "notifications": [
+    {
+      "id": "NOTIF-1790094017345",
+      "text": "New problem registered: \"Severe Deep Potholes Causing Traffic Accidents\" [SY-2026-1111]. Classified for Public Works Department.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-22T16:20:16.066Z"
+    },
+    {
+      "id": "NOTIF-1790091355984",
+      "text": "New problem registered: \"Crater Pothole on Begumpet Flyover\" [SY-2026-1110]. Classified for Public Works Department.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-22T15:35:55.250Z"
+    },
+    {
+      "id": "NOTIF-1790088883806",
+      "text": "Citizen ground-truth verification completed for SY-2026-1109: Resolved & Verified.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-22T14:54:43.806Z"
+    },
+    {
+      "id": "NOTIF-1790088875901",
+      "text": "New solution proposal submitted for SY-2026-1109 by Lord's Innovation Center.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-22T14:54:35.901Z"
+    },
+    {
+      "id": "NOTIF-1790088857626",
+      "text": "New problem registered: \"Severe Pothole Cluster near Chandrayangutta\" [SY-2026-1109]. Classified for Public Works Department.",
+      "unread": true,
+      "time": "Just now",
+      "user_role": "government",
+      "created_at": "2026-09-22T14:54:17.625Z"
+    },
     {
       "id": "NOTIF-1790069986875",
       "text": "Citizen ground-truth verification completed for SY-2026-00101: Reopened.",
