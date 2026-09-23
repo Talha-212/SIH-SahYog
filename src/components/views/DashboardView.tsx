@@ -97,12 +97,12 @@ function GovtJharkhandDash({ problems, openDetail }: { problems: Problem[]; open
   const totalBeneficiaries = problems.reduce((acc, p) => {
     const val = typeof p.affected_population === 'number' ? p.affected_population : 0;
     return acc + val;
-  }, 16890);
+  }, 0);
 
   // Group by District (Jharkhand)
   const districtCounts: Record<string, number> = {};
   problems.forEach(p => {
-    const d = p.district || (p.location.includes('Ranchi') ? 'Ranchi' : p.location.includes('Gumla') ? 'Gumla' : p.location.includes('Dhanbad') ? 'Dhanbad' : 'Ranchi');
+    const d = p.district || (p.location.includes('Ranchi') ? 'Ranchi' : p.location.includes('Gumla') ? 'Gumla' : p.location.includes('Dhanbad') ? 'Dhanbad' : 'Unspecified');
     districtCounts[d] = (districtCounts[d] || 0) + 1;
   });
   const maxDistrict = Math.max(...Object.values(districtCounts), 1);
@@ -171,7 +171,7 @@ function GovtJharkhandDash({ problems, openDetail }: { problems: Problem[]; open
             </div>
           ))}
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 10, textAlign: 'right' }}>
-            Covering all 24 administrative districts of Jharkhand
+            24-district coverage is supported by the platform; counts shown here come from the loaded challenge registry.
           </div>
         </div>
 
