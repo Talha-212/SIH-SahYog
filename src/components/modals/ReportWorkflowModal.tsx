@@ -69,7 +69,7 @@ export default function ReportWorkflowModal() {
   const [cameraError, setCameraError] = useState('');
 
   // Domain state (13 Societal Innovation Domains)
-  const [selectedDomainKey, setSelectedDomainKey] = useState<SocietalDomainKey>('water');
+  const [selectedDomainKey, setSelectedDomainKey] = useState<SocietalDomainKey>('other');
   const [isChangingDomain, setIsChangingDomain] = useState(false);
 
   // Location state (Jharkhand focused)
@@ -223,10 +223,10 @@ export default function ReportWorkflowModal() {
       setAiResult(null);
       setTitle('');
       setDesc('');
-      setSelectedDomainKey('water');
+      setSelectedDomainKey('other');
       setIsChangingDomain(false);
-      setCategory('Water Resource Management');
-      setDetectedProblem('Water Quality & Purification Deficit');
+      setCategory('Other');
+      setDetectedProblem('Unclassified Societal Challenge');
       setValidationResult(null);
       setIsValidatingImage(false);
       setLandmark('');
