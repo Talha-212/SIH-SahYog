@@ -578,6 +578,35 @@ export default function ReportWorkflowModal() {
     return match || '';
   }
 
+  async function geocodeManualDistrict(nextDistrict: string): Promise<void> {
+    if (!wfGeocoderRef.current || !nextDistrict) return;
+    try {
+      const results = await new Promise<any[]>((resolve, reject) => {
+        wfGeocoderRef.current.geocode({
+          address: nextDistrict + ', Jharkhand, India',
+          region: 'IN'
+        }, (r: any[], status: string) => {
+          if (status === 'OK' && r?.length) resolve(r);
+          else reject(new Error(status || 'Geocoding failed'));
+        });
+      });
+      const result = results[0];
+      const pos = result.geometry.location;
+      const manualLat = typeof pos.lat === 'function' ? pos.lat() : pos.lat;
+      const manualLng = typeof pos.lng === 'function' ? pos.lng() : pos.lng;
+      setLat(String(manualLat));
+      setLng(String(manualLng));
+      setAddress(result.formatted_address || (nextDistrict + ', Jharkhand, India'));
+      setLocationSource('MANUAL_ENTRY');
+      setLocationAccuracy('Approximate district geocode');
+      setLocationStatus('MANUAL_JHARKHAND');
+      setLocationConfirmed(true);
+      placeMarker(manualLat, manualLng, false);
+    } catch {
+      // District-only manual location remains valid without fabricated coordinates.
+    }
+  }
+
   function getAddressComponent(components: any[], type: string): string {
     const component = components?.find((item: any) => Array.isArray(item.types) && item.types.includes(type));
     return component?.long_name || '';
@@ -1400,6 +1429,7 @@ export default function ReportWorkflowModal() {
                         wfMarkerRef.current = null;
                       }
                       setMapStatus('✓ Jharkhand location selected manually. GPS is not being claimed.');
+                      void geocodeManualDistrict(nextDistrict);
                       setMapStatusType('success');
                     }}
                     style={{ fontWeight: 600 }}
