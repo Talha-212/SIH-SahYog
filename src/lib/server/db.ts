@@ -1377,6 +1377,76 @@ export async function joinCollaborationWorkspace(payload: {
 }
 
 // ==========================================
+ // 7A. Government Jurisdiction / HEI Assignment
+ // ==========================================
+ export async function assignChallengeToOrganization(payload: {
+   problem_id: string;
+   organization_id?: string;
+   organization_name: string;
+   actor_role?: string;
+   responsibility?: string;
+ }): Promise<Problem | null> {
+   const role = (payload.actor_role || 'government').toLowerCase();
+   if (role !== 'government' && role !== 'system') {
+     throw new Error('Permission denied: only Government of Jharkhand authorities can assign challenges.');
+   }
+   const nowStr = new Date().toISOString();
+   const supabase = getServerSupabaseClient();
+   if (supabase && isServerSupabaseConfigured()) {
+     const orgMap = await getOrInitSupabaseOrgs(supabase);
+     const orgId = payload.organization_id || Object.entries(orgMap).find(([name]) =>
+       name.toLowerCase().includes(payload.organization_name.toLowerCase()) ||
+       payload.organization_name.toLowerCase().includes(name.toLowerCase())
+     )?.[1];
+     if (!orgId) throw new Error('Selected institution is not registered in the SahYog organization registry.');
+     const { data: problem } = await supabase.from('problems').select('status').eq('id', payload.problem_id).maybeSingle();
+     if (!problem) return null;
+     await supabase.from('solver_matches').update({ status: 'selected' }).eq('problem_id', payload.problem_id);
+     await supabase.from('solver_matches').update({ status: 'selected' }).eq('problem_id', payload.problem_id).eq('organization_id', orgId);
+     await supabase.from('collaborations').upsert({
+       id: randomUUID(),
+       problem_id: payload.problem_id,
+       organization_id: orgId,
+       role: 'Government-assigned institutional lead',
+       responsibility: payload.responsibility || 'Evaluate challenge, constitute multidisciplinary HEI team and prepare solution proposal',
+       status: 'invited',
+       assigned_by: null,
+       created_at: nowStr,
+       updated_at: nowStr
+     }, { onConflict: 'id' });
+     await supabase.from('problems').update({ status: 'matched', updated_at: nowStr }).eq('id', payload.problem_id);
+     await supabase.from('problem_updates').insert({
+       id: randomUUID(),
+       problem_id: payload.problem_id,
+       actor_role: 'Government',
+       event_type: 'ASSIGNED',
+       previous_status: problem.status,
+       new_status: 'matched',
+       title: 'Government of Jharkhand assigned institutional lead',
+       description: `Challenge assigned to ${payload.organization_name} for multidisciplinary evaluation and solution formulation.`,
+       metadata: { organization_id: orgId, responsibility: payload.responsibility || null },
+       created_at: nowStr
+     });
+     return getProblem(payload.problem_id);
+   }
+   const db = await getDb();
+   const p = db.problems.find(x => x.id === payload.problem_id);
+   if (!p) return null;
+   p.stage = Math.max(p.stage, 2);
+   db.problem_updates.push({
+     id: `EV-${payload.problem_id}-${Date.now()}`,
+     problem_id: payload.problem_id,
+     event_type: 'ASSIGNED',
+     stage: 2,
+     actor_role: 'Government',
+     description: `Government of Jharkhand assigned ${payload.organization_name} as institutional lead.`,
+     timestamp: nowStr
+   });
+   await saveDb(db);
+   return p;
+ }
+
+// ==========================================
 // 8. Dashboard Metrics Aggregation
 // ==========================================
 export async function getDashboardMetrics() {
