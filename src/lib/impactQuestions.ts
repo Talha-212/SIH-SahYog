@@ -882,6 +882,47 @@ export interface ImageValidationResult {
   requiresManualCategory: boolean;
 }
 
+async function inspectEvidenceImage(
+  fileOrBlob: File | Blob | string | { name?: string; src?: string }
+): Promise<{ width?: number; height?: number; invalid?: boolean; reason?: string }> {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    if (typeof fileOrBlob === 'string') return {};
+
+    const blob = fileOrBlob instanceof Blob
+      ? fileOrBlob
+      : null;
+
+    if (!blob || !blob.type.startsWith('image/')) return {};
+
+    if (blob.size === 0) {
+      return { invalid: true, reason: 'The selected image is empty.' };
+    }
+
+    const bitmap = await createImageBitmap(blob);
+    const width = bitmap.width;
+    const height = bitmap.height;
+    bitmap.close();
+
+    if (width < 240 || height < 240) {
+      return {
+        width,
+        height,
+        invalid: true,
+        reason: 'The image resolution is too small for reliable field assessment.'
+      };
+    }
+
+    return { width, height };
+  } catch {
+    return {
+      invalid: true,
+      reason: 'The image could not be decoded. Please choose a valid image file.'
+    };
+  }
+}
+
 export async function validateEvidenceFile(
   fileOrBlob: File | Blob | string | { name?: string; src?: string },
   suggestedFileName?: string
@@ -895,6 +936,21 @@ export async function validateEvidenceFile(
     name = suggestedFileName;
   }
   const lowerName = name.toLowerCase();
+
+  // Validate the actual image container when a browser Blob/File is available.
+  // This is intentionally conservative: without a genuine vision model we do
+  // not pretend to identify the visual subject from pixels.
+  const imageInspection = await inspectEvidenceImage(fileOrBlob);
+  if (imageInspection.invalid) {
+    return {
+      status: 'low_quality',
+      title: 'Image cannot be assessed.',
+      message: imageInspection.reason || 'Please upload a valid, sufficiently large image.',
+      reason: imageInspection.reason,
+      canProceed: false,
+      requiresManualCategory: false
+    };
+  }
 
   // 1. Check for personal / selfie heuristics in file name
   const selfieTerms = ['selfie', 'portrait', 'face', 'profile', 'avatar', 'myself', 'me.jpg', 'me.jpeg', 'me.png'];
@@ -1061,16 +1117,14 @@ export async function validateEvidenceFile(
     };
   }
 
-  // 5. Default: Valid evidence with uncertain classification -> prompt to select domain
-  // Falls back to other / unknown (NEVER defaults to pothole!)
+  // 5. Default: the image content is not actually classified by this prototype.
+  // Never silently convert an unknown image into "Other Societal Challenge".
   return {
     status: 'uncertain',
-    detectedCategoryKey: 'other',
-    suggestedCategoryKey: 'other',
-    title: "Category could not be confidently determined.",
-    message: 'Please select the societal challenge domain to load appropriate impact assessment questions and extract required expertise.',
-    reason: 'Domain classification uncertain from image metadata. Please select domain.',
-    canProceed: true,
+    title: "We couldn't confidently classify this evidence.",
+    message: 'This prototype does not perform genuine computer-vision classification. Confirm that the image shows a societal challenge, then select the appropriate domain.',
+    reason: 'No reliable visual/domain signal was available from the evidence metadata.',
+    canProceed: false,
     requiresManualCategory: true
   };
 }
