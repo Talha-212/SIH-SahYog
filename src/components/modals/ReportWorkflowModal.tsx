@@ -844,9 +844,28 @@ export default function ReportWorkflowModal() {
   async function createProblem(): Promise<boolean> {
     setIsSubmitting(true);
     setSubmitError(null);
-    const finalLat = lat ? Number(lat) : DEMO_LOCATION.lat;
-    const finalLng = lng ? Number(lng) : DEMO_LOCATION.lng;
-    const finalAddress = `${block ? block + ', ' : ''}${district}, Jharkhand`;
+
+    if (!domainConfirmed) {
+      setIsSubmitting(false);
+      setSubmitError('Please confirm the societal domain before submission.');
+      return false;
+    }
+
+    if (locationStatus === 'OUTSIDE_JHARKHAND') {
+      setIsSubmitting(false);
+      setSubmitError('The detected location is outside Jharkhand. Select a valid Jharkhand reporting location.');
+      return false;
+    }
+
+    if (!locationConfirmed || !district) {
+      setIsSubmitting(false);
+      setSubmitError('A verified or manually selected Jharkhand location is required.');
+      return false;
+    }
+
+    const finalLat = lat ? Number(lat) : null;
+    const finalLng = lng ? Number(lng) : null;
+    const finalAddress = address || (block ? block + ', ' : '') + district + ', Jharkhand';
 
     const currentConfig = CHALLENGE_ASSESSMENT_BY_DOMAIN[selectedDomainKey];
     const q1Label = currentConfig?.question1.options.find(o => o.id === q1OptionId)?.label;
@@ -857,8 +876,8 @@ export default function ReportWorkflowModal() {
       category,
       domain: category,
       subdomain: SUBCATEGORY[category] || 'Societal Innovation',
-      state: 'Jharkhand',
-      district: district || 'Ranchi',
+      state: stateName,
+      district: district || '',
       block: block || '',
       affected_population: affectedPopulation || q1Label || 'Rural and urban communities across Jharkhand',
       expected_outcome: expectedOutcome || 'Field-validated prototype addressing core operational bottlenecks',
@@ -874,6 +893,8 @@ export default function ReportWorkflowModal() {
       longitude: finalLng,
       location_source: locationSource || 'MANUAL_ENTRY',
       location_accuracy: locationAccuracy || 'User specified',
+      location_confirmed: locationConfirmed,
+      location_status: locationStatus,
       photos: files.slice(),
       factors: {
         categoryKey: selectedDomainKey,
