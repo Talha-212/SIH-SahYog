@@ -418,6 +418,11 @@ export default function ReportWorkflowModal() {
         setCategory(getStandardDomainName(dKey));
         const cfg = CHALLENGE_ASSESSMENT_BY_DOMAIN[dKey];
         if (cfg) setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
+      } else {
+        setSelectedDomainKey('other');
+        setDomainConfirmed(false);
+        setCategory('Other');
+        setDetectedProblem('Unclassified Societal Challenge');
       }
 
       const permanentUrl = await uploadPhotoToServer(dataUrl, `field_photo_${Date.now()}.jpg`);
