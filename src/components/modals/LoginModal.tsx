@@ -54,6 +54,10 @@ export default function LoginModal() {
         return;
       }
       dispatch({ type: 'TOGGLE_LOGIN' });
+      if (res.role === 'admin') {
+        window.location.href = '/admin';
+        return;
+      }
       dispatch({ type: 'SET_VIEW', view: 'dashboard' });
     }
   }
