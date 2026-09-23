@@ -6,7 +6,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/client';
 
 export default function LoginModal() {
   const { state, dispatch, signInWithSupabase, signUpWithSupabase } = useSahYog();
-  const [tab, setTab] = useState<'quick' | 'auth'>('quick');
+  const [tab, setTab] = useState<'quick' | 'auth'>('auth');
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -110,7 +110,7 @@ export default function LoginModal() {
               cursor: 'pointer'
             }}
           >
-            Role Switcher (Judging)
+            Demo Role Switcher
           </button>
           <button
             type="button"
