@@ -69,10 +69,15 @@ export default function Nav() {
             🔔
             {unread > 0 && <span className="dot-badge" id="notifCount">{unread}</span>}
           </button>
+          {currentRole === 'admin' && (
+            <button className="btn btn-secondary" onClick={() => { window.location.href = '/admin'; }}>
+              Government Control Center
+            </button>
+          )}
           {currentRole ? (
             <button className="btn btn-secondary" id="loginBtn" onClick={() => dispatch({ type: 'LOGOUT' })}>
               Logout <span className="role-badge-nav" style={{ marginLeft: 6 }}>
-                {currentRole === 'government' ? 'Govt. of Jharkhand' : currentRole === 'university' ? 'HEI Partner' : currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
+                {currentRole === 'admin' ? 'Administrator' : currentRole === 'government' ? 'Govt. of Jharkhand' : currentRole === 'university' ? 'HEI Partner' : currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
               </span>
             </button>
           ) : (
