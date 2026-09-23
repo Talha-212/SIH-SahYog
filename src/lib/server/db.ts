@@ -941,6 +941,17 @@ export async function addSolutionRecord(payload: {
         technical_details: payload.tech || '',
         estimated_cost: parseNumericCost(payload.cost) as any,
         estimated_duration: payload.time || '10-14 days',
+        implementation_plan: payload.pilot_plan || null,
+        problem_understanding: payload.problem_understanding || null,
+        proposed_approach: payload.proposed_approach || null,
+        faculty_mentor: payload.faculty_mentor || null,
+        student_team: payload.student_team || null,
+        prototype_plan: payload.prototype_plan || null,
+        testing_plan: payload.testing_plan || null,
+        pilot_plan: payload.pilot_plan || null,
+        social_impact: payload.social_impact || null,
+        support_needed: payload.support_needed || null,
+        lifecycle_data: payload.lifecycle_data || null,
         status: 'proposed',
         created_at: nowStr,
         updated_at: nowStr
@@ -990,6 +1001,7 @@ export async function addSolutionRecord(payload: {
     cost: payload.cost || 'Estimated upon civic approval',
     time: payload.time || '10-14 days',
     impact: payload.impact || 'High local impact',
+    lifecycle_data: payload.lifecycle_data,
     created_at: nowStr,
     updated_at: nowStr
   };
