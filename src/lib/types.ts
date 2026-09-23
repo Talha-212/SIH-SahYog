@@ -12,6 +12,40 @@ export interface Photo {
   exifGpsFound?: boolean;
 }
 
+export interface MultidisciplinaryTeam {
+  faculty_mentor?: string;
+  faculty_dept?: string;
+  student_members?: Array<{ name: string; dept: string; role?: string }>;
+  external_advisor?: string;
+}
+
+export interface ProjectMilestone {
+  id: string;
+  title: string;
+  desc: string;
+  due: string;
+  status: 'Pending' | 'In Progress' | 'Completed';
+  deliverables?: string;
+  completed_at?: string;
+}
+
+export interface IndustryPartnership {
+  org_name: string;
+  org_type: 'Industry' | 'Startup' | 'MSME' | 'CSR';
+  support_type: 'Mentorship' | 'Funding' | 'Prototyping' | 'Testing' | 'Pilot' | 'Tech Transfer';
+  status: 'Under Discussion' | 'Active' | 'Delivered';
+  contribution?: string;
+}
+
+export interface ImpactMetric {
+  metric: string;
+  before: string | number;
+  after: string | number;
+  unit: string;
+  beneficiaries: string | number;
+  validation_status: 'Preliminary' | 'Validated' | 'Audited';
+}
+
 export interface Solution {
   id: string;
   title: string;
@@ -24,6 +58,16 @@ export interface Solution {
   impact: string;
   created_at?: string;
   updated_at?: string;
+  // Extended societal innovation fields
+  problem_understanding?: string;
+  proposed_approach?: string;
+  faculty_mentor?: string;
+  student_team?: string;
+  prototype_plan?: string;
+  testing_plan?: string;
+  pilot_plan?: string;
+  social_impact?: string;
+  support_needed?: string;
 }
 
 export interface AIResult {
@@ -35,6 +79,10 @@ export interface AIResult {
   confidence: number;
   terms: string[];
   method?: 'RULE_BASED_PROTOTYPE' | 'INDIC_BERT_PIPELINE';
+  // Societal innovation additions
+  domain?: string;
+  subdomain?: string;
+  required_expertise?: string[];
 }
 
 export interface Verification {
@@ -55,7 +103,7 @@ export interface MatchFactors {
 export interface OrgMatch {
   name: string;
   type: 'Government' | 'University' | 'Industry' | 'NGO';
-  roleInProblem: string; // e.g. 'Statutory Authority & Validation'
+  roleInProblem: string;
   expertise: string;
   location: string;
   resources: string;
@@ -85,6 +133,7 @@ export interface Problem {
   location: string;
   affected: number | string;
   severity: string;
+  priority?: string;
   stage: number;
   date: string;
   mapX: number;
@@ -98,7 +147,7 @@ export interface Problem {
   datetime?: string;
   contact?: string;
 
-  // Structured location fields
+  // Structured location & administrative hierarchy (Jharkhand)
   latitude?: number | null;
   longitude?: number | null;
   lat?: number | null;
@@ -108,6 +157,20 @@ export interface Problem {
   location_accuracy?: string;
   location_confirmed?: boolean;
   location_updated_at?: string;
+  state?: string;
+  district?: string;
+  block?: string;
+
+  // Societal Challenge & Innovation Ecosystem fields
+  domain?: string;
+  subdomain?: string;
+  affected_population?: string | number;
+  expected_outcome?: string;
+  required_expertise?: string[];
+  project_team?: MultidisciplinaryTeam;
+  milestones?: ProjectMilestone[];
+  industry_partnerships?: IndustryPartnership[];
+  impact_metrics?: ImpactMetric[];
 
   // Lifecycle events / updates
   events?: ProblemEvent[];

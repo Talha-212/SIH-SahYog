@@ -235,6 +235,7 @@ interface SubmitProblemPayload {
   category: string;
   location: string;
   severity?: string;
+  priority?: string;
   affected?: string;
   landmark?: string;
   datetime?: string;
@@ -245,6 +246,14 @@ interface SubmitProblemPayload {
   location_accuracy?: string;
   photos?: Photo[];
   factors?: any;
+  state?: string;
+  district?: string;
+  block?: string;
+  domain?: string;
+  subdomain?: string;
+  affected_population?: string | number;
+  expected_outcome?: string;
+  required_expertise?: string[];
 }
 
 interface SubmitSolutionPayload {
@@ -256,6 +265,15 @@ interface SubmitSolutionPayload {
   cost?: string;
   time?: string;
   impact?: string;
+  problem_understanding?: string;
+  proposed_approach?: string;
+  faculty_mentor?: string;
+  student_team?: string;
+  prototype_plan?: string;
+  testing_plan?: string;
+  pilot_plan?: string;
+  social_impact?: string;
+  support_needed?: string;
 }
 
 interface ContextValue {

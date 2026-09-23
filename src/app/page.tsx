@@ -56,8 +56,21 @@ function AppShell() {
         <div className="wrap">
           <div className="foot-grid">
             <div>
-              <h4>SahYog</h4>
-              <p style={{ fontSize: 13, color: '#c3d3e6', maxWidth: '38ch' }}>&ldquo;From Citizen Problem to Real-World Solution&rdquo;</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <img
+                  src="/logo.png"
+                  alt="SahYog Logo"
+                  style={{
+                    height: 52,
+                    width: 'auto',
+                    objectFit: 'contain',
+                    background: '#ffffff',
+                    padding: '4px 8px',
+                    borderRadius: 8
+                  }}
+                />
+              </div>
+              <p style={{ fontSize: 13, color: '#c3d3e6', maxWidth: '38ch' }}>&ldquo;Connecting Real Problems with the Right Problem Solvers&rdquo;</p>
               <div className="disclaimer-box">
                 SahYog is an independent hackathon/innovation platform prototype for collaborative societal problem solving. It is not an official Survey of India application or government service, and is not affiliated with or endorsed by any government body.
               </div>

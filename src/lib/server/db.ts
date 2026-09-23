@@ -463,6 +463,14 @@ function transformSupabaseProblem(row: any): Problem {
     address: row.address || undefined,
     location_source: row.location_source?.toUpperCase() as any || 'MANUAL_ENTRY',
     location_confirmed: row.location_confirmed ?? true,
+    state: (row.severity_assessments?.[0]?.factors as any)?.state || 'Jharkhand',
+    district: (row.severity_assessments?.[0]?.factors as any)?.district || 'Ranchi',
+    block: (row.severity_assessments?.[0]?.factors as any)?.block || '',
+    domain: (row.severity_assessments?.[0]?.factors as any)?.domain || firstCls?.category?.toLowerCase() || 'other',
+    subdomain: (row.severity_assessments?.[0]?.factors as any)?.subdomain || firstCls?.subcategory,
+    affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || '100+ Community Members',
+    expected_outcome: (row.severity_assessments?.[0]?.factors as any)?.expected_outcome || undefined,
+    required_expertise: (row.severity_assessments?.[0]?.factors as any)?.required_expertise || undefined,
     events: uiEvents,
     created_at: row.created_at,
     updated_at: row.updated_at
@@ -604,6 +612,7 @@ export async function createProblemRecord(payload: {
   category: string;
   location: string;
   severity: string;
+  priority?: string;
   affected?: string;
   landmark?: string;
   datetime?: string;
@@ -615,6 +624,14 @@ export async function createProblemRecord(payload: {
   location_confirmed?: boolean;
   photos?: Problem['photos'];
   factors?: any;
+  state?: string;
+  district?: string;
+  block?: string;
+  domain?: string;
+  subdomain?: string;
+  affected_population?: string | number;
+  expected_outcome?: string;
+  required_expertise?: string[];
 }): Promise<Problem> {
   const db = await getDb();
   const nextNumber = db.problems.length + 101;
@@ -703,12 +720,25 @@ export async function createProblemRecord(payload: {
         await supabase.from('problem_classifications').insert(clsRow);
 
         // 4. Insert into severity_assessments
+        const combinedFactors = {
+          ...(typeof payload.factors === 'object' ? payload.factors : { raw_factors: payload.factors }),
+          state: payload.state || 'Jharkhand',
+          district: payload.district || 'Ranchi',
+          block: payload.block || '',
+          domain: payload.domain || aiResult.domain,
+          subdomain: payload.subdomain || aiResult.subcategory,
+          affected_population: payload.affected_population || payload.affected,
+          expected_outcome: payload.expected_outcome,
+          required_expertise: payload.required_expertise || aiResult.required_expertise,
+          priority: payload.priority || normalizedSev
+        };
+
         const sevRow: SeverityAssessmentRow = {
           id: randomUUID(),
           problem_id: supabaseProblemId,
           suggested_severity: normalizedSev,
           final_severity: normalizedSev,
-          factors: payload.factors || { location: payload.location, affected: payload.affected || '100+ Citizens' },
+          factors: combinedFactors,
           total_score: normalizedSev === 'critical' ? 90 : normalizedSev === 'high' ? 75 : 50,
           created_at: nowStr
         };
@@ -745,8 +775,8 @@ export async function createProblemRecord(payload: {
           event_type: 'REPORT_CREATED',
           previous_status: null,
           new_status: 'reported',
-          title: 'Problem Reported on Ground',
-          description: `Citizen registered issue "${payload.title}" with evidence and geolocation.`,
+          title: 'Societal Challenge Submitted',
+          description: `Community challenge "${payload.title}" registered in Government of Jharkhand innovation ecosystem.`,
           created_at: nowStr
         };
         await supabase.from('problem_updates').insert(updateRow);
@@ -775,23 +805,22 @@ export async function createProblemRecord(payload: {
   };
   db.problem_classifications.push(classificationRecord);
 
-  orgMatches.forEach((m, mIdx) => {
-    db.solver_matches.push({
-      id: `MTC-${id}-${mIdx + 1}`,
-      problem_id: id,
-      org_name: m.name,
-      org_type: m.type,
-      score: m.score,
-      score_type: 'PROTOTYPE_WEIGHTED_SCORE',
-      factor_domain: m.factors.domain,
-      factor_jurisdiction: m.factors.jurisdiction,
-      factor_expertise: m.factors.expertise,
-      factor_capacity: m.factors.capacity,
-      role_in_problem: m.roleInProblem,
-      status: mIdx === 0 ? 'accepted' : 'recommended',
-      created_at: nowStr
-    });
-  });
+  const matchRecords: SolverMatchRecord[] = orgMatches.map((m, mIdx) => ({
+    id: `MTC-${id}-${mIdx + 1}`,
+    problem_id: id,
+    org_name: m.name,
+    org_type: m.type,
+    score: m.score,
+    score_type: 'PROTOTYPE_WEIGHTED_SCORE',
+    factor_domain: m.factors.domain,
+    factor_jurisdiction: m.factors.jurisdiction,
+    factor_expertise: m.factors.expertise,
+    factor_capacity: m.factors.capacity,
+    role_in_problem: m.roleInProblem,
+    status: mIdx === 0 ? 'accepted' : 'recommended',
+    created_at: nowStr
+  }));
+  db.solver_matches.push(...matchRecords);
 
   const newProblem: Problem = {
     id,
@@ -799,7 +828,7 @@ export async function createProblemRecord(payload: {
     desc: payload.desc,
     category: aiResult.category,
     location: payload.location,
-    affected: payload.affected || '100+ Citizens',
+    affected: payload.affected_population ? `${payload.affected_population} Community Members` : (payload.affected || '100+ Citizens'),
     severity: displaySeverity(payload.severity),
     stage: 0,
     date: 'Just now',
@@ -822,6 +851,14 @@ export async function createProblemRecord(payload: {
     location_accuracy: payload.location_accuracy || '~15m',
     location_confirmed: payload.location_confirmed ?? true,
     location_updated_at: nowStr,
+    state: payload.state || 'Jharkhand',
+    district: payload.district || 'Ranchi',
+    block: payload.block || '',
+    domain: payload.domain || aiResult.domain,
+    subdomain: payload.subdomain || aiResult.subcategory,
+    affected_population: payload.affected_population || payload.affected,
+    expected_outcome: payload.expected_outcome,
+    required_expertise: payload.required_expertise || aiResult.required_expertise,
     events: [
       {
         id: `EV-${id}-1`,

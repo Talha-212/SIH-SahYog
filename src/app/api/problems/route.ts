@@ -45,6 +45,7 @@ export async function POST(request: Request) {
       category: body.category,
       location: body.location || body.address || 'Reported Location',
       severity: body.severity || 'Medium',
+      priority: body.priority,
       affected: body.affected,
       landmark: body.landmark,
       datetime: body.datetime,
@@ -55,7 +56,15 @@ export async function POST(request: Request) {
       location_accuracy: body.location_accuracy || '~15m',
       location_confirmed: body.location_confirmed ?? true,
       photos: body.photos || [],
-      factors: body.factors || body.assessment_factors || null
+      factors: body.factors || body.assessment_factors || null,
+      state: body.state || 'Jharkhand',
+      district: body.district || 'Ranchi',
+      block: body.block || '',
+      domain: body.domain,
+      subdomain: body.subdomain,
+      affected_population: body.affected_population || body.affected,
+      expected_outcome: body.expected_outcome,
+      required_expertise: body.required_expertise
     });
 
     return NextResponse.json(

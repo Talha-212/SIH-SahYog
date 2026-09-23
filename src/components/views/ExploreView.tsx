@@ -41,8 +41,10 @@ export default function ExploreView() {
   return (
     <div className="wrap section">
       <div className="section-head">
-        <div className="section-title">Explore Challenges</div>
-        <div className="section-sub">Public societal problems reported on SahYog. <span className="demo-tag">Demo Data</span></div>
+        <div className="section-title">Explore Societal Challenges &amp; Research Projects</div>
+        <div className="section-sub">
+          Crowdsourced challenges across 24 Jharkhand districts matched with Higher Education Institutions (HEIs) &amp; industry partners. <span className="demo-tag">SIH 2026 Prototype Data</span>
+        </div>
       </div>
 
       <div className="tabs-row">
@@ -51,46 +53,46 @@ export default function ExploreView() {
       </div>
 
       <div className="filter-bar">
-        <input type="text" placeholder="Search problems, locations, categories..." value={q} onChange={e => setQ(e.target.value)} />
+        <input type="text" placeholder="Search challenges, districts, domains, expertise..." value={q} onChange={e => setQ(e.target.value)} />
         <select value={cat} onChange={e => setCat(e.target.value)}>
-          <option value="">All Categories</option>
+          <option value="">All Societal Domains</option>
           {CATEGORIES.map(c => <option key={c}>{c}</option>)}
         </select>
         <select value={sev} onChange={e => setSev(e.target.value)}>
-          <option value="">All Severities</option>
-          <option>High</option><option>Medium</option><option>Low</option><option>Critical</option>
+          <option value="">All Priorities</option>
+          <option>Critical</option><option>High</option><option>Moderate</option><option>Low</option>
         </select>
         <select value={stat} onChange={e => setStat(e.target.value)}>
-          <option value="">All Statuses</option>
+          <option value="">All Project Stages</option>
           {STAGES.map(s => <option key={s}>{s}</option>)}
         </select>
         <select value={loc} onChange={e => setLoc(e.target.value)}>
-          <option value="">All Locations</option>
+          <option value="">All Districts / Locations</option>
           {allLocations.map(l => <option key={l}>{l}</option>)}
         </select>
       </div>
 
       {/* CARDS VIEW */}
       <div className={exploreTab === 'cards' ? '' : 'hide'}>
-        <div className="result-count">{filtered.length} problem{filtered.length !== 1 ? 's' : ''} found</div>
+        <div className="result-count">{filtered.length} societal challenge{filtered.length !== 1 ? 's' : ''} found in Jharkhand registry</div>
         <div className="challenge-grid">
           {filtered.length === 0
-            ? <p style={{ fontSize: 13, color: 'var(--muted)' }}>No problems match these filters.</p>
+            ? <p style={{ fontSize: 13, color: 'var(--muted)' }}>No challenges match these filters.</p>
             : filtered.map(p => (
               <div className="chal-card" key={p.id}>
                 <div className="chal-thumb" style={{ background: CATEGORY_COLOR[p.category] ?? '#556070' }}>{p.category}</div>
                 <div className="chal-body">
                   <h4>{p.title}</h4>
                   <div className="chal-meta">
-                    <span>{p.location}</span>
+                    <span>📍 {p.district ? `${p.district}, Jharkhand` : p.location.split(',')[0]}</span>
                     <span className={`status-chip ${p.severity}`}>{p.severity}</span>
-                    <span>{STAGES[p.stage]}</span>
-                    <span>{p.affected} affected</span>
+                    <span style={{ fontWeight: 600, color: 'var(--blue)' }}>{STAGES[p.stage]}</span>
+                    <span>{p.affected}</span>
                   </div>
-                  <div className="chal-meta"><span className="demo-tag">Demo Data</span><span>{p.date}</span></div>
+                  <div className="chal-meta"><span className="demo-tag">SIH26043</span><span>{p.date}</span></div>
                   <div className="chal-foot">
-                    <button className="btn btn-secondary btn-sm" onClick={() => openDetail(p.id, 'explore')}>View Details</button>
-                    <button className="btn btn-primary btn-sm" onClick={() => helpSolve(p.id)}>Help Solve</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openDetail(p.id, 'explore')}>View Case &amp; R&amp;D</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => helpSolve(p.id)}>Collaborate</button>
                   </div>
                 </div>
               </div>
