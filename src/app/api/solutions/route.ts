@@ -23,6 +23,16 @@ export async function POST(request: Request) {
       cost: body.cost || 'Estimated upon civic approval',
       time: body.time || '10-14 days',
       impact: body.impact || 'High local impact',
+      problem_understanding: body.problem_understanding,
+      proposed_approach: body.proposed_approach,
+      faculty_mentor: body.faculty_mentor,
+      student_team: body.student_team,
+      prototype_plan: body.prototype_plan,
+      testing_plan: body.testing_plan,
+      pilot_plan: body.pilot_plan,
+      social_impact: body.social_impact,
+      support_needed: body.support_needed,
+      lifecycle_data: body.lifecycle_data,
       actor_role: actorRole
     });
 
