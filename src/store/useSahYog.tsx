@@ -283,7 +283,7 @@ interface ContextValue {
   showView: (view: View) => void;
   openDetail: (id: string, from: View) => void;
   // Supabase Auth Integration
-  signInWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithSupabase: (email: string, password: string) => Promise<{ success: boolean; error?: string; role?: Role }>;
   signUpWithSupabase: (email: string, password: string, fullName: string, role: Role) => Promise<{ success: boolean; error?: string }>;
   signOutSupabase: () => Promise<void>;
   // Authoritative Async Actions (Backend Source of Truth)
@@ -418,6 +418,7 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) return { success: false, error: 'Supabase client is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.' };
 
     try {
+      let userRole: Role = null;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return { success: false, error: error.message };
 
@@ -429,6 +430,7 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
           .maybeSingle();
 
         if (profile) {
+          userRole = profile.role;
           dispatch({ type: 'SET_ROLE', role: profile.role });
           dispatch({
             type: 'SET_USER_PROFILE',
@@ -443,7 +445,7 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      return { success: true };
+      return { success: true, role: userRole };
     } catch (err: any) {
       return { success: false, error: err?.message || 'Authentication error' };
     }
