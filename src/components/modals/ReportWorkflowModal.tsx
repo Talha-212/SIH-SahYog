@@ -24,7 +24,7 @@ import {
   type ImageValidationResult
 } from '@/lib/impactQuestions';
 import { classify } from '@/lib/classifier';
-import type { Photo, LocationSource, Problem } from '@/lib/types';
+import type { Photo, LocationSource, LocationStatus, Problem } from '@/lib/types';
 import { toast } from '@/components/ToastStack';
 import exifr from 'exifr';
 
@@ -71,10 +71,12 @@ export default function ReportWorkflowModal() {
   // Domain state (13 Societal Innovation Domains)
   const [selectedDomainKey, setSelectedDomainKey] = useState<SocietalDomainKey>('other');
   const [isChangingDomain, setIsChangingDomain] = useState(false);
+  const [domainConfirmed, setDomainConfirmed] = useState(false);
 
-  // Location state (Jharkhand focused)
-  const [stateName] = useState('Jharkhand');
-  const [district, setDistrict] = useState<string>('Ranchi');
+  // Location state: never assume Ranchi/Jharkhand for a device coordinate.
+  const [stateName, setStateName] = useState('Jharkhand');
+  const [district, setDistrict] = useState<string>('');
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>('UNVERIFIED');
   const [block, setBlock] = useState<string>('');
   const [locationConfirmed, setLocationConfirmed] = useState(false);
   const [lat, setLat] = useState('');
@@ -142,6 +144,7 @@ export default function ReportWorkflowModal() {
   // Domain change handler
   function handleDomainChange(newKey: SocietalDomainKey) {
     setSelectedDomainKey(newKey);
+    setDomainConfirmed(true);
     const standardName = getStandardDomainName(newKey);
     setCategory(standardName);
     const cfg = CHALLENGE_ASSESSMENT_BY_DOMAIN[newKey];
@@ -209,10 +212,12 @@ export default function ReportWorkflowModal() {
       setIsCameraActive(false);
       setCameraError('');
       setLocationConfirmed(false);
+      setLocationStatus('UNVERIFIED');
       setLat('');
       setLng('');
       setAddress('');
-      setDistrict('Ranchi');
+      setStateName('Jharkhand');
+      setDistrict('');
       setBlock('');
       setMapStatus('');
       setMapStatusType('');
@@ -225,6 +230,7 @@ export default function ReportWorkflowModal() {
       setDesc('');
       setSelectedDomainKey('other');
       setIsChangingDomain(false);
+      setDomainConfirmed(false);
       setCategory('Other');
       setDetectedProblem('Unclassified Societal Challenge');
       setValidationResult(null);
