@@ -1269,7 +1269,7 @@ export default function ReportWorkflowModal() {
                 </div>
               )}
 
-              {/* Societal Innovation Domain Selector (13 Domains) */
+              {/* Societal Innovation Domain Selector (13 Domains) */}
               <div style={{ marginTop: 18, padding: 16, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <div>
