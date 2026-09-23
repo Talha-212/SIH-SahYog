@@ -73,14 +73,14 @@ export async function getOrInitSupabaseOrgs(supabase: any): Promise<Record<strin
     }
 
     const initialOrgs = [
-      { name: 'GHMC Public Works Department', type: 'government', jurisdiction: 'Hyderabad Metropolitan Region', capacity: 90 },
-      { name: 'Hyderabad Traffic Police Civic Cell', type: 'government', jurisdiction: 'Hyderabad Urban Corridor', capacity: 85 },
-      { name: "Lord's Institute of Engineering & Technology", type: 'university', jurisdiction: 'Telangana', capacity: 80 },
-      { name: 'BITS Pilani Hyderabad Innovation Center', type: 'university', jurisdiction: 'Regional', capacity: 75 },
-      { name: 'SmartRoads Tech Private Limited', type: 'industry', jurisdiction: 'National', capacity: 95 },
-      { name: 'UltraTech Paving Infrastructure Solutions', type: 'industry', jurisdiction: 'National', capacity: 90 },
-      { name: 'Hyderabad Civic Action Forum', type: 'ngo', jurisdiction: 'Local Municipalities', capacity: 70 },
-      { name: 'Citizen Watchdog Federation', type: 'ngo', jurisdiction: 'Community Clusters', capacity: 65 }
+      { name: 'Department of Urban Development & Housing, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 90 },
+      { name: 'Road Construction Department, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 85 },
+      { name: "BIT Mesra - Higher Education Innovation Partner", type: 'university', jurisdiction: 'Telangana', capacity: 80 },
+      { name: 'IIT (ISM) Dhanbad - Research Partner', type: 'university', jurisdiction: 'Regional', capacity: 75 },
+      { name: 'Jharkhand MSME Innovation Partner', type: 'industry', jurisdiction: 'National', capacity: 95 },
+      { name: 'Tata Steel Innovation & CSR Partner', type: 'industry', jurisdiction: 'National', capacity: 90 },
+      { name: 'Jharkhand Community Innovation Network', type: 'ngo', jurisdiction: 'Local Municipalities', capacity: 70 },
+      { name: 'Jharkhand Community Partner', type: 'ngo', jurisdiction: 'Community Clusters', capacity: 65 }
     ];
 
     for (const org of initialOrgs) {
@@ -185,7 +185,7 @@ function getInitialDemoOrgs(): OrganizationRecord[] {
         id: `ORG-${String(idx + 1).padStart(3, '0')}`,
         name: m.name,
         type: m.type,
-        jurisdiction: m.location.includes('Hyderabad') || m.location.includes('City') ? 'Hyderabad Metropolitan Region' : 'State Jurisdiction',
+        jurisdiction: m.location.includes('Hyderabad') || m.location.includes('City') ? 'Jharkhand State' : 'State Jurisdiction',
         location: m.location,
         expertise: m.expertise,
         resources: m.resources,
@@ -305,10 +305,10 @@ function seedDatabase(): DatabaseSchema {
     version: 2,
     users: [
       { id: 'usr-citizen-01', name: 'Citizen Reporter', email: 'citizen@sahyog.local', role: 'citizen', created_at: new Date().toISOString() },
-      { id: 'usr-gov-01', name: 'GHMC Engineering Official', email: 'ghmc@sahyog.gov.in', role: 'government', org_id: 'ORG-001', created_at: new Date().toISOString() },
-      { id: 'usr-univ-01', name: 'Lord\'s Innovation Lead', email: 'innovation@lords.ac.in', role: 'university', org_id: 'ORG-002', created_at: new Date().toISOString() },
-      { id: 'usr-ind-01', name: 'SmartRoads Infra Partner', email: 'contact@smartroads.tech', role: 'industry', org_id: 'ORG-003', created_at: new Date().toISOString() },
-      { id: 'usr-ngo-01', name: 'Hyderabad Civic Watch', email: 'connect@civicwatch.org', role: 'ngo', org_id: 'ORG-004', created_at: new Date().toISOString() },
+      { id: 'usr-gov-01', name: 'Government of Jharkhand Innovation Official', email: 'innovation@gov.jharkhand.in', role: 'government', org_id: 'ORG-001', created_at: new Date().toISOString() },
+      { id: 'usr-univ-01', name: 'Lord\'s Innovation Lead', email: 'innovation@hei.sahyog.local', role: 'university', org_id: 'ORG-002', created_at: new Date().toISOString() },
+      { id: 'usr-ind-01', name: 'SmartRoads Infra Partner', email: 'industry@sahyog.local', role: 'industry', org_id: 'ORG-003', created_at: new Date().toISOString() },
+      { id: 'usr-ngo-01', name: 'Hyderabad Civic Watch', email: 'community@sahyog.local', role: 'ngo', org_id: 'ORG-004', created_at: new Date().toISOString() },
     ],
     organizations: demoOrgs,
     problems: demoData.problems,
@@ -379,7 +379,7 @@ function transformSupabaseProblem(row: any): Problem {
   const uiSolutions: Solution[] = solutions.map((s: any) => ({
     id: s.id,
     title: s.title,
-    org: (s.organization_id && orgIdToNameCache[s.organization_id]) || s.proposed_by || "Lord's Institute of Engineering & Technology",
+    org: (s.organization_id && orgIdToNameCache[s.organization_id]) || s.proposed_by || "BIT Mesra - Higher Education Innovation Partner",
     status: (s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1).replace('_', ' ') : 'Proposed') as any,
     desc: s.description || '',
     tech: s.technical_details || '',
@@ -420,8 +420,8 @@ function transformSupabaseProblem(row: any): Problem {
     }
   }));
 
-  const lat = row.latitude !== null && row.latitude !== undefined ? Number(row.latitude) : 17.385;
-  const lng = row.longitude !== null && row.longitude !== undefined ? Number(row.longitude) : 78.4867;
+  const lat = row.latitude !== null && row.latitude !== undefined ? Number(row.latitude) : null;
+  const lng = row.longitude !== null && row.longitude !== undefined ? Number(row.longitude) : null;
 
   return {
     id: row.id,
@@ -640,8 +640,8 @@ export async function createProblemRecord(payload: {
 
   // Authoritative Backend Classification (RULE_BASED_PROTOTYPE)
   const aiResult = classify(payload.title, payload.desc, payload.category);
-  const lat = payload.latitude ?? DEMO_LOCATION.lat;
-  const lng = payload.longitude ?? DEMO_LOCATION.lng;
+  const lat = payload.latitude ?? null;
+  const lng = payload.longitude ?? null;
   const orgMatches = buildMatches(aiResult.category, payload.location, lat, lng);
   const normalizedSev = normalizeSeverity(payload.severity);
 
@@ -672,7 +672,7 @@ export async function createProblemRecord(payload: {
         latitude: lat,
         longitude: lng,
         location_source: normalizeLocationSource(payload.location_source),
-        location_confirmed: payload.location_confirmed ?? true,
+        location_confirmed: payload.location_confirmed ?? Boolean(payload.latitude != null && payload.longitude != null),
         is_demo: false,
         created_at: nowStr,
         updated_at: nowStr
