@@ -4,7 +4,7 @@ import { useSahYog } from '@/store/useSahYog';
 import type { View } from '@/lib/types';
 
 export default function Nav() {
-  const { state, dispatch, showView } = useSahYog();
+  const { state, dispatch, showView, signOutSupabase } = useSahYog();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -75,7 +75,7 @@ export default function Nav() {
             </button>
           )}
           {currentRole ? (
-            <button className="btn btn-secondary" id="loginBtn" onClick={() => dispatch({ type: 'LOGOUT' })}>
+            <button className="btn btn-secondary" id="loginBtn" onClick={() => { signOutSupabase(); }}>
               Logout <span className="role-badge-nav" style={{ marginLeft: 6 }}>
                 {currentRole === 'admin' ? 'Administrator' : currentRole === 'government' ? 'Govt. of Jharkhand' : currentRole === 'university' ? 'HEI Partner' : currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
               </span>
