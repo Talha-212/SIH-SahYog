@@ -478,13 +478,13 @@ export default function ReportWorkflowModal() {
           if (gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number') {
             hasExif = true;
             photoGpsFound = true;
-            setLat(String(gps.latitude));
-            setLng(String(gps.longitude));
-            setLocationSource('PHOTO_EXIF');
-            setLocationAccuracy('Photo EXIF GPS (~5-15m)');
             setExifFound(true);
-            setAddress(`EXIF Location: ${gps.latitude.toFixed(5)}° N, ${gps.longitude.toFixed(5)}° E`);
-            setLocationConfirmed(true);
+            await verifyCoordinatesAgainstJharkhand(
+              gps.latitude,
+              gps.longitude,
+              'PHOTO_EXIF',
+              'Photo EXIF GPS'
+            );
           }
         } catch {
           // EXIF reading failed or absent
@@ -1387,7 +1387,13 @@ export default function ReportWorkflowModal() {
                       setLocationConfirmed(true);
                       setLocationSource('MANUAL_ENTRY');
                       setLocationAccuracy('User-selected Jharkhand district');
+                      setLat('');
+                      setLng('');
                       setAddress(block ? block + ', ' + nextDistrict + ', Jharkhand' : nextDistrict + ', Jharkhand');
+                      if (wfMarkerRef.current) {
+                        wfMarkerRef.current.setMap(null);
+                        wfMarkerRef.current = null;
+                      }
                       setMapStatus('✓ Jharkhand location selected manually. GPS is not being claimed.');
                       setMapStatusType('success');
                     }}
