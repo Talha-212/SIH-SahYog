@@ -385,7 +385,17 @@ function transformSupabaseProblem(row: any): Problem {
     tech: s.technical_details || '',
     cost: s.estimated_cost !== null && s.estimated_cost !== undefined ? `₹${Number(s.estimated_cost).toLocaleString('en-IN')}` : '',
     time: s.estimated_duration || '',
-    impact: 'High community impact',
+    impact: s.social_impact || 'High community impact',
+    problem_understanding: s.problem_understanding || undefined,
+    proposed_approach: s.proposed_approach || undefined,
+    faculty_mentor: s.faculty_mentor || undefined,
+    student_team: s.student_team || undefined,
+    prototype_plan: s.prototype_plan || undefined,
+    testing_plan: s.testing_plan || undefined,
+    pilot_plan: s.pilot_plan || undefined,
+    social_impact: s.social_impact || undefined,
+    support_needed: s.support_needed || undefined,
+    lifecycle_data: s.lifecycle_data || undefined,
     created_at: s.created_at,
     updated_at: s.updated_at
   }));
