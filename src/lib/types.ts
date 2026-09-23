@@ -68,6 +68,11 @@ export interface Solution {
   pilot_plan?: string;
   social_impact?: string;
   support_needed?: string;
+  lifecycle_data?: {
+    milestones?: Array<{ title: string; due?: string; status?: string; deliverable?: string }>;
+    industry_support?: Array<{ organization: string; support_type: string; status?: string; contribution?: string }>;
+    impact_metrics?: Array<{ metric: string; baseline?: string; target?: string; unit?: string; validation_status?: string }>;
+  };
 }
 
 export interface AIResult {

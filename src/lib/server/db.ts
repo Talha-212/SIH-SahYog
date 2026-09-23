@@ -73,14 +73,14 @@ export async function getOrInitSupabaseOrgs(supabase: any): Promise<Record<strin
     }
 
     const initialOrgs = [
-      { name: 'GHMC Public Works Department', type: 'government', jurisdiction: 'Hyderabad Metropolitan Region', capacity: 90 },
-      { name: 'Hyderabad Traffic Police Civic Cell', type: 'government', jurisdiction: 'Hyderabad Urban Corridor', capacity: 85 },
-      { name: "Lord's Institute of Engineering & Technology", type: 'university', jurisdiction: 'Telangana', capacity: 80 },
-      { name: 'BITS Pilani Hyderabad Innovation Center', type: 'university', jurisdiction: 'Regional', capacity: 75 },
-      { name: 'SmartRoads Tech Private Limited', type: 'industry', jurisdiction: 'National', capacity: 95 },
-      { name: 'UltraTech Paving Infrastructure Solutions', type: 'industry', jurisdiction: 'National', capacity: 90 },
-      { name: 'Hyderabad Civic Action Forum', type: 'ngo', jurisdiction: 'Local Municipalities', capacity: 70 },
-      { name: 'Citizen Watchdog Federation', type: 'ngo', jurisdiction: 'Community Clusters', capacity: 65 }
+      { name: 'Department of Urban Development & Housing, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 90 },
+      { name: 'Road Construction Department, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 85 },
+      { name: "BIT Mesra - Higher Education Innovation Partner", type: 'university', jurisdiction: 'Jharkhand', capacity: 80 },
+      { name: 'IIT (ISM) Dhanbad - Research Partner', type: 'university', jurisdiction: 'Jharkhand / Regional', capacity: 75 },
+      { name: 'Jharkhand MSME Innovation Partner', type: 'industry', jurisdiction: 'Jharkhand / National', capacity: 95 },
+      { name: 'Tata Steel Innovation & CSR Partner', type: 'industry', jurisdiction: 'Jharkhand / National', capacity: 90 },
+      { name: 'Jharkhand Community Innovation Network', type: 'ngo', jurisdiction: 'Local Municipalities', capacity: 70 },
+      { name: 'Jharkhand Community Partner', type: 'ngo', jurisdiction: 'Community Clusters', capacity: 65 }
     ];
 
     for (const org of initialOrgs) {
@@ -185,7 +185,7 @@ function getInitialDemoOrgs(): OrganizationRecord[] {
         id: `ORG-${String(idx + 1).padStart(3, '0')}`,
         name: m.name,
         type: m.type,
-        jurisdiction: m.location.includes('Hyderabad') || m.location.includes('City') ? 'Hyderabad Metropolitan Region' : 'State Jurisdiction',
+        jurisdiction: m.location.toLowerCase().includes('jharkhand') ? 'Jharkhand State' : 'Regional / National',
         location: m.location,
         expertise: m.expertise,
         resources: m.resources,
@@ -305,10 +305,10 @@ function seedDatabase(): DatabaseSchema {
     version: 2,
     users: [
       { id: 'usr-citizen-01', name: 'Citizen Reporter', email: 'citizen@sahyog.local', role: 'citizen', created_at: new Date().toISOString() },
-      { id: 'usr-gov-01', name: 'GHMC Engineering Official', email: 'ghmc@sahyog.gov.in', role: 'government', org_id: 'ORG-001', created_at: new Date().toISOString() },
-      { id: 'usr-univ-01', name: 'Lord\'s Innovation Lead', email: 'innovation@lords.ac.in', role: 'university', org_id: 'ORG-002', created_at: new Date().toISOString() },
-      { id: 'usr-ind-01', name: 'SmartRoads Infra Partner', email: 'contact@smartroads.tech', role: 'industry', org_id: 'ORG-003', created_at: new Date().toISOString() },
-      { id: 'usr-ngo-01', name: 'Hyderabad Civic Watch', email: 'connect@civicwatch.org', role: 'ngo', org_id: 'ORG-004', created_at: new Date().toISOString() },
+      { id: 'usr-gov-01', name: 'Government of Jharkhand Innovation Official', email: 'innovation@gov.jharkhand.in', role: 'government', org_id: 'ORG-001', created_at: new Date().toISOString() },
+      { id: 'usr-univ-01', name: 'Lord\'s Innovation Lead', email: 'innovation@hei.sahyog.local', role: 'university', org_id: 'ORG-002', created_at: new Date().toISOString() },
+      { id: 'usr-ind-01', name: 'SmartRoads Infra Partner', email: 'industry@sahyog.local', role: 'industry', org_id: 'ORG-003', created_at: new Date().toISOString() },
+      { id: 'usr-ngo-01', name: 'Hyderabad Civic Watch', email: 'community@sahyog.local', role: 'ngo', org_id: 'ORG-004', created_at: new Date().toISOString() },
     ],
     organizations: demoOrgs,
     problems: demoData.problems,
@@ -379,13 +379,23 @@ function transformSupabaseProblem(row: any): Problem {
   const uiSolutions: Solution[] = solutions.map((s: any) => ({
     id: s.id,
     title: s.title,
-    org: (s.organization_id && orgIdToNameCache[s.organization_id]) || s.proposed_by || "Lord's Institute of Engineering & Technology",
+    org: (s.organization_id && orgIdToNameCache[s.organization_id]) || s.proposed_by || "BIT Mesra - Higher Education Innovation Partner",
     status: (s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1).replace('_', ' ') : 'Proposed') as any,
     desc: s.description || '',
     tech: s.technical_details || '',
     cost: s.estimated_cost !== null && s.estimated_cost !== undefined ? `₹${Number(s.estimated_cost).toLocaleString('en-IN')}` : '',
     time: s.estimated_duration || '',
-    impact: 'High community impact',
+    impact: s.social_impact || 'High community impact',
+    problem_understanding: s.problem_understanding || undefined,
+    proposed_approach: s.proposed_approach || undefined,
+    faculty_mentor: s.faculty_mentor || undefined,
+    student_team: s.student_team || undefined,
+    prototype_plan: s.prototype_plan || undefined,
+    testing_plan: s.testing_plan || undefined,
+    pilot_plan: s.pilot_plan || undefined,
+    social_impact: s.social_impact || undefined,
+    support_needed: s.support_needed || undefined,
+    lifecycle_data: s.lifecycle_data || undefined,
     created_at: s.created_at,
     updated_at: s.updated_at
   }));
@@ -420,8 +430,8 @@ function transformSupabaseProblem(row: any): Problem {
     }
   }));
 
-  const lat = row.latitude !== null && row.latitude !== undefined ? Number(row.latitude) : 17.385;
-  const lng = row.longitude !== null && row.longitude !== undefined ? Number(row.longitude) : 78.4867;
+  const lat = row.latitude !== null && row.latitude !== undefined ? Number(row.latitude) : null;
+  const lng = row.longitude !== null && row.longitude !== undefined ? Number(row.longitude) : null;
 
   return {
     id: row.id,
@@ -463,12 +473,12 @@ function transformSupabaseProblem(row: any): Problem {
     address: row.address || undefined,
     location_source: row.location_source?.toUpperCase() as any || 'MANUAL_ENTRY',
     location_confirmed: row.location_confirmed ?? true,
-    state: (row.severity_assessments?.[0]?.factors as any)?.state || 'Jharkhand',
-    district: (row.severity_assessments?.[0]?.factors as any)?.district || 'Ranchi',
-    block: (row.severity_assessments?.[0]?.factors as any)?.block || '',
+    state: (row.severity_assessments?.[0]?.factors as any)?.state || row.state || 'Jharkhand',
+    district: (row.severity_assessments?.[0]?.factors as any)?.district || row.city || undefined,
+    block: (row.severity_assessments?.[0]?.factors as any)?.block || undefined,
     domain: (row.severity_assessments?.[0]?.factors as any)?.domain || firstCls?.category?.toLowerCase() || 'other',
     subdomain: (row.severity_assessments?.[0]?.factors as any)?.subdomain || firstCls?.subcategory,
-    affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || '100+ Community Members',
+    affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || undefined,
     expected_outcome: (row.severity_assessments?.[0]?.factors as any)?.expected_outcome || undefined,
     required_expertise: (row.severity_assessments?.[0]?.factors as any)?.required_expertise || undefined,
     events: uiEvents,
@@ -640,8 +650,8 @@ export async function createProblemRecord(payload: {
 
   // Authoritative Backend Classification (RULE_BASED_PROTOTYPE)
   const aiResult = classify(payload.title, payload.desc, payload.category);
-  const lat = payload.latitude ?? DEMO_LOCATION.lat;
-  const lng = payload.longitude ?? DEMO_LOCATION.lng;
+  const lat = payload.latitude ?? null;
+  const lng = payload.longitude ?? null;
   const orgMatches = buildMatches(aiResult.category, payload.location, lat, lng);
   const normalizedSev = normalizeSeverity(payload.severity);
 
@@ -672,7 +682,7 @@ export async function createProblemRecord(payload: {
         latitude: lat,
         longitude: lng,
         location_source: normalizeLocationSource(payload.location_source),
-        location_confirmed: payload.location_confirmed ?? true,
+        location_confirmed: payload.location_confirmed ?? Boolean(payload.latitude != null && payload.longitude != null),
         is_demo: false,
         created_at: nowStr,
         updated_at: nowStr
@@ -722,6 +732,7 @@ export async function createProblemRecord(payload: {
         // 4. Insert into severity_assessments
         const combinedFactors = {
           ...(typeof payload.factors === 'object' ? payload.factors : { raw_factors: payload.factors }),
+          assessment_data: typeof payload.factors === 'object' && payload.factors !== null ? payload.factors : {},
           state: payload.state || 'Jharkhand',
           district: payload.district || 'Ranchi',
           block: payload.block || '',
@@ -940,6 +951,17 @@ export async function addSolutionRecord(payload: {
         technical_details: payload.tech || '',
         estimated_cost: parseNumericCost(payload.cost) as any,
         estimated_duration: payload.time || '10-14 days',
+        implementation_plan: payload.pilot_plan || null,
+        problem_understanding: payload.problem_understanding || null,
+        proposed_approach: payload.proposed_approach || null,
+        faculty_mentor: payload.faculty_mentor || null,
+        student_team: payload.student_team || null,
+        prototype_plan: payload.prototype_plan || null,
+        testing_plan: payload.testing_plan || null,
+        pilot_plan: payload.pilot_plan || null,
+        social_impact: payload.social_impact || null,
+        support_needed: payload.support_needed || null,
+        lifecycle_data: payload.lifecycle_data || null,
         status: 'proposed',
         created_at: nowStr,
         updated_at: nowStr
@@ -989,6 +1011,7 @@ export async function addSolutionRecord(payload: {
     cost: payload.cost || 'Estimated upon civic approval',
     time: payload.time || '10-14 days',
     impact: payload.impact || 'High local impact',
+    lifecycle_data: payload.lifecycle_data,
     created_at: nowStr,
     updated_at: nowStr
   };
@@ -1354,6 +1377,76 @@ export async function joinCollaborationWorkspace(payload: {
 }
 
 // ==========================================
+ // 7A. Government Jurisdiction / HEI Assignment
+ // ==========================================
+ export async function assignChallengeToOrganization(payload: {
+   problem_id: string;
+   organization_id?: string;
+   organization_name: string;
+   actor_role?: string;
+   responsibility?: string;
+ }): Promise<Problem | null> {
+   const role = (payload.actor_role || 'government').toLowerCase();
+   if (role !== 'government' && role !== 'system') {
+     throw new Error('Permission denied: only Government of Jharkhand authorities can assign challenges.');
+   }
+   const nowStr = new Date().toISOString();
+   const supabase = getServerSupabaseClient();
+   if (supabase && isServerSupabaseConfigured()) {
+     const orgMap = await getOrInitSupabaseOrgs(supabase);
+     const orgId = payload.organization_id || Object.entries(orgMap).find(([name]) =>
+       name.toLowerCase().includes(payload.organization_name.toLowerCase()) ||
+       payload.organization_name.toLowerCase().includes(name.toLowerCase())
+     )?.[1];
+     if (!orgId) throw new Error('Selected institution is not registered in the SahYog organization registry.');
+     const { data: problem } = await supabase.from('problems').select('status').eq('id', payload.problem_id).maybeSingle();
+     if (!problem) return null;
+     await supabase.from('solver_matches').update({ status: 'selected' }).eq('problem_id', payload.problem_id);
+     await supabase.from('solver_matches').update({ status: 'selected' }).eq('problem_id', payload.problem_id).eq('organization_id', orgId);
+     await supabase.from('collaborations').upsert({
+       id: randomUUID(),
+       problem_id: payload.problem_id,
+       organization_id: orgId,
+       role: 'Government-assigned institutional lead',
+       responsibility: payload.responsibility || 'Evaluate challenge, constitute multidisciplinary HEI team and prepare solution proposal',
+       status: 'invited',
+       assigned_by: null,
+       created_at: nowStr,
+       updated_at: nowStr
+     }, { onConflict: 'id' });
+     await supabase.from('problems').update({ status: 'matched', updated_at: nowStr }).eq('id', payload.problem_id);
+     await supabase.from('problem_updates').insert({
+       id: randomUUID(),
+       problem_id: payload.problem_id,
+       actor_role: 'Government',
+       event_type: 'ASSIGNED',
+       previous_status: problem.status,
+       new_status: 'matched',
+       title: 'Government of Jharkhand assigned institutional lead',
+       description: `Challenge assigned to ${payload.organization_name} for multidisciplinary evaluation and solution formulation.`,
+       metadata: { organization_id: orgId, responsibility: payload.responsibility || null },
+       created_at: nowStr
+     });
+     return getProblem(payload.problem_id);
+   }
+   const db = await getDb();
+   const p = db.problems.find(x => x.id === payload.problem_id);
+   if (!p) return null;
+   p.stage = Math.max(p.stage, 2);
+   db.problem_updates.push({
+     id: `EV-${payload.problem_id}-${Date.now()}`,
+     problem_id: payload.problem_id,
+     event_type: 'ASSIGNED',
+     stage: 2,
+     actor_role: 'Government',
+     description: `Government of Jharkhand assigned ${payload.organization_name} as institutional lead.`,
+     timestamp: nowStr
+   });
+   await saveDb(db);
+   return p;
+ }
+
+// ==========================================
 // 8. Dashboard Metrics Aggregation
 // ==========================================
 export async function getDashboardMetrics() {
@@ -1376,7 +1469,7 @@ export async function getDashboardMetrics() {
       citizenVerified: verified,
       activeDeployments,
       inMatchingOrReview: matchingOrReview,
-      participatingOrganizations: 18,
+      participatingOrganizations: new Set(problems.flatMap(p => (p._matches || []).map(m => m.name))).size,
       crossSectorProposals: problems.reduce((acc, p) => acc + (p.solutions?.length || 0), 0)
     },
     byRole: {
@@ -1393,17 +1486,17 @@ export async function getDashboardMetrics() {
       university: {
         availableChallenges: total,
         activePrototypes: problems.reduce((acc, p) => acc + (p.solutions?.filter(s => s.status !== 'Rejected').length || 0), 0),
-        matchedInstitutes: 6
+        matchedInstitutes: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'University').map(m => m.name))).size
       },
       industry: {
         contractTenders: problems.reduce((acc, p) => acc + (p.solutions?.filter(s => s.status === 'Approved').length || 0), 0),
         activeDeployments,
-        matchedCompanies: 5
+        matchedCompanies: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'Industry').map(m => m.name))).size
       },
       ngo: {
         communityLiaisonCases: total,
         onGroundVerifications: verified,
-        participatingNGOs: 4
+        participatingNGOs: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'NGO').map(m => m.name))).size
       }
     }
   };

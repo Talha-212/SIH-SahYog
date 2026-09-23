@@ -28,7 +28,7 @@ export default function ReportView() {
     setLng(DEMO_LOCATION.lng);
     setLocationSource('DEMO_LOCATION');
     setLatlng(`Lat: ${DEMO_LOCATION.lat}, Lng: ${DEMO_LOCATION.lng} (Confirmed SIH Demo Location: LIET Hyderabad).`);
-    toast('SIH Demo Location (LIET Hyderabad) loaded!', 'success');
+    toast('Jharkhand demo location loaded!', 'success');
   }
 
   function useCurrentLocation() {
@@ -236,7 +236,7 @@ export default function ReportView() {
             {/* 3. Pre-filled / Editable Problem Details */}
             <div className="field">
               <label htmlFor="f-title" style={{ fontWeight: 700 }}>3. Problem Title *</label>
-              <input type="text" id="f-title" placeholder="e.g. Broken water mains flooding colony road" value={title} onChange={e => setTitle(e.target.value)} />
+              <input type="text" id="f-title" placeholder="e.g. Community water access challenge or school infrastructure gap" value={title} onChange={e => setTitle(e.target.value)} />
             </div>
             <div className="field">
               <label htmlFor="f-desc" style={{ fontWeight: 700 }}>Detailed Description *</label>

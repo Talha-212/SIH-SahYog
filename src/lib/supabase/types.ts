@@ -175,6 +175,16 @@ export interface SolutionRow {
   estimated_duration?: string | null;
   technical_details?: string | null;
   implementation_plan?: string | null;
+  problem_understanding?: string | null;
+  proposed_approach?: string | null;
+  faculty_mentor?: string | null;
+  student_team?: string | null;
+  prototype_plan?: string | null;
+  testing_plan?: string | null;
+  pilot_plan?: string | null;
+  social_impact?: string | null;
+  support_needed?: string | null;
+  lifecycle_data?: Record<string, any> | null;
   status: SolutionStatus | string;
   approved_by?: string | null;
   approved_at?: string | null;

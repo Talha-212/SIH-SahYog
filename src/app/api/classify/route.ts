@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const title = body.title || '';
     const desc = body.desc || '';
-    const category = body.category || 'Roads & Infrastructure';
+    const category = body.category || 'Other';
 
     const ai = classify(title, desc, category);
     const score = Math.min(99, Math.max(62, ai.confidence));
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         confidenceLabel: `${score}% (Keyword/Ontology Match)`,
         method: 'RULE_BASED_PROTOTYPE',
         methodLabel: 'Prototype Rule-Based Classification',
-        evaluatorNote: 'Deterministic dictionary ontology match for 100% demo reproducibility. Production roadmap specifies fine-tuned Indic-BERT NLP.'
+        evaluatorNote: 'Deterministic text/category ontology prototype. This endpoint does not perform computer-vision image classification. Production roadmap may add a genuine multimodal model.'
       }
     });
   } catch (error: any) {
