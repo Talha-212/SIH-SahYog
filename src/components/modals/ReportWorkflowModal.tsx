@@ -896,8 +896,6 @@ export default function ReportWorkflowModal() {
       longitude: finalLng,
       location_source: locationSource || 'MANUAL_ENTRY',
       location_accuracy: locationAccuracy || 'User specified',
-      location_confirmed: locationConfirmed,
-      location_status: locationStatus,
       photos: files.slice(),
       factors: {
         categoryKey: selectedDomainKey,
@@ -916,7 +914,9 @@ export default function ReportWorkflowModal() {
         explanation: impactResult.explanation,
         suggestedSeverity: impactResult.suggestedSeverity,
         finalSeverity: activeSeverity,
-        responsePriority: activePriority
+        responsePriority: activePriority,
+        locationConfirmed,
+        locationStatus
       }
     });
 
