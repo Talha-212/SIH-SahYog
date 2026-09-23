@@ -414,6 +414,7 @@ export default function ReportWorkflowModal() {
       if (validation.suggestedCategoryKey) {
         const dKey = resolveDomainKey(validation.suggestedCategoryKey);
         setSelectedDomainKey(dKey);
+        setDomainConfirmed(true);
         setCategory(getStandardDomainName(dKey));
         const cfg = CHALLENGE_ASSESSMENT_BY_DOMAIN[dKey];
         if (cfg) setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
@@ -459,9 +460,15 @@ export default function ReportWorkflowModal() {
       if (validation.suggestedCategoryKey) {
         const dKey = resolveDomainKey(validation.suggestedCategoryKey);
         setSelectedDomainKey(dKey);
+        setDomainConfirmed(true);
         setCategory(getStandardDomainName(dKey));
         const cfg = CHALLENGE_ASSESSMENT_BY_DOMAIN[dKey];
         if (cfg) setDetectedProblem(cfg.categoryLabel || cfg.detectedProblemDefault);
+      } else {
+        setSelectedDomainKey('other');
+        setCategory('Other');
+        setDomainConfirmed(false);
+        setDetectedProblem('Unclassified Societal Challenge');
       }
 
       let hasExif = false;
@@ -911,6 +918,14 @@ export default function ReportWorkflowModal() {
         toast('Please attach at least one field photo or document.', 'error');
         return;
       }
+      if (validationResult?.status === 'selfie' || validationResult?.status === 'non_civic' || validationResult?.status === 'low_quality') {
+        toast(validationResult.message, 'error');
+        return;
+      }
+      if (!domainConfirmed) {
+        toast('Please confirm that the evidence represents a societal challenge and select the appropriate domain.', 'error');
+        return;
+      }
       stopCamera();
       if (!lat || !lng) {
         autoDetectLocation();
@@ -918,11 +933,23 @@ export default function ReportWorkflowModal() {
       setStep(2);
     } else if (step === 2) {
       if (!district) {
-        toast('Please select a Jharkhand district.', 'error');
+        toast('Please select or verify a Jharkhand district.', 'error');
+        return;
+      }
+      if (locationStatus === 'OUTSIDE_JHARKHAND') {
+        toast('The detected location is outside Jharkhand. Select a valid Jharkhand location before continuing.', 'error');
+        return;
+      }
+      if (!locationConfirmed) {
+        toast('Please verify the location with GPS/map or select a Jharkhand district manually.', 'error');
         return;
       }
       setStep(3);
     } else if (step === 3) {
+      if (!q1OptionId || !q2OptionId) {
+        toast('Please complete the impact assessment before continuing.', 'error');
+        return;
+      }
       setStep(4);
     } else if (step === 4) {
       if (!title) {
@@ -1268,7 +1295,11 @@ export default function ReportWorkflowModal() {
                     type="text"
                     value={stateName}
                     readOnly
-                    style={{ background: '#f8fafc', fontWeight: 600 }}
+                    style={{
+                      background: locationStatus === 'OUTSIDE_JHARKHAND' ? '#fff4f4' : '#f8fafc',
+                      fontWeight: 600,
+                      color: locationStatus === 'OUTSIDE_JHARKHAND' ? '#9b1c1c' : 'inherit'
+                    }}
                   />
                 </div>
 
@@ -1276,9 +1307,21 @@ export default function ReportWorkflowModal() {
                   <label style={{ fontWeight: 700 }}>Jharkhand District *</label>
                   <select
                     value={district}
-                    onChange={e => setDistrict(e.target.value)}
+                    onChange={e => {
+                      const nextDistrict = e.target.value;
+                      setDistrict(nextDistrict);
+                      setStateName('Jharkhand');
+                      setLocationStatus('MANUAL_JHARKHAND');
+                      setLocationConfirmed(true);
+                      setLocationSource('MANUAL_ENTRY');
+                      setLocationAccuracy('User-selected Jharkhand district');
+                      setAddress(block ? block + ', ' + nextDistrict + ', Jharkhand' : nextDistrict + ', Jharkhand');
+                      setMapStatus('✓ Jharkhand location selected manually. GPS is not being claimed.');
+                      setMapStatusType('success');
+                    }}
                     style={{ fontWeight: 600 }}
                   >
+                    <option value="">Select district</option>
                     {JHARKHAND_DISTRICTS.map(d => (
                       <option key={d} value={d}>{d} District</option>
                     ))}
@@ -1296,6 +1339,17 @@ export default function ReportWorkflowModal() {
                 </div>
               </div>
 
+              {/* Coordinates & Location Source */}
+              {locationStatus === 'OUTSIDE_JHARKHAND' && (
+                <div style={{ background: '#fff4f4', border: '1px solid #f1b8b8', color: '#9b1c1c', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12.5 }}>
+                  <b>Location is outside Jharkhand.</b> The detected coordinates cannot be submitted as a Jharkhand challenge location. Select a Jharkhand district manually or move the map pin into Jharkhand.
+                </div>
+              )}
+              {locationStatus === 'MANUAL_JHARKHAND' && (
+                <div style={{ background: '#f1f8f4', border: '1px solid #b7ddc8', color: '#17663d', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12.5 }}>
+                  <b>Manual Jharkhand location.</b> This location is user-selected and is not being represented as GPS verified.
+                </div>
+              )}
               {/* Coordinates & Location Source */}
               <div
                 style={{
