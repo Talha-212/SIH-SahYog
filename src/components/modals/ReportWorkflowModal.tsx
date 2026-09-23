@@ -1163,7 +1163,55 @@ export default function ReportWorkflowModal() {
                 </div>
               )}
 
-              {/* Societal Innovation Domain Selector (13 Domains) */}
+              {validationResult && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    marginBottom: 12,
+                    padding: 12,
+                    borderRadius: 10,
+                    border: '1px solid ' + (
+                      validationResult.status === 'valid' ? '#b7ddc8' :
+                      validationResult.status === 'uncertain' ? '#cfe0f1' : '#f1b8b8'
+                    ),
+                    background:
+                      validationResult.status === 'valid' ? '#f1f8f4' :
+                      validationResult.status === 'uncertain' ? '#f5f9fd' : '#fff4f4'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 4 }}>
+                    {validationResult.title}
+                  </div>
+                  <div style={{ fontSize: 12, lineHeight: 1.5 }}>
+                    {validationResult.message}
+                  </div>
+                  {validationResult.status === 'uncertain' && (
+                    <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--muted)' }}>
+                      Prototype limitation: the current implementation does not perform genuine computer-vision image classification. Select the correct societal domain below instead of silently assigning “Other”.
+                    </div>
+                  )}
+                  {(validationResult.status === 'selfie' || validationResult.status === 'non_civic' || validationResult.status === 'low_quality') && (
+                    <div style={{ marginTop: 9, display: 'flex', gap: 8 }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          setFiles([]);
+                          setValidationResult(null);
+                          setDomainConfirmed(false);
+                          setSelectedDomainKey('other');
+                          setCategory('Other');
+                          setDetectedProblem('Unclassified Societal Challenge');
+                        }}
+                      >
+                        Choose Another Image
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Societal Innovation Domain Selector (13 Domains) */
               <div style={{ marginTop: 18, padding: 16, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <div>
@@ -1173,7 +1221,7 @@ export default function ReportWorkflowModal() {
                     </div>
                   </div>
                   <span className="proto-tag" style={{ background: '#e0edff', color: 'var(--blue)' }}>
-                    Active: {category}
+                    Active: {domainConfirmed ? category : 'Select a domain'}
                   </span>
                 </div>
 
