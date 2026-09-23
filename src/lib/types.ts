@@ -275,6 +275,7 @@ export interface SolutionRecord {
   cost: string;
   time: string;
   impact: string;
+  lifecycle_data?: any;
   created_at: string;
   updated_at: string;
 }

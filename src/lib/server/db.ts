@@ -877,7 +877,7 @@ export async function createProblemRecord(payload: {
         event_type: 'REPORTED',
         stage: 0,
         actor_role: 'Citizen',
-        description: `Citizen registered issue "${payload.title}" with evidence and geolocation (${lat.toFixed(4)}, ${lng.toFixed(4)}).`,
+        description: `Citizen registered issue "${payload.title}" with evidence and geolocation ${lat != null && lng != null ? `(${lat.toFixed(4)}, ${lng.toFixed(4)})` : '(location pending)'}.`,
         timestamp: nowStr
       },
       {
@@ -922,6 +922,16 @@ export async function addSolutionRecord(payload: {
   time?: string;
   impact?: string;
   actor_role?: string;
+  problem_understanding?: string;
+  proposed_approach?: string;
+  faculty_mentor?: string;
+  student_team?: string;
+  prototype_plan?: string;
+  testing_plan?: string;
+  pilot_plan?: string;
+  social_impact?: string;
+  support_needed?: string;
+  lifecycle_data?: any;
 }): Promise<Problem | null> {
   const nowStr = new Date().toISOString();
   const solId = `SOL-${payload.problem_id}-${Date.now().toString(36)}`;

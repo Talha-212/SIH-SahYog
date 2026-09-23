@@ -274,6 +274,7 @@ interface SubmitSolutionPayload {
   pilot_plan?: string;
   social_impact?: string;
   support_needed?: string;
+  lifecycle_data?: any;
 }
 
 interface ContextValue {
