@@ -722,6 +722,7 @@ export async function createProblemRecord(payload: {
         // 4. Insert into severity_assessments
         const combinedFactors = {
           ...(typeof payload.factors === 'object' ? payload.factors : { raw_factors: payload.factors }),
+          assessment_data: typeof payload.factors === 'object' && payload.factors !== null ? payload.factors : {},
           state: payload.state || 'Jharkhand',
           district: payload.district || 'Ranchi',
           block: payload.block || '',
