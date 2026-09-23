@@ -39,6 +39,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const locationStatus = body.location_status || body.factors?.locationStatus;
+    const locationConfirmed = body.location_confirmed ?? body.factors?.locationConfirmed ?? false;
+
+    if (locationStatus === 'OUTSIDE_JHARKHAND') {
+      return NextResponse.json(
+        { success: false, error: 'The detected location is outside Jharkhand and cannot be submitted as a Jharkhand challenge.' },
+        { status: 400 }
+      );
+    }
+
+    if (!locationConfirmed) {
+      return NextResponse.json(
+        { success: false, error: 'A verified or manually selected Jharkhand location is required.' },
+        { status: 400 }
+      );
+    }
+
     const problem = await createProblemRecord({
       title: body.title,
       desc: body.desc,
@@ -54,7 +71,8 @@ export async function POST(request: Request) {
       longitude: body.longitude ?? body.lng ?? null,
       location_source: body.location_source || 'MANUAL_ENTRY',
       location_accuracy: body.location_accuracy || '~15m',
-      location_confirmed: body.location_confirmed ?? true,
+      location_confirmed: locationConfirmed,
+      location_status: locationStatus,
       photos: body.photos || [],
       factors: body.factors || body.assessment_factors || null,
       state: body.state || 'Jharkhand',

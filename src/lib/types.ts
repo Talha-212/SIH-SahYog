@@ -5,6 +5,13 @@ export type LocationSource =
   | 'MANUAL_ENTRY'
   | 'DEMO_LOCATION';
 
+export type LocationStatus =
+  | 'UNVERIFIED'
+  | 'VALID_JHARKHAND'
+  | 'OUTSIDE_JHARKHAND'
+  | 'MANUAL_JHARKHAND'
+  | 'UNAVAILABLE';
+
 export interface Photo {
   src: string;
   isVideo: boolean;
@@ -161,6 +168,7 @@ export interface Problem {
   location_source?: LocationSource;
   location_accuracy?: string;
   location_confirmed?: boolean;
+  location_status?: LocationStatus;
   location_updated_at?: string;
   state?: string;
   district?: string;

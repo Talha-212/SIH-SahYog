@@ -18,6 +18,7 @@ export type ProblemStatus =
 export type SeverityLevel = 'low' | 'moderate' | 'high' | 'critical';
 
 export type LocationSourceType = 'exif' | 'device_gps' | 'map' | 'manual' | 'demo';
+export type LocationStatusType = 'unverified' | 'valid_jharkhand' | 'outside_jharkhand' | 'manual_jharkhand' | 'unavailable';
 
 export type EvidenceType = 'initial' | 'additional' | 'verification';
 
@@ -81,6 +82,9 @@ export interface ProblemRow {
   longitude?: number | null;
   location_source?: LocationSourceType | string | null;
   location_confirmed?: boolean;
+  location_status?: LocationStatusType | string | null;
+  district?: string | null;
+  block?: string | null;
   is_demo?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -127,6 +131,7 @@ export interface SeverityAssessmentRow {
   suggested_severity: string;
   final_severity: string;
   factors?: Record<string, any> | null;
+  assessment_data?: Record<string, any> | null;
   total_score?: number | null;
   created_at?: string;
 }

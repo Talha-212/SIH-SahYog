@@ -472,10 +472,11 @@ function transformSupabaseProblem(row: any): Problem {
     lng,
     address: row.address || undefined,
     location_source: row.location_source?.toUpperCase() as any || 'MANUAL_ENTRY',
-    location_confirmed: row.location_confirmed ?? true,
-    state: (row.severity_assessments?.[0]?.factors as any)?.state || row.state || 'Jharkhand',
-    district: (row.severity_assessments?.[0]?.factors as any)?.district || row.city || undefined,
-    block: (row.severity_assessments?.[0]?.factors as any)?.block || undefined,
+    location_confirmed: row.location_confirmed ?? false,
+    location_status: row.location_status?.toUpperCase() as any || ((row.severity_assessments?.[0]?.factors as any)?.location_status?.toUpperCase() as any) || 'UNVERIFIED',
+    state: row.state || (row.severity_assessments?.[0]?.factors as any)?.state || 'Jharkhand',
+    district: row.district || (row.severity_assessments?.[0]?.factors as any)?.district || row.city || undefined,
+    block: row.block || (row.severity_assessments?.[0]?.factors as any)?.block || undefined,
     domain: (row.severity_assessments?.[0]?.factors as any)?.domain || firstCls?.category?.toLowerCase() || 'other',
     subdomain: (row.severity_assessments?.[0]?.factors as any)?.subdomain || firstCls?.subcategory,
     affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || undefined,
@@ -632,6 +633,7 @@ export async function createProblemRecord(payload: {
   location_source?: LocationSource;
   location_accuracy?: string;
   location_confirmed?: boolean;
+  location_status?: string;
   photos?: Problem['photos'];
   factors?: any;
   state?: string;
@@ -647,6 +649,14 @@ export async function createProblemRecord(payload: {
   const nextNumber = db.problems.length + 101;
   const id = `SY-2026-${String(1000 + nextNumber).padStart(4, '0')}`;
   const nowStr = new Date().toISOString();
+
+  if (payload.location_status === 'OUTSIDE_JHARKHAND') {
+    throw new Error('The detected location is outside Jharkhand.');
+  }
+
+  if (!payload.location_confirmed) {
+    throw new Error('A verified or manually selected Jharkhand location is required.');
+  }
 
   // Authoritative Backend Classification (RULE_BASED_PROTOTYPE)
   const aiResult = classify(payload.title, payload.desc, payload.category);
@@ -679,10 +689,12 @@ export async function createProblemRecord(payload: {
         recommended_action: aiResult.action,
         landmark: payload.landmark || null,
         address: payload.location,
+        state: payload.state || 'Jharkhand',
+        city: payload.district || null,
         latitude: lat,
         longitude: lng,
         location_source: normalizeLocationSource(payload.location_source),
-        location_confirmed: payload.location_confirmed ?? Boolean(payload.latitude != null && payload.longitude != null),
+        location_confirmed: payload.location_confirmed ?? false,
         is_demo: false,
         created_at: nowStr,
         updated_at: nowStr
@@ -734,14 +746,17 @@ export async function createProblemRecord(payload: {
           ...(typeof payload.factors === 'object' ? payload.factors : { raw_factors: payload.factors }),
           assessment_data: typeof payload.factors === 'object' && payload.factors !== null ? payload.factors : {},
           state: payload.state || 'Jharkhand',
-          district: payload.district || 'Ranchi',
+          district: payload.district || '',
+
           block: payload.block || '',
           domain: payload.domain || aiResult.domain,
           subdomain: payload.subdomain || aiResult.subcategory,
           affected_population: payload.affected_population || payload.affected,
           expected_outcome: payload.expected_outcome,
           required_expertise: payload.required_expertise || aiResult.required_expertise,
-          priority: payload.priority || normalizedSev
+          priority: payload.priority || normalizedSev,
+          location_status: payload.location_status || 'manual_jharkhand',
+          location_source: payload.location_source || 'MANUAL_ENTRY'
         };
 
         const sevRow: SeverityAssessmentRow = {
