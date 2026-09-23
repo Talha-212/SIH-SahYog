@@ -554,6 +554,126 @@ export default function ReportWorkflowModal() {
     toast('🎯 Loaded SIH 2026 Jharkhand Benchmark Case (Kanke, Ranchi)', 'success');
   }
 
+  function normalizeDistrictName(value: string): string {
+    const normalized = value.toLowerCase().replace(/district|zilla|jila/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const match = JHARKHAND_DISTRICTS.find(d => {
+      const dNorm = d.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      return dNorm === normalized || dNorm.includes(normalized) || normalized.includes(dNorm);
+    });
+    return match || '';
+  }
+
+  function getAddressComponent(components: any[], type: string): string {
+    const component = components?.find((item: any) => Array.isArray(item.types) && item.types.includes(type));
+    return component?.long_name || '';
+  }
+
+  function isClearlyOutsideJharkhand(la: number, ln: number): boolean {
+    return la < 21.9 || la > 25.35 || ln < 83.25 || ln > 87.95;
+  }
+
+  async function verifyCoordinatesAgainstJharkhand(la: number, ln: number, source: LocationSource, accuracy: string): Promise<boolean> {
+    setLat(String(la));
+    setLng(String(ln));
+    setLocationSource(source);
+    setLocationAccuracy(accuracy);
+
+    if (!Number.isFinite(la) || !Number.isFinite(ln)) {
+      setLocationConfirmed(false);
+      setLocationStatus('UNAVAILABLE');
+      setMapStatus('Invalid GPS coordinates.');
+      setMapStatusType('error');
+      return false;
+    }
+
+    if (isClearlyOutsideJharkhand(la, ln)) {
+      setStateName('Outside Jharkhand');
+      setDistrict('');
+      setBlock('');
+      setAddress('Detected coordinates: ' + la.toFixed(5) + '° N, ' + ln.toFixed(5) + '° E');
+      setLocationConfirmed(false);
+      setLocationStatus('OUTSIDE_JHARKHAND');
+      setMapStatus('⚠️ Device location is outside Jharkhand. Select a valid Jharkhand reporting location.');
+      setMapStatusType('error');
+      if (wfMapRef.current) placeMarker(la, ln, false);
+      return false;
+    }
+
+    if (!wfGeocoderRef.current) {
+      setStateName('Jharkhand');
+      setLocationConfirmed(false);
+      setLocationStatus('UNVERIFIED');
+      setAddress('Coordinates: ' + la.toFixed(5) + '° N, ' + ln.toFixed(5) + '° E');
+      setMapStatus('Coordinates detected, but administrative location could not yet be verified.');
+      setMapStatusType('info');
+      if (wfMapRef.current) placeMarker(la, ln, false);
+      return false;
+    }
+
+    try {
+      const results = await new Promise<any[]>((resolve, reject) => {
+        wfGeocoderRef.current.geocode({ location: { lat: la, lng: ln }, region: 'IN' }, (r: any[], status: string) => {
+          if (status === 'OK' && r?.length) resolve(r);
+          else reject(new Error(status || 'Geocoding failed'));
+        });
+      });
+
+      const best = results[0];
+      const components = best.address_components || [];
+      const detectedState = getAddressComponent(components, 'administrative_area_level_1');
+      const detectedDistrictRaw = getAddressComponent(components, 'administrative_area_level_2');
+      const detectedBlock = getAddressComponent(components, 'administrative_area_level_3') || getAddressComponent(components, 'administrative_area_level_4');
+      const country = getAddressComponent(components, 'country');
+      const isJharkhand = /jharkhand/i.test(detectedState) && (!country || /india/i.test(country));
+
+      if (!isJharkhand) {
+        setStateName(detectedState || 'Outside Jharkhand');
+        setDistrict(normalizeDistrictName(detectedDistrictRaw));
+        setBlock(detectedBlock);
+        setAddress(best.formatted_address || ('Coordinates: ' + la.toFixed(5) + '° N, ' + ln.toFixed(5) + '° E'));
+        setLocationConfirmed(false);
+        setLocationStatus('OUTSIDE_JHARKHAND');
+        setMapStatus('⚠️ Location detected in ' + (detectedState || 'another state') + ', not Jharkhand.');
+        setMapStatusType('error');
+        if (wfMapRef.current) placeMarker(la, ln, false);
+        return false;
+      }
+
+      const detectedDistrict = normalizeDistrictName(detectedDistrictRaw);
+      if (!detectedDistrict) {
+        setStateName('Jharkhand');
+        setDistrict('');
+        setBlock(detectedBlock);
+        setAddress(best.formatted_address || ('Coordinates: ' + la.toFixed(5) + '° N, ' + ln.toFixed(5) + '° E'));
+        setLocationConfirmed(false);
+        setLocationStatus('UNVERIFIED');
+        setMapStatus('Jharkhand detected, but the district could not be resolved. Please select the district manually.');
+        setMapStatusType('error');
+        return false;
+      }
+
+      setStateName('Jharkhand');
+      setDistrict(detectedDistrict);
+      setBlock(detectedBlock);
+      setAddress(best.formatted_address || (detectedDistrict + ', Jharkhand, India'));
+      setLocationConfirmed(true);
+      setLocationStatus('VALID_JHARKHAND');
+      setMapStatus('✓ Location verified: ' + detectedDistrict + ', Jharkhand');
+      setMapStatusType('success');
+      if (wfMapRef.current) placeMarker(la, ln, false);
+      return true;
+    } catch {
+      setStateName('Jharkhand');
+      setLocationConfirmed(false);
+      setLocationStatus('UNVERIFIED');
+      setAddress('Coordinates: ' + la.toFixed(5) + '° N, ' + ln.toFixed(5) + '° E');
+      setMapStatus('GPS detected, but reverse geocoding failed. Select a Jharkhand district manually or retry GPS.');
+      setMapStatusType('error');
+      if (wfMapRef.current) placeMarker(la, ln, false);
+      return false;
+    }
+  }
+
   // Automatic Location Detection
   function autoDetectLocation() {
     if (!navigator.geolocation) {
@@ -567,22 +687,20 @@ export default function ReportWorkflowModal() {
     setMapStatusType('info');
 
     navigator.geolocation.getCurrentPosition(
-      pos => {
+      async pos => {
         setIsDetectingGps(false);
-        setLocationSource('DEVICE_GPS');
-        setLocationAccuracy(`Device GPS API (±${Math.round(pos.coords.accuracy || 10)}m)`);
-        setLat(String(pos.coords.latitude));
-        setLng(String(pos.coords.longitude));
-        const detectedAddr = `Current Location: ${pos.coords.latitude.toFixed(5)}° N, ${pos.coords.longitude.toFixed(5)}° E`;
-        setAddress(detectedAddr);
-        setLocationConfirmed(true);
-        setMapStatus('✓ Location detected from device GPS');
-        setMapStatusType('success');
-        if (wfMapRef.current) placeMarker(pos.coords.latitude, pos.coords.longitude, true);
+        await verifyCoordinatesAgainstJharkhand(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          'DEVICE_GPS',
+          'Device GPS API (±' + Math.round(pos.coords.accuracy || 10) + 'm)'
+        );
       },
       () => {
         setIsDetectingGps(false);
-        setMapStatus('GPS permission denied or unavailable. Please select your district and block from the list.');
+        setLocationConfirmed(false);
+        setLocationStatus('UNAVAILABLE');
+        setMapStatus('GPS permission denied or unavailable. Please select a Jharkhand district and block manually.');
         setMapStatusType('error');
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
