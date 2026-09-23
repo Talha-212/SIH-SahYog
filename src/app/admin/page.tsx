@@ -218,5 +218,3 @@ const adminBadge: React.CSSProperties = { background:'#e8f1f8', color:'#0f4c81',
 const roleBadge: React.CSSProperties = { background:'#eef2ff', color:'#3730a3', padding:'4px 8px', borderRadius:999, fontSize:10, fontWeight:700 };
 const loadingBox: React.CSSProperties = { maxWidth:600, margin:'15vh auto', background:'#fff', padding:30, borderRadius:14, textAlign:'center' };
 const errorBox: React.CSSProperties = { maxWidth:650, margin:'12vh auto', background:'#fff', padding:30, borderRadius:14, border:'1px solid #fecaca' };
-
-export default AdminPage;
