@@ -741,12 +741,23 @@ export default function ReportWorkflowModal() {
         mapTypeId: 'roadmap'
       });
       wfMapRef.current.addListener('click', (e: any) => {
-        setLocationSource('MAP_SELECTED');
-        setLocationAccuracy('Interactive Map Pin (~5m)');
-        placeMarker(e.latLng.lat(), e.latLng.lng(), true);
+        void verifyCoordinatesAgainstJharkhand(
+          e.latLng.lat(),
+          e.latLng.lng(),
+          'MAP_SELECTED',
+          'Interactive Map Pin'
+        );
       });
       if (lat && lng) {
         placeMarker(Number(lat), Number(lng), false);
+        if (locationStatus === 'UNVERIFIED') {
+          void verifyCoordinatesAgainstJharkhand(
+            Number(lat),
+            Number(lng),
+            locationSource || 'DEVICE_GPS',
+            locationAccuracy || 'Detected coordinates'
+          );
+        }
       }
     } catch {
       setMapStatus('Google Maps could not be initialized.');
@@ -754,7 +765,7 @@ export default function ReportWorkflowModal() {
     }
   }
 
-  async function placeMarker(la: number, ln: number, doGeocode: boolean) {
+  function placeMarker(la: number, ln: number, _doGeocode: boolean) {
     if (!wfMapRef.current) return;
     const pos = { lat: Number(la), lng: Number(ln) };
     wfMapRef.current.setCenter(pos);
@@ -763,27 +774,8 @@ export default function ReportWorkflowModal() {
     wfMarkerRef.current = new window.google.maps.Marker({
       position: pos,
       map: wfMapRef.current,
-      title: 'Jharkhand Challenge Location'
+      title: 'Selected Challenge Location'
     });
-    let addr = address || `${district}, Jharkhand`;
-    if (doGeocode && wfGeocoderRef.current) {
-      try {
-        const results = await new Promise<any>((res, rej) =>
-          wfGeocoderRef.current.geocode({ location: pos }, (r: any, s: string) =>
-            s === 'OK' && r?.[0] ? res(r) : rej()
-          )
-        );
-        addr = results[0].formatted_address;
-      } catch {
-        addr = `Coordinates: ${pos.lat.toFixed(5)}° N, ${pos.lng.toFixed(5)}° E`;
-      }
-    }
-    setLat(String(pos.lat));
-    setLng(String(pos.lng));
-    setAddress(addr);
-    setLocationConfirmed(true);
-    setMapStatus('Location confirmed from map pin.');
-    setMapStatusType('success');
   }
 
   // Classification & matching check
