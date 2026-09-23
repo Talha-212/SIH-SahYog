@@ -20,6 +20,8 @@ export default function SolutionModal() {
   const [prototypePlan, setPrototypePlan] = useState('');
   const [pilotPlan, setPilotPlan] = useState('');
   const [supportNeeded, setSupportNeeded] = useState('');
+  const [milestones, setMilestones] = useState('');
+  const [industrySupportType, setIndustrySupportType] = useState('Mentorship');
   const [orgName, setOrgName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +62,11 @@ export default function SolutionModal() {
       testing_plan: 'Lab validation followed by controlled field stress testing.',
       pilot_plan: pilotPlan || undefined,
       social_impact: impact || undefined,
-      support_needed: supportNeeded || undefined
+      support_needed: supportNeeded || undefined,
+      lifecycle_data: {
+        milestones: milestones.split(/\n|,/).map(v => v.trim()).filter(Boolean).map(title => ({ title, status: 'Pending' })),
+        industry_support: industrySupportType ? [{ organization: orgName.trim() || defaultOrg, support_type: industrySupportType, status: 'Under Discussion' }] : []
+      }
     });
     setIsSubmitting(false);
 
@@ -70,7 +76,7 @@ export default function SolutionModal() {
     }
 
     toast('🎉 Solution proposal successfully submitted to the Government of Jharkhand ecosystem!', 'success');
-    setTitle(''); setDesc(''); setTech(''); setCost(''); setTime(''); setImpact(''); setMentor(''); setStudentTeam(''); setPrototypePlan(''); setPilotPlan(''); setSupportNeeded(''); setOrgName('');
+    setTitle(''); setDesc(''); setTech(''); setCost(''); setTime(''); setImpact(''); setMentor(''); setStudentTeam(''); setPrototypePlan(''); setPilotPlan(''); setSupportNeeded(''); setMilestones(''); setIndustrySupportType('Mentorship'); setOrgName('');
   }
 
   if (!solutionOpen) return null;
@@ -201,13 +207,37 @@ export default function SolutionModal() {
         </div>
 
         <div className="field">
-          <label>Industry Support / CSR Co-Funding Needed</label>
-          <input
-            type="text"
-            placeholder="e.g. Seeking industry partner for equipment fabrication and CSR matching grant"
-            value={supportNeeded}
-            onChange={e => setSupportNeeded(e.target.value)}
+          <label>Project Milestones</label>
+          <textarea
+            rows={2}
+            placeholder="e.g. Requirements validation, Prototype build, Lab testing, Community pilot, Impact validation"
+            value={milestones}
+            onChange={e => setMilestones(e.target.value)}
           />
+          <div style={{ fontSize: 10.5, color: 'var(--muted)', marginTop: 4 }}>Separate milestones with commas or new lines.</div>
+        </div>
+
+        <div className="row-2">
+          <div className="field">
+            <label>Industry / Startup / MSME / CSR Support Type</label>
+            <select value={industrySupportType} onChange={e => setIndustrySupportType(e.target.value)}>
+              <option>Mentorship</option>
+              <option>Funding</option>
+              <option>Prototyping</option>
+              <option>Testing</option>
+              <option>Pilot</option>
+              <option>Tech Transfer</option>
+            </select>
+          </div>
+          <div className="field">
+            <label>Industry Support / CSR Co-Funding Needed</label>
+            <input
+              type="text"
+              placeholder="e.g. Equipment fabrication, field testing or CSR matching grant"
+              value={supportNeeded}
+              onChange={e => setSupportNeeded(e.target.value)}
+            />
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
