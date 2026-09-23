@@ -180,9 +180,39 @@ export default function DetailView() {
     toast(`Solution status updated to "${status}" and synchronized in backend.`, 'success');
   }
 
-  function govAction(action: 'assign' | 'verify') {
-    if (action === 'assign') toast(`Problem administrative jurisdiction confirmed for ${ai.authority}.`, 'success');
-    else toast(`Verification request sent to field engineering inspection team.`, 'info');
+  async function govAction(action: 'assign' | 'verify') {
+    if (currentRole !== 'government') {
+      toast('Government role required for statutory assignment and verification actions.', 'error');
+      return;
+    }
+    if (action === 'assign') {
+      const target = matches.find(m => m.type === 'University') || matches.find(m => m.type === 'Industry') || matches[0];
+      if (!target) {
+        toast('No matched institutional partner is available for assignment yet.', 'error');
+        return;
+      }
+      try {
+        const res = await fetch('/api/government/assign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-user-role': 'government' },
+          body: JSON.stringify({
+            problem_id: problem.id,
+            organization_name: target.name,
+            responsibility: 'Evaluate the societal challenge, constitute a multidisciplinary team, and prepare a solution proposal.'
+          })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          toast(json.error || 'Government assignment could not be recorded.', 'error');
+          return;
+        }
+        toast(`Government of Jharkhand assigned the challenge to ${target.name}.`, 'success');
+      } catch {
+        toast('Assignment service is unavailable. Please retry.', 'error');
+      }
+    } else {
+      toast(`Verification request sent to field engineering inspection team under ${ai.authority}.`, 'info');
+    }
   }
 
   async function inviteOrg(org: OrgMatch) {
