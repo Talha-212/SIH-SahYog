@@ -92,7 +92,7 @@ export default function SolutionModal() {
             <span style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 700 }}>Responding to Societal Challenge:</span>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--blue)' }}>{activeProblem.title}</div>
             <div style={{ fontSize: 11.5, color: 'var(--ink-soft)' }}>
-              Domain: {activeProblem.category} · District: {activeProblem.district || 'Ranchi'}, Jharkhand
+              Domain: {activeProblem.category} · District: {activeProblem.district || 'Not specified'}, Jharkhand
             </div>
           </div>
         )}
