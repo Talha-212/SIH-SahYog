@@ -75,10 +75,10 @@ export async function getOrInitSupabaseOrgs(supabase: any): Promise<Record<strin
     const initialOrgs = [
       { name: 'Department of Urban Development & Housing, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 90 },
       { name: 'Road Construction Department, Govt. of Jharkhand', type: 'government', jurisdiction: 'Jharkhand State', capacity: 85 },
-      { name: "BIT Mesra - Higher Education Innovation Partner", type: 'university', jurisdiction: 'Telangana', capacity: 80 },
-      { name: 'IIT (ISM) Dhanbad - Research Partner', type: 'university', jurisdiction: 'Regional', capacity: 75 },
-      { name: 'Jharkhand MSME Innovation Partner', type: 'industry', jurisdiction: 'National', capacity: 95 },
-      { name: 'Tata Steel Innovation & CSR Partner', type: 'industry', jurisdiction: 'National', capacity: 90 },
+      { name: "BIT Mesra - Higher Education Innovation Partner", type: 'university', jurisdiction: 'Jharkhand', capacity: 80 },
+      { name: 'IIT (ISM) Dhanbad - Research Partner', type: 'university', jurisdiction: 'Jharkhand / Regional', capacity: 75 },
+      { name: 'Jharkhand MSME Innovation Partner', type: 'industry', jurisdiction: 'Jharkhand / National', capacity: 95 },
+      { name: 'Tata Steel Innovation & CSR Partner', type: 'industry', jurisdiction: 'Jharkhand / National', capacity: 90 },
       { name: 'Jharkhand Community Innovation Network', type: 'ngo', jurisdiction: 'Local Municipalities', capacity: 70 },
       { name: 'Jharkhand Community Partner', type: 'ngo', jurisdiction: 'Community Clusters', capacity: 65 }
     ];
@@ -185,7 +185,7 @@ function getInitialDemoOrgs(): OrganizationRecord[] {
         id: `ORG-${String(idx + 1).padStart(3, '0')}`,
         name: m.name,
         type: m.type,
-        jurisdiction: m.location.includes('Hyderabad') || m.location.includes('City') ? 'Jharkhand State' : 'State Jurisdiction',
+        jurisdiction: m.location.toLowerCase().includes('jharkhand') ? 'Jharkhand State' : 'Regional / National',
         location: m.location,
         expertise: m.expertise,
         resources: m.resources,
@@ -463,12 +463,12 @@ function transformSupabaseProblem(row: any): Problem {
     address: row.address || undefined,
     location_source: row.location_source?.toUpperCase() as any || 'MANUAL_ENTRY',
     location_confirmed: row.location_confirmed ?? true,
-    state: (row.severity_assessments?.[0]?.factors as any)?.state || 'Jharkhand',
-    district: (row.severity_assessments?.[0]?.factors as any)?.district || 'Ranchi',
-    block: (row.severity_assessments?.[0]?.factors as any)?.block || '',
+    state: (row.severity_assessments?.[0]?.factors as any)?.state || row.state || 'Jharkhand',
+    district: (row.severity_assessments?.[0]?.factors as any)?.district || row.city || undefined,
+    block: (row.severity_assessments?.[0]?.factors as any)?.block || undefined,
     domain: (row.severity_assessments?.[0]?.factors as any)?.domain || firstCls?.category?.toLowerCase() || 'other',
     subdomain: (row.severity_assessments?.[0]?.factors as any)?.subdomain || firstCls?.subcategory,
-    affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || '100+ Community Members',
+    affected_population: (row.severity_assessments?.[0]?.factors as any)?.affected_population || undefined,
     expected_outcome: (row.severity_assessments?.[0]?.factors as any)?.expected_outcome || undefined,
     required_expertise: (row.severity_assessments?.[0]?.factors as any)?.required_expertise || undefined,
     events: uiEvents,
@@ -1377,7 +1377,7 @@ export async function getDashboardMetrics() {
       citizenVerified: verified,
       activeDeployments,
       inMatchingOrReview: matchingOrReview,
-      participatingOrganizations: 18,
+      participatingOrganizations: new Set(problems.flatMap(p => (p._matches || []).map(m => m.name))).size,
       crossSectorProposals: problems.reduce((acc, p) => acc + (p.solutions?.length || 0), 0)
     },
     byRole: {
@@ -1394,17 +1394,17 @@ export async function getDashboardMetrics() {
       university: {
         availableChallenges: total,
         activePrototypes: problems.reduce((acc, p) => acc + (p.solutions?.filter(s => s.status !== 'Rejected').length || 0), 0),
-        matchedInstitutes: 6
+        matchedInstitutes: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'University').map(m => m.name))).size
       },
       industry: {
         contractTenders: problems.reduce((acc, p) => acc + (p.solutions?.filter(s => s.status === 'Approved').length || 0), 0),
         activeDeployments,
-        matchedCompanies: 5
+        matchedCompanies: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'Industry').map(m => m.name))).size
       },
       ngo: {
         communityLiaisonCases: total,
         onGroundVerifications: verified,
-        participatingNGOs: 4
+        participatingNGOs: new Set(problems.flatMap(p => (p._matches || []).filter(m => m.type === 'NGO').map(m => m.name))).size
       }
     }
   };
