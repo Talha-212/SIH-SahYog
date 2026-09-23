@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       photos: body.photos || [],
       factors: body.factors || body.assessment_factors || null,
       state: body.state || 'Jharkhand',
-      district: body.district || 'Ranchi',
+      district: body.district || undefined,
       block: body.block || '',
       domain: body.domain,
       subdomain: body.subdomain,
