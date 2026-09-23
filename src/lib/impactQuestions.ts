@@ -885,7 +885,7 @@ export interface ImageValidationResult {
 async function inspectEvidenceImage(
   fileOrBlob: File | Blob | string | { name?: string; src?: string }
 ): Promise<{ width?: number; height?: number; invalid?: boolean; reason?: string }> {
-  if (typeof window === 'undefined') return {};
+  if (typeof window === 'undefined' || typeof createImageBitmap !== 'function') return {};
 
   try {
     if (typeof fileOrBlob === 'string') return {};
