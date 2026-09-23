@@ -201,7 +201,7 @@ export interface Notification {
   created_at?: string;
 }
 
-export type Role = 'citizen' | 'government' | 'university' | 'industry' | 'ngo' | null;
+export type Role = 'citizen' | 'government' | 'university' | 'industry' | 'ngo' | 'admin' | null;
 
 export type View = 'home' | 'explore' | 'report' | 'track' | 'detail' | 'dashboard';
 
