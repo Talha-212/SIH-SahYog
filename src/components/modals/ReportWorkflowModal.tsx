@@ -535,6 +535,7 @@ export default function ReportWorkflowModal() {
       requiresManualCategory: false
     });
     setSelectedDomainKey('agriculture');
+    setDomainConfirmed(true);
     setCategory('Agriculture & Food Security');
     setDetectedProblem('Solar Micro-Irrigation Deficit in Smallholder Vegetable Clusters');
     setDistrict('Ranchi');
@@ -545,6 +546,8 @@ export default function ReportWorkflowModal() {
     setLandmark(DEMO_LOCATION.landmark);
     setLocationSource('DEMO_LOCATION');
     setLocationAccuracy('Pre-Calibrated Benchmark Coordinates (BAU Ranchi)');
+    setLocationStatus('VALID_JHARKHAND');
+    setStateName('Jharkhand');
     setExifFound(true);
     setLocationConfirmed(true);
     
