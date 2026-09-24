@@ -40,7 +40,7 @@ export default function AdminPage() {
     }
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
-      router.replace('/login?next=/admin');
+      router.replace('/login?redirect=/admin');
       return;
     }
     const res = await fetch('/api/admin', {
@@ -48,11 +48,11 @@ export default function AdminPage() {
     });
     const json = await res.json();
     if (res.status === 401) {
-      router.replace('/login?next=/admin');
+      router.replace('/login?redirect=/admin');
       return;
     }
     if (!res.ok || !json.success) {
-      setError(json.error || 'You do not have administrator access.');
+      setError(json.error || 'Access Denied. You do not have administrator access.');
       setLoading(false);
       return;
     }
@@ -65,7 +65,7 @@ export default function AdminPage() {
   async function updateProblem(problemId: string, patch: { status?: string; severity?: string }) {
     const supabase = getBrowserSupabaseClient();
     const { data: sessionData } = await supabase!.auth.getSession();
-    if (!sessionData.session) return router.replace('/login?next=/admin');
+    if (!sessionData.session) return router.replace('/login?redirect=/admin');
     setBusyId(problemId);
     const res = await fetch('/api/admin', {
       method: 'PATCH',

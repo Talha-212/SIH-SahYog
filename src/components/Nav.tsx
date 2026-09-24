@@ -3,16 +3,20 @@ import { useState } from 'react';
 import { useSahYog } from '@/store/useSahYog';
 import type { View } from '@/lib/types';
 
+import { useAuth } from '@/lib/auth/AuthContext';
+
 export default function Nav() {
   const { state, dispatch, showView, signOutSupabase } = useSahYog();
+  const auth = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
   const { currentView, notifications, currentRole } = state;
+  const effectiveRole = auth.role || currentRole;
 
   function requireLoginForChallenge() {
-    if (!currentRole) {
-      window.location.href = '/login?next=/';
+    if (!auth.isAuthenticated) {
+      window.location.href = '/login?redirect=/report';
       return;
     }
     dispatch({ type: 'OPEN_WORKFLOW' });
@@ -77,15 +81,15 @@ export default function Nav() {
             🔔
             {unread > 0 && <span className="dot-badge" id="notifCount">{unread}</span>}
           </button>
-          {currentRole === 'admin' && (
+          {effectiveRole === 'admin' && (
             <button className="btn btn-secondary" onClick={() => { window.location.href = '/admin'; }}>
               Government Control Center
             </button>
           )}
-          {currentRole ? (
+          {auth.isAuthenticated ? (
             <button className="btn btn-secondary" id="loginBtn" onClick={() => { signOutSupabase(); }}>
               Logout <span className="role-badge-nav" style={{ marginLeft: 6 }}>
-                {currentRole === 'admin' ? 'Administrator' : currentRole === 'government' ? 'Govt. of Jharkhand' : currentRole === 'university' ? 'HEI Partner' : currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}
+                {effectiveRole === 'admin' ? 'Administrator' : effectiveRole === 'government' ? 'Govt. of Jharkhand' : effectiveRole === 'university' ? 'HEI Partner' : (effectiveRole ? effectiveRole.charAt(0).toUpperCase() + effectiveRole.slice(1) : 'Citizen')}
               </span>
             </button>
           ) : (

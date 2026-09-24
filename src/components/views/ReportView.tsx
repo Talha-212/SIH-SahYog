@@ -4,10 +4,12 @@ import { useSahYog } from '@/store/useSahYog';
 import { CATEGORIES, DEMO_LOCATION } from '@/lib/constants';
 import type { Photo, LocationSource } from '@/lib/types';
 import { toast } from '@/components/ToastStack';
+import { useAuth } from '@/lib/auth/AuthContext';
 import exifr from 'exifr';
 
 export default function ReportView() {
   const { state, dispatch, submitProblem } = useSahYog();
+  const auth = useAuth();
   const { selectedSeverity, uploadedPhotos, currentRole } = state;
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
@@ -23,8 +25,8 @@ export default function ReportView() {
   const [submitting, setSubmitting] = useState(false);
 
   function requireAuthentication() {
-    if (!currentRole) {
-      window.location.href = '/login?next=/';
+    if (!auth.isAuthenticated) {
+      window.location.href = '/login?redirect=/report';
       return false;
     }
     return true;

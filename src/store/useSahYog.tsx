@@ -298,76 +298,30 @@ interface ContextValue {
 
 const SahYogContext = createContext<ContextValue | null>(null);
 
+import { useAuth } from '@/lib/auth/AuthContext';
+
 export function SahYogProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, init);
+  const auth = useAuth();
 
-  // 1. Supabase Auth state listener & profile hydration
+  // 1. Sync shared AuthContext state into useSahYog store
   useEffect(() => {
-    const supabase = getBrowserSupabaseClient();
-    if (!supabase) return;
-
-    // Check existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          if (profile) {
-            dispatch({ type: 'SET_ROLE', role: profile.role });
-            dispatch({
-              type: 'SET_USER_PROFILE',
-              profile: {
-                id: profile.id,
-                email: profile.email,
-                full_name: profile.full_name,
-                role: profile.role
-              }
-            });
-          }
-        } catch {
-          // ignore profile lookup failure
+    if (auth.user) {
+      dispatch({ type: 'SET_ROLE', role: auth.role || 'citizen' });
+      dispatch({
+        type: 'SET_USER_PROFILE',
+        profile: auth.profile || {
+          id: auth.user.id,
+          email: auth.user.email || '',
+          full_name: auth.user.user_metadata?.full_name || auth.user.email?.split('@')[0] || 'Citizen',
+          role: auth.role || 'citizen'
         }
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          if (profile) {
-            dispatch({ type: 'SET_ROLE', role: profile.role });
-            dispatch({
-              type: 'SET_USER_PROFILE',
-              profile: {
-                id: profile.id,
-                email: profile.email,
-                full_name: profile.full_name,
-                role: profile.role
-              }
-            });
-          }
-        } catch {
-          // ignore
-        }
-      } else if (event === 'SIGNED_OUT') {
-        dispatch({ type: 'SET_USER_PROFILE', profile: null });
-        dispatch({ type: 'SET_ROLE', role: null });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+      });
+    } else if (!auth.loading && !auth.user) {
+      dispatch({ type: 'SET_USER_PROFILE', profile: null });
+      dispatch({ type: 'SET_ROLE', role: null });
+    }
+  }, [auth.user, auth.profile, auth.role, auth.loading]);
 
   // 2. Authoritative Initial Sync: Fetch from Next.js API / Database first
   const reloadProblems = useCallback(async () => {
@@ -412,100 +366,20 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
   const showView = useCallback((view: View) => dispatch({ type: 'SET_VIEW', view }), []);
   const openDetail = useCallback((id: string, from: View) => dispatch({ type: 'OPEN_DETAIL', id, from }), []);
 
-  // Supabase Auth Methods
+  // Supabase Auth Methods (Delegated to shared AuthContext)
   const signInWithSupabase = useCallback(async (email: string, password: string) => {
-    const supabase = getBrowserSupabaseClient();
-    if (!supabase) return { success: false, error: 'Supabase client is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.' };
-
-    try {
-      let userRole: Role = null;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { success: false, error: error.message };
-
-      if (data?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .maybeSingle();
-
-        if (profile) {
-          userRole = profile.role;
-          dispatch({ type: 'SET_ROLE', role: profile.role });
-          dispatch({
-            type: 'SET_USER_PROFILE',
-            profile: {
-              id: profile.id,
-              email: profile.email,
-              full_name: profile.full_name,
-              role: profile.role
-            }
-          });
-          dispatch({ type: 'ADD_NOTIFICATION', text: `Welcome back, ${profile.full_name}! Authenticated with Supabase.` });
-        }
-      }
-
-      return { success: true, role: userRole };
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'Authentication error' };
-    }
-  }, []);
+    return await auth.signIn(email, password);
+  }, [auth]);
 
   const signUpWithSupabase = useCallback(async (email: string, password: string, fullName: string, role: Role) => {
-    const supabase = getBrowserSupabaseClient();
-    if (!supabase) return { success: false, error: 'Supabase client is not configured.' };
-
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            role: role || 'citizen'
-          }
-        }
-      });
-
-      if (error) return { success: false, error: error.message };
-
-      if (data?.user) {
-        await supabase.from('profiles').upsert({
-          id: data.user.id,
-          full_name: fullName,
-          email,
-          role: role || 'citizen',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-
-        dispatch({ type: 'SET_ROLE', role: role || 'citizen' });
-        dispatch({
-          type: 'SET_USER_PROFILE',
-          profile: {
-            id: data.user.id,
-            email,
-            full_name: fullName,
-            role: role || 'citizen'
-          }
-        });
-        dispatch({ type: 'ADD_NOTIFICATION', text: `Account created for ${fullName} with role ${role}.` });
-      }
-
-      return { success: true };
-    } catch (err: any) {
-      return { success: false, error: err?.message || 'Sign up error' };
-    }
-  }, []);
+    return await auth.signUp({ email, password, fullName, role });
+  }, [auth]);
 
   const signOutSupabase = useCallback(async () => {
-    const supabase = getBrowserSupabaseClient();
-    if (supabase) {
-      await supabase.auth.signOut().catch(() => {});
-    }
+    await auth.signOut();
     dispatch({ type: 'LOGOUT' });
     dispatch({ type: 'SET_USER_PROFILE', profile: null });
-  }, []);
+  }, [auth]);
 
   // 1. Submit Problem (Citizen Action -> Backend DB Write -> Authoritative State Update)
   const submitProblem = useCallback(async (payload: SubmitProblemPayload) => {
@@ -513,12 +387,16 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_ERROR', error: null });
 
     try {
-      const supabase = getBrowserSupabaseClient();
-      const { data: { session } } = supabase
-        ? await supabase.auth.getSession()
-        : { data: { session: null } };
+      let accessToken = auth.session?.access_token;
+      if (!accessToken) {
+        const supabase = getBrowserSupabaseClient();
+        const { data: { session } } = supabase
+          ? await supabase.auth.getSession()
+          : { data: { session: null } };
+        accessToken = session?.access_token;
+      }
 
-      if (!session?.access_token) {
+      if (!accessToken) {
         const errMsg = 'You must sign in before submitting a societal challenge.';
         dispatch({ type: 'SET_ERROR', error: errMsg });
         dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
@@ -529,8 +407,8 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-          'x-user-role': state.currentRole || 'citizen'
+          Authorization: `Bearer ${accessToken}`,
+          'x-user-role': auth.role || state.currentRole || 'citizen'
         },
         body: JSON.stringify(payload)
       });

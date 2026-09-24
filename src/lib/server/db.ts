@@ -618,6 +618,7 @@ export async function getProblem(id: string): Promise<Problem | null> {
 //    problem_updates, notifications)
 // ==========================================
 export async function createProblemRecord(payload: {
+  reporter_id?: string | null;
   title: string;
   desc: string;
   category: string;
@@ -676,7 +677,7 @@ export async function createProblemRecord(payload: {
       // 1. Insert into problems table
       const problemRow: ProblemRow = {
         id: supabaseProblemId,
-        reporter_id: null,
+        reporter_id: payload.reporter_id || null,
         title: payload.title,
         description: payload.desc,
         category: aiResult.category,

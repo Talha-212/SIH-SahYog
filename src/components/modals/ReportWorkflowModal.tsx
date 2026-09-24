@@ -49,16 +49,19 @@ function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: numbe
   return Math.round(R * c);
 }
 
+import { useAuth } from '@/lib/auth/AuthContext';
+
 export default function ReportWorkflowModal() {
   const { state, dispatch, submitProblem } = useSahYog();
+  const auth = useAuth();
   const { wfOpen, problems, currentRole } = state;
 
   useEffect(() => {
-    if (wfOpen && !currentRole) {
+    if (wfOpen && !auth.loading && !auth.isAuthenticated) {
       dispatch({ type: 'CLOSE_WORKFLOW' });
-      window.location.href = '/login?next=/';
+      window.location.href = '/login?redirect=/report';
     }
-  }, [wfOpen, currentRole, dispatch]);
+  }, [wfOpen, auth.loading, auth.isAuthenticated, dispatch]);
 
   // 5-Stage Guided Workflow
   // Step 1: Capture / Upload Field Evidence
@@ -888,6 +891,14 @@ export default function ReportWorkflowModal() {
   async function createProblem(): Promise<boolean> {
     setIsSubmitting(true);
     setSubmitError(null);
+
+    if (!auth.isAuthenticated) {
+      setIsSubmitting(false);
+      const sessionMsg = 'Your session has expired. Please sign in again.';
+      setSubmitError(sessionMsg);
+      toast(sessionMsg, 'error');
+      return false;
+    }
 
     if (!domainConfirmed) {
       setIsSubmitting(false);
@@ -1903,6 +1914,20 @@ export default function ReportWorkflowModal() {
                   {submitError && (
                     <div style={{ marginTop: 12, padding: 12, background: '#fdf2f2', border: '1px solid #f8b4b4', borderRadius: 6, color: '#9b1c1c', fontSize: 12 }}>
                       <b>Submission Error:</b> {submitError}
+                      {(submitError.toLowerCase().includes('session') || submitError.toLowerCase().includes('sign in')) && (
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            style={{ padding: '6px 12px', fontSize: 12 }}
+                            onClick={() => {
+                              window.location.href = '/login?redirect=/report';
+                            }}
+                          >
+                            Sign In
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

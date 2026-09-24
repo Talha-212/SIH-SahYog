@@ -19,6 +19,15 @@ function AppShell() {
   const { state, dispatch, showView } = useSahYog();
   const { currentView } = state;
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('report') === '1' || urlParams.get('action') === 'report') {
+        dispatch({ type: 'OPEN_WORKFLOW' });
+      }
+    }
+  }, [dispatch]);
+
   function resetDemo() {
     if (confirm('Reset SahYog demo data and remove submitted reports from this browser?')) {
       localStorage.removeItem('sahyog_demo_v2');

@@ -79,6 +79,7 @@ export async function POST(request: Request) {
     }
 
     const problem = await createProblemRecord({
+      reporter_id: user.id,
       title: body.title,
       desc: body.desc,
       category: body.category,
