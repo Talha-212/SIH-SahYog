@@ -8,7 +8,15 @@ export default function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { currentView, notifications, currentRole, loginOpen } = state;
+  const { currentView, notifications, currentRole } = state;
+
+  function requireLoginForChallenge() {
+    if (!currentRole) {
+      window.location.href = '/login?next=/';
+      return;
+    }
+    dispatch({ type: 'OPEN_WORKFLOW' });
+  }
   const unread = notifications.filter(n => n.unread).length;
 
   function toggleNotif() {
@@ -58,7 +66,7 @@ export default function Nav() {
         <div className="nav-links">
           <button data-view="home" className={currentView === 'home' ? 'active' : ''} onClick={() => nav('home')}>Home</button>
           <button data-view="explore" className={currentView === 'explore' ? 'active' : ''} onClick={() => nav('explore')}>Societal Challenges</button>
-          <button data-view="report" className="" onClick={() => dispatch({ type: 'OPEN_WORKFLOW' })}>Submit Challenge</button>
+          <button data-view="report" className="" onClick={requireLoginForChallenge}>Submit Challenge</button>
           <button data-view="track" className={currentView === 'track' ? 'active' : ''} onClick={() => nav('track')}>Track Project</button>
           <button onClick={scrollHowItWorks}>Innovation Model</button>
           <button data-view="dashboard" className={currentView === 'dashboard' ? 'active' : ''} onClick={() => nav('dashboard')}>Jharkhand Dashboard</button>
@@ -81,9 +89,9 @@ export default function Nav() {
               </span>
             </button>
           ) : (
-            <button className="btn btn-secondary" id="loginBtn" onClick={() => dispatch({ type: 'TOGGLE_LOGIN' })}>Role Persona</button>
+            <button className="btn btn-secondary" id="loginBtn" onClick={() => { window.location.href = '/login'; }}>Sign In</button>
           )}
-          <button className="btn btn-primary" onClick={() => dispatch({ type: 'OPEN_WORKFLOW' })}>+ Submit Challenge</button>
+          <button className="btn btn-primary" onClick={requireLoginForChallenge}>+ Submit Challenge</button>
           <button className="hamb" onClick={() => setMobileOpen(v => !v)} aria-label="Menu">☰</button>
         </div>
       </div>
@@ -91,7 +99,7 @@ export default function Nav() {
       <div className={`wrap mobile-menu ${mobileOpen ? 'open' : ''}`} id="mobileMenu">
         <button onClick={() => nav('home')}>Home</button>
         <button onClick={() => nav('explore')}>Societal Challenges</button>
-        <button onClick={() => { setMobileOpen(false); dispatch({ type: 'OPEN_WORKFLOW' }); }}>Submit Challenge</button>
+        <button onClick={() => { setMobileOpen(false); requireLoginForChallenge(); }}>Submit Challenge</button>
         <button onClick={() => nav('track')}>Track Project</button>
         <button onClick={scrollHowItWorks}>Innovation Model</button>
         <button onClick={() => nav('dashboard')}>Jharkhand Dashboard</button>
