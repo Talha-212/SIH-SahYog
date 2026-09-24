@@ -8,7 +8,7 @@ import exifr from 'exifr';
 
 export default function ReportView() {
   const { state, dispatch, submitProblem } = useSahYog();
-  const { selectedSeverity, uploadedPhotos } = state;
+  const { selectedSeverity, uploadedPhotos, currentRole } = state;
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
@@ -21,6 +21,14 @@ export default function ReportView() {
   const [error, setError] = useState('');
   const [drag, setDrag] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  function requireAuthentication() {
+    if (!currentRole) {
+      window.location.href = '/login?next=/';
+      return false;
+    }
+    return true;
+  }
 
   function useDemoLocation() {
     setLocation(DEMO_LOCATION.address);
@@ -111,6 +119,7 @@ export default function ReportView() {
 
   async function submit() {
     setError('');
+    if (!requireAuthentication()) return;
     if (!title) { setError('Please add a title for the problem.'); return; }
     if (!desc) { setError('Please add a description of the problem.'); return; }
     if (!location) { setError('Please select or detect a location.'); return; }
@@ -154,7 +163,7 @@ export default function ReportView() {
               Interactive Photo EXIF extraction → Coordinate confirmation → Prototype Classification → Solver matching.
             </div>
           </div>
-          <button className="btn btn-primary btn-sm" onClick={() => dispatch({ type: 'OPEN_WORKFLOW' })}>
+          <button className="btn btn-primary btn-sm" onClick={() => { if (requireAuthentication()) dispatch({ type: 'OPEN_WORKFLOW' }); }}>
             🚀 Launch 5-Step Guided Workflow
           </button>
         </div>
