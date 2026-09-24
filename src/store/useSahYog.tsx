@@ -513,10 +513,23 @@ export function SahYogProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_ERROR', error: null });
 
     try {
+      const supabase = getBrowserSupabaseClient();
+      const { data: { session } } = supabase
+        ? await supabase.auth.getSession()
+        : { data: { session: null } };
+
+      if (!session?.access_token) {
+        const errMsg = 'You must sign in before submitting a societal challenge.';
+        dispatch({ type: 'SET_ERROR', error: errMsg });
+        dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
+        return { success: false, error: errMsg };
+      }
+
       const res = await fetch('/api/problems', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
           'x-user-role': state.currentRole || 'citizen'
         },
         body: JSON.stringify(payload)
