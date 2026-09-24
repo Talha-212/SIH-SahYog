@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useEffect, useState, useEffect, useRef, useMemo } from 'react';
 import { useSahYog } from '@/store/useSahYog';
 import {
   CATEGORIES,
@@ -51,7 +51,14 @@ function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 export default function ReportWorkflowModal() {
   const { state, dispatch, submitProblem } = useSahYog();
-  const { wfOpen, problems } = state;
+  const { wfOpen, problems, currentRole } = state;
+
+  useEffect(() => {
+    if (wfOpen && !currentRole) {
+      dispatch({ type: 'CLOSE_WORKFLOW' });
+      window.location.href = '/login?next=/';
+    }
+  }, [wfOpen, currentRole, dispatch]);
 
   // 5-Stage Guided Workflow
   // Step 1: Capture / Upload Field Evidence
