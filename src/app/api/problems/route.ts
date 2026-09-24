@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { listProblems, createProblemRecord } from '@/lib/server/db';
+import { getServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   try {
@@ -30,6 +31,27 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authorization = request.headers.get('authorization');
+    const token = authorization?.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : null;
+    const supabase = getServerSupabaseClient();
+
+    if (!supabase || !token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required. Please sign in before submitting a societal challenge.' },
+        { status: 401 }
+      );
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Your session is invalid or expired. Please sign in again.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     if (!body.title || !body.desc || !body.category) {
