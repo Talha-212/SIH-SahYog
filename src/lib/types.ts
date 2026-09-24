@@ -139,6 +139,7 @@ export interface ProblemEvent {
 
 export interface Problem {
   id: string;
+  reporter_id?: string | null;
   title: string;
   desc: string;
   category: string;

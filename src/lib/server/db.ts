@@ -435,6 +435,7 @@ function transformSupabaseProblem(row: any): Problem {
 
   return {
     id: row.id,
+    reporter_id: row.reporter_id || null,
     title: row.title,
     desc: row.description,
     category: row.category,
@@ -851,6 +852,7 @@ export async function createProblemRecord(payload: {
 
   const newProblem: Problem = {
     id,
+    reporter_id: payload.reporter_id || null,
     title: payload.title,
     desc: payload.desc,
     category: aiResult.category,
